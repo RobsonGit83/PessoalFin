@@ -3,103 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro Universal</title>
+    <title>Financeiro Pro Cloud (Supabase)</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* Estilo para rodar bem em telas pequenas (celular) e grandes */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        .card {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 350px;
-        }
-
-        h2 { text-align: center; color: #333; }
-
-        .form-group { margin-bottom: 1.2rem; }
-
-        label { display: block; margin-bottom: 5px; color: #666; font-size: 0.9rem; }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            box-sizing: border-box; /* Essencial para mobile */
-            font-size: 1rem;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        button:hover { background-color: #0056b3; }
-
-        #mensagem {
-            margin-top: 1rem;
-            text-align: center;
-            font-size: 0.9rem;
-            font-weight: bold;
-        }
+        :root { --primary: #101827; --accent: #3b82f6; --bg: #f9fafb; --white: #ffffff; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        
+        /* Overlay de Login */
+        #login-screen { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        #app-content { display: none; width: 95%; max-width: 1400px; background: white; padding: 20px; border-radius: 12px; margin: 20px; }
+        
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; }
+        button { cursor: pointer; border: none; border-radius: 6px; font-weight: 600; transition: 0.2s; }
+        .btn-primary { background: var(--accent); color: white; padding: 12px; width: 100%; }
+        .btn-save { background: #10b981; color: white; padding: 8px 16px; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f3f4f6; padding-bottom: 1rem; }
+        .grid-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 20px; }
+        .card { padding: 1.5rem; border-radius: 8px; color: white; text-align: center; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>Criar Conta</h2>
-    <form id="cadastroForm">
-        <div class="form-group">
-            <label>Usuário</label>
-            <input type="text" id="usuario" placeholder="Ex: joao_silva" required>
+<div id="login-screen">
+    <h2 style="text-align: center;">🔐 Financeiro Cloud</h2>
+    <input type="email" id="email" placeholder="Seu e-mail">
+    <input type="password" id="password" placeholder="Sua senha">
+    <button class="btn-primary" onclick="handleLogin()">Entrar / Cadastrar</button>
+    <p id="auth-msg" style="font-size: 12px; color: #6b7280; margin-top: 10px; text-align: center;">Se não tiver conta, ela será criada automaticamente.</p>
+</div>
+
+<div id="app-content">
+    <div class="header">
+        <h2>📊 Dashboard 2026</h2>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn-save" onclick="saveToCloud()">☁️ Sincronizar Nuvem</button>
+            <button onclick="logout()" style="background:#ef4444; color:white; padding:8px 16px; border-radius:6px;">Sair</button>
         </div>
-        <div class="form-group">
-            <label>Senha</label>
-            <input type="password" id="senha" placeholder="Sua senha secreta" required>
-        </div>
-        <button type="submit">Cadastrar</button>
-    </form>
-    <div id="mensagem"></div>
+    </div>
+
+    <div class="grid-cards">
+        <div class="card" style="background: #3b82f6;">Receita: <br><strong id="total-r">R$ 0,00</strong></div>
+        <div class="card" style="background: #ef4444;">Despesa: <br><strong id="total-p">R$ 0,00</strong></div>
+        <div class="card" style="background: #10b981;">Saldo: <br><strong id="total-s">R$ 0,00</strong></div>
+    </div>
+
+    <div style="margin-top: 30px;">
+        <button onclick="addRow()">+ Adicionar Linha</button>
+        <table style="width: 100%; margin-top: 10px; border-collapse: collapse;" border="1" id="data-table">
+            <thead>
+                <tr style="background: #f3f4f6;">
+                    <th>Descrição</th><th>Valor (R$)</th><th>Categoria</th><th>Ação</th>
+                </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+        </table>
+    </div>
 </div>
 
 <script>
-    // Lógica para capturar os dados
-    document.getElementById('cadastroForm').addEventListener('submit', function(e) {
-        e.preventDefault(); // Impede a página de recarregar
+    // CONFIGURAÇÃO DO SUPABASE
+    const SUPABASE_URL = 'SUA_URL_AQUI';
+    const SUPABASE_KEY = 'SUA_KEY_AQUI';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        const user = document.getElementById('usuario').value;
-        const pass = document.getElementById('senha').value;
+    let currentUser = null;
 
-        // Simulação de salvamento
-        console.log("Usuário cadastrado:", user);
-        console.log("Senha capturada:", pass);
+    // --- AUTENTICAÇÃO ---
+    async function handleLogin() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
 
-        const msgDiv = document.getElementById('mensagem');
-        msgDiv.style.color = "green";
-        msgDiv.innerText = "Sucesso! Usuário " + user + " cadastrado localmente.";
+        // Tenta logar, se falhar, tenta cadastrar
+        let { data, error } = await supabase.auth.signInWithPassword({ email, password });
         
-        // Limpa os campos
-        this.reset();
-    });
-</script>
+        if (error) {
+            const signup = await supabase.auth.signUp({ email, password });
+            if (signup.error) return alert(signup.error.message);
+            alert("Conta criada! Verifique seu e-mail ou tente entrar.");
+        } else {
+            currentUser = data.user;
+            showApp();
+        }
+    }
 
+    async function showApp() {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app-content').style.display = 'block';
+        document.body.style.alignItems = 'flex-start';
+        loadFromCloud();
+    }
+
+    function logout() {
+        supabase.auth.signOut();
+        location.reload();
+    }
+
+    // --- BANCO DE DADOS ---
+    async function saveToCloud() {
+        const rows = Array.from(document.querySelectorAll('#table-body tr')).map(tr => ({
+            desc: tr.querySelector('.in-desc').value,
+            val: tr.querySelector('.in-val').value,
+            cat: tr.querySelector('.in-cat').value
+        }));
+
+        const { error } = await supabase
+            .from('finance_data')
+            .upsert({ id: currentUser.id, content: rows, updated_at: new Date() });
+
+        if (error) alert("Erro ao salvar: " + error.message);
+        else alert("Sincronizado com sucesso! ✅");
+        calc();
+    }
+
+    async function loadFromCloud() {
+        const { data, error } = await supabase
+            .from('finance_data')
+            .select('content')
+            .eq('id', currentUser.id)
+            .single();
+
+        if (data && data.content) {
+            data.content.forEach(item => addRow(item));
+            calc();
+        }
+    }
+
+    function addRow(data = {desc: '', val: 0, cat: 'Receita'}) {
+        const tbody = document.getElementById('table-body');
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><input type="text" class="in-desc" value="${data.desc}"></td>
+            <td><input type="number" class="in-val" value="${data.val}" oninput="calc()"></td>
+            <td>
+                <select class="in-cat" onchange="calc()">
+                    <option value="Receita" ${data.cat === 'Receita' ? 'selected' : ''}>Receita</option>
+                    <option value="Despesa" ${data.cat === 'Despesa' ? 'selected' : ''}>Despesa</option>
+                </select>
+            </td>
+            <td><button onclick="this.parentElement.parentElement.remove(); calc()">🗑️</button></td>
+        `;
+        tbody.appendChild(tr);
+    }
+
+    function calc() {
+        let r = 0, p = 0;
+        document.querySelectorAll('#table-body tr').forEach(tr => {
+            const v = parseFloat(tr.querySelector('.in-val').value) || 0;
+            const c = tr.querySelector('.in-cat').value;
+            if (c === 'Receita') r += v; else p += v;
+        });
+        document.getElementById('total-r').innerText = "R$ " + r.toFixed(2);
+        document.getElementById('total-p').innerText = "R$ " + p.toFixed(2);
+        document.getElementById('total-s').innerText = "R$ " + (r - p).toFixed(2);
+    }
+</script>
 </body>
 </html>
