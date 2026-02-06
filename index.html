@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro Universal</title>
+    <style>
+        /* Estilo para rodar bem em telas pequenas (celular) e grandes */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 350px;
+        }
+
+        h2 { text-align: center; color: #333; }
+
+        .form-group { margin-bottom: 1.2rem; }
+
+        label { display: block; margin-bottom: 5px; color: #666; font-size: 0.9rem; }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box; /* Essencial para mobile */
+            font-size: 1rem;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover { background-color: #0056b3; }
+
+        #mensagem {
+            margin-top: 1rem;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Criar Conta</h2>
+    <form id="cadastroForm">
+        <div class="form-group">
+            <label>Usuário</label>
+            <input type="text" id="usuario" placeholder="Ex: joao_silva" required>
+        </div>
+        <div class="form-group">
+            <label>Senha</label>
+            <input type="password" id="senha" placeholder="Sua senha secreta" required>
+        </div>
+        <button type="submit">Cadastrar</button>
+    </form>
+    <div id="mensagem"></div>
+</div>
+
+<script>
+    // Lógica para capturar os dados
+    document.getElementById('cadastroForm').addEventListener('submit', function(e) {
+        e.preventDefault(); // Impede a página de recarregar
+
+        const user = document.getElementById('usuario').value;
+        const pass = document.getElementById('senha').value;
+
+        // Simulação de salvamento
+        console.log("Usuário cadastrado:", user);
+        console.log("Senha capturada:", pass);
+
+        const msgDiv = document.getElementById('mensagem');
+        msgDiv.style.color = "green";
+        msgDiv.innerText = "Sucesso! Usuário " + user + " cadastrado localmente.";
+        
+        // Limpa os campos
+        this.reset();
+    });
+</script>
+
+</body>
+</html>
