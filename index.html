@@ -2,135 +2,204 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Financeiro Master Cloud</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financeiro Master Pro 2026</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f0f2f5; margin: 0; }
-        #auth-card { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 320px; text-align: center; }
-        #app-content { display: none; width: 90%; max-width: 800px; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #1a73e8; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px; }
-        button:hover { background: #1557b0; }
-        .row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
-        .row input { margin: 0; }
-        .btn-del { width: 45px; background: #ea4335; padding: 10px; }
+        :root {
+            --primary: #1e293b; --accent: #3b82f6; --success: #10b981;
+            --danger: #ef4444; --warning: #f59e0b; --bg: #f1f5f9;
+            --white: #ffffff; --text-main: #334155;
+        }
+
+        body { font-family: 'Inter', system-ui, sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 20px; }
+        .container { max-width: 1600px; margin: 0 auto; }
+
+        /* Header & Cards */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; background: var(--white); padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .btn-group { display: flex; gap: 10px; }
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .card { background: var(--white); padding: 20px; border-radius: 12px; border-left: 5px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .card h3 { margin: 0; font-size: 14px; text-transform: uppercase; color: #64748b; }
+        .card p { margin: 10px 0 0; font-size: 24px; font-weight: 700; }
+
+        /* Tabelas */
+        .section-card { background: var(--white); padding: 20px; border-radius: 12px; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow-x: auto; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; min-width: 1200px; }
+        th { background: #f8fafc; padding: 12px; text-align: center; font-size: 11px; color: #64748b; border: 1px solid #e2e8f0; }
+        td { padding: 8px; border: 1px solid #e2e8f0; text-align: center; }
+        
+        input { border: 1px solid #cbd5e1; border-radius: 4px; padding: 6px; width: 100%; box-sizing: border-box; font-size: 13px; }
+        input[type="number"] { width: 70px; text-align: right; }
+        .desc-input { min-width: 200px; text-align: left; font-weight: 500; }
+
+        /* Botões */
+        button { cursor: pointer; border: none; border-radius: 6px; font-weight: 600; transition: 0.2s; font-size: 13px; }
+        .btn-add { background: var(--accent); color: white; padding: 8px 16px; }
+        .btn-save { background: var(--success); color: white; padding: 12px 24px; font-size: 15px; }
+        .btn-del { background: #fee2e2; color: var(--danger); width: 30px; height: 30px; border-radius: 50%; }
+        .btn-del:hover { background: var(--danger); color: white; }
+
+        .total-cell { background: #f8fafc; font-weight: bold; color: var(--primary); }
     </style>
 </head>
 <body>
 
-    <div id="auth-card">
-        <h2 style="color: #1a73e8;">Acesso Cloud</h2>
-        <p style="font-size: 14px; color: #5f6368;">Entre ou crie sua conta gratuita</p>
-        <input type="email" id="email" placeholder="E-mail (ex: voce@email.com)">
-        <input type="password" id="password" placeholder="Senha">
-        <button id="btn-login">Entrar / Cadastrar</button>
-        <p id="msg" style="color: #d93025; font-size: 13px; margin-top: 15px; min-height: 18px;"></p>
+<div class="container">
+    <div class="header">
+        <h1 style="margin:0; font-size: 24px; color: var(--primary);">📊 Financeiro Cloud <span style="font-weight: 300;">2026</span></h1>
+        <div class="btn-group">
+            <button class="btn-save" onclick="saveData()">☁️ Sincronizar Tudo</button>
+            <button onclick="location.reload()" style="background:#64748b; color:white; padding:10px 20px;">🔒 Sair</button>
+        </div>
     </div>
 
-    <div id="app-content">
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f0f2f5; padding-bottom: 15px; margin-bottom: 20px;">
-            <h2 style="margin: 0; color: #202124;">📊 Minhas Finanças</h2>
-            <div style="display: flex; gap: 10px;">
-                <button onclick="saveData()" style="width: auto; background: #34a853; padding: 10px 20px;">💾 Salvar</button>
-                <button onclick="location.reload()" style="width: auto; background: #5f6368; padding: 10px 20px;">🔒 Sair</button>
-            </div>
-        </div>
-        <div id="lista"></div>
-        <button onclick="addRow()" style="background: #1a73e8; margin-top: 15px; width: auto; padding: 10px 20px;">+ Adicionar Novo Item</button>
+    <div class="summary-grid">
+        <div class="card" style="border-color: var(--success);"><h3>Receita Total</h3><p id="res-r" style="color: var(--success);">R$ 0,00</p></div>
+        <div class="card" style="border-color: var(--danger);"><h3>Despesa Total</h3><p id="res-p" style="color: var(--danger);">R$ 0,00</p></div>
+        <div class="card" style="border-color: var(--accent);"><h3>Total Aportes</h3><p id="res-a" style="color: var(--accent);">R$ 0,00</p></div>
+        <div class="card" style="border-color: var(--warning);"><h3>Saldo Livre</h3><p id="res-s">R$ 0,00</p></div>
     </div>
+
+    <div class="section-card">
+        <div class="section-header">
+            <h2 style="margin:0; font-size: 18px; color: var(--success);">💰 Contas a Receber</h2>
+            <button class="btn-add" onclick="addRow('tbody-receber', 'v-r')">+ Nova Receita</button>
+        </div>
+        <table>
+            <thead>
+                <tr id="months-header"></tr>
+            </thead>
+            <tbody id="tbody-receber"></tbody>
+        </table>
+    </div>
+
+    <div class="section-card">
+        <div class="section-header">
+            <h2 style="margin:0; font-size: 18px; color: var(--danger);">📉 Contas a Pagar</h2>
+            <button class="btn-add" style="background:var(--danger)" onclick="addRow('tbody-pagar', 'v-p')">+ Nova Despesa</button>
+        </div>
+        <table>
+            <tbody id="tbody-pagar"></tbody>
+        </table>
+    </div>
+
+    <div class="section-card">
+        <div class="section-header">
+            <h2 style="margin:0; font-size: 18px; color: var(--accent);">🚀 Aportes & Investimentos</h2>
+            <button class="btn-add" style="background:var(--accent)" onclick="addRow('tbody-aportes', 'v-a')">+ Novo Aporte</button>
+        </div>
+        <table>
+            <tbody id="tbody-aportes"></tbody>
+        </table>
+    </div>
+</div>
 
 <script>
-    // --- ATENÇÃO: COLOQUE SEUS DADOS AQUI ---
+    // --- CONFIGURAÇÃO SUPABASE ---
     const S_URL = 'https://xpamnljjxvfnpzdmuive.supabase.co'; 
     const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhwYW1ubGpqeHZmbnB6ZG11aXZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzOTA2ODIsImV4cCI6MjA4NTk2NjY4Mn0.ePhhjJcpYAiVM3f6LRD66LKVhnUv854lvztudybx6_Q';
-    // ----------------------------------------
-
-    // Inicializa o cliente Supabase apenas UMA VEZ com nome diferente para evitar erro
     const supabaseClient = window.supabase.createClient(S_URL, S_KEY);
+    
     let userLogged = null;
+    const months = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
 
-    // Vincula o evento de clique ao botão de login
-    document.getElementById('btn-login').addEventListener('click', handleLogin);
-
-    async function handleLogin() {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const msg = document.getElementById('msg');
-        
-        if (!email || !password) {
-            msg.innerText = "Preencha todos os campos.";
-            return;
-        }
-
-        msg.style.color = "#1a73e8";
-        msg.innerText = "Processando...";
-
-        // Tenta Logar
-        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-
-        if (error) {
-            // Se falhar (usuário não existe), tenta cadastrar
-            const { data: sData, error: sError } = await supabaseClient.auth.signUp({ email, password });
-            if (sError) {
-                msg.style.color = "#d93025";
-                msg.innerText = "Erro: " + sError.message;
-            } else {
-                msg.style.color = "#34a853";
-                msg.innerText = "Conta criada! Verifique seu e-mail ou tente entrar novamente.";
-            }
+    // Inicialização
+    window.onload = async () => {
+        renderMonths();
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (user) {
+            userLogged = user;
+            loadData();
         } else {
-            userLogged = data.user;
-            startDashboard();
+            // Se não estiver logado, redireciona ou mostra erro (Para simplificar, recarregue o login anterior aqui)
+            alert("Sessão expirada. Faça login novamente.");
+            location.href = "login.html"; // Ou o nome do seu arquivo de login
         }
+    };
+
+    function renderMonths() {
+        const header = document.getElementById('months-header');
+        header.innerHTML = `<th>AÇÃO</th><th style="text-align:left">DESCRIÇÃO</th>` + 
+            months.map(m => `<th>${m}</th>`).join('') + `<th style="background:#f1f5f9">TOTAL</th>`;
     }
 
-    function startDashboard() {
-        document.getElementById('auth-card').style.display = 'none';
-        document.getElementById('app-content').style.display = 'block';
-        loadData();
-    }
+    function addRow(targetId, typeClass, data = null) {
+        const tbody = document.getElementById(targetId);
+        const tr = document.createElement('tr');
+        
+        let inputs = '';
+        for(let i=0; i<12; i++) {
+            const val = data ? data.values[i] : 0;
+            inputs += `<td><input type="number" class="val-input ${typeClass}" value="${val}" oninput="calc()"></td>`;
+        }
 
-    function addRow(val = {d: '', v: ''}) {
-        const div = document.createElement('div');
-        div.className = 'row';
-        div.innerHTML = `
-            <input type="text" placeholder="Descrição" class="desc" value="${val.d}">
-            <input type="number" placeholder="R$" class="valor" value="${val.v}">
-            <button class="btn-del" onclick="this.parentElement.remove()">✕</button>
+        tr.innerHTML = `
+            <td><button class="btn-del" onclick="this.parentElement.parentElement.remove(); calc()">✕</button></td>
+            <td><input type="text" class="desc-input" placeholder="Ex: Salário" value="${data ? data.desc : ''}"></td>
+            ${inputs}
+            <td class="total-cell">0,00</td>
         `;
-        document.getElementById('lista').appendChild(div);
+        tbody.appendChild(tr);
+        calc();
+    }
+
+    function calc() {
+        let totals = { 'v-r': 0, 'v-p': 0, 'v-a': 0 };
+
+        document.querySelectorAll('tr').forEach(row => {
+            const inputs = row.querySelectorAll('.val-input');
+            if(inputs.length > 0) {
+                let rowSum = 0;
+                inputs.forEach(input => {
+                    const v = parseFloat(input.value) || 0;
+                    rowSum += v;
+                    totals[input.classList[1]] += v;
+                });
+                row.querySelector('.total-cell').innerText = rowSum.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+            }
+        });
+
+        document.getElementById('res-r').innerText = "R$ " + totals['v-r'].toLocaleString('pt-BR');
+        document.getElementById('res-p').innerText = "R$ " + totals['v-p'].toLocaleString('pt-BR');
+        document.getElementById('res-a').innerText = "R$ " + totals['v-a'].toLocaleString('pt-BR');
+        const saldo = totals['v-r'] - totals['v-p'] - totals['v-a'];
+        document.getElementById('res-s').innerText = "R$ " + saldo.toLocaleString('pt-BR');
+        document.getElementById('res-s').style.color = saldo < 0 ? 'var(--danger)' : 'var(--success)';
     }
 
     async function saveData() {
-        const items = Array.from(document.querySelectorAll('.row')).map(row => ({
-            d: row.querySelector('.desc').value,
-            v: row.querySelector('.valor').value
+        const package = (id) => Array.from(document.querySelectorAll(`#${id} tr`)).map(tr => ({
+            desc: tr.querySelector('.desc-input').value,
+            values: Array.from(tr.querySelectorAll('.val-input')).map(i => i.value)
         }));
+
+        const finalData = {
+            receber: package('tbody-receber'),
+            pagar: package('tbody-pagar'),
+            aportes: package('tbody-aportes')
+        };
 
         const { error } = await supabaseClient.from('finance_data').upsert({
             id: userLogged.id,
-            content: items,
+            content: finalData,
             updated_at: new Date()
         });
 
-        if (error) alert("Erro ao salvar: " + error.message);
-        else alert("Dados salvos na nuvem com sucesso! ☁️");
+        if (error) alert("Erro: " + error.message);
+        else alert("Sincronizado com sucesso! 🚀");
     }
 
     async function loadData() {
-        const { data, error } = await supabaseClient
-            .from('finance_data')
-            .select('content')
-            .eq('id', userLogged.id)
-            .maybeSingle();
-
+        const { data } = await supabaseClient.from('finance_data').select('content').eq('id', userLogged.id).maybeSingle();
         if (data && data.content) {
-            document.getElementById('lista').innerHTML = '';
-            data.content.forEach(item => addRow(item));
-        } else {
-            addRow(); // Linha inicial vazia
+            data.content.receber.forEach(d => addRow('tbody-receber', 'v-r', d));
+            data.content.pagar.forEach(d => addRow('tbody-pagar', 'v-p', d));
+            data.content.aportes.forEach(d => addRow('tbody-aportes', 'v-a', d));
         }
     }
 </script>
+
 </body>
 </html>
