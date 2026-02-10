@@ -5,66 +5,86 @@
     <title>Financeiro Master Cloud</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f0f2f5; margin: 0; }
-        #auth-card { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 300px; text-align: center; }
-        #app-content { display: none; width: 90%; max-width: 800px; background: white; padding: 20px; border-radius: 8px; }
-        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; background: #1a73e8; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        .row { display: flex; gap: 10px; margin-bottom: 10px; }
+        body { font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f0f2f5; margin: 0; }
+        #auth-card { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 320px; text-align: center; }
+        #app-content { display: none; width: 90%; max-width: 800px; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #1a73e8; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px; }
+        button:hover { background: #1557b0; }
+        .row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+        .row input { margin: 0; }
+        .btn-del { width: 45px; background: #ea4335; padding: 10px; }
     </style>
 </head>
 <body>
 
     <div id="auth-card">
-        <h2>Login Financeiro</h2>
-        <input type="email" id="email" placeholder="E-mail">
+        <h2 style="color: #1a73e8;">Acesso Cloud</h2>
+        <p style="font-size: 14px; color: #5f6368;">Entre ou crie sua conta gratuita</p>
+        <input type="email" id="email" placeholder="E-mail (ex: voce@email.com)">
         <input type="password" id="password" placeholder="Senha">
-        <button onclick="handleLogin()">Entrar / Cadastrar</button>
-        <p id="msg" style="color: red; font-size: 12px;"></p>
+        <button id="btn-login">Entrar / Cadastrar</button>
+        <p id="msg" style="color: #d93025; font-size: 13px; margin-top: 15px; min-height: 18px;"></p>
     </div>
 
     <div id="app-content">
-        <div style="display: flex; justify-content: space-between;">
-            <h2>Minhas Finanças</h2>
-            <button onclick="saveData()" style="width: auto; background: #34a853;">Salvar na Nuvem</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f0f2f5; padding-bottom: 15px; margin-bottom: 20px;">
+            <h2 style="margin: 0; color: #202124;">📊 Minhas Finanças</h2>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="saveData()" style="width: auto; background: #34a853; padding: 10px 20px;">💾 Salvar</button>
+                <button onclick="location.reload()" style="width: auto; background: #5f6368; padding: 10px 20px;">🔒 Sair</button>
+            </div>
         </div>
         <div id="lista"></div>
-        <button onclick="addRow()" style="background: #5f6368; margin-top: 10px;">+ Adicionar Item</button>
+        <button onclick="addRow()" style="background: #1a73e8; margin-top: 15px; width: auto; padding: 10px 20px;">+ Adicionar Novo Item</button>
     </div>
 
 <script>
-    // --- SUBSTITUA APENAS ESTAS DUAS LINHAS ---
-    const SUPABASE_URL = 'https://xpamnljjxvfnpzdmuive.supabase.co'; 
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhwYW1ubGpqeHZmbnB6ZG11aXZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzOTA2ODIsImV4cCI6MjA4NTk2NjY4Mn0.ePhhjJcpYAiVM3f6LRD66LKVhnUv854lvztudybx6_Q';
-    // -----------------------------------------
+    // --- ATENÇÃO: COLOQUE SEUS DADOS AQUI ---
+    const S_URL = 'COLE_SUA_URL_AQUI'; 
+    const S_KEY = 'COLE_SUA_CHAVE_ANON_PUBLIC_AQUI';
+    // ----------------------------------------
 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    let userSession = null;
+    // Inicializa o cliente Supabase apenas UMA VEZ com nome diferente para evitar erro
+    const supabaseClient = window.supabase.createClient(S_URL, S_KEY);
+    let userLogged = null;
+
+    // Vincula o evento de clique ao botão de login
+    document.getElementById('btn-login').addEventListener('click', handleLogin);
 
     async function handleLogin() {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         const msg = document.getElementById('msg');
+        
+        if (!email || !password) {
+            msg.innerText = "Preencha todos os campos.";
+            return;
+        }
+
+        msg.style.color = "#1a73e8";
+        msg.innerText = "Processando...";
 
         // Tenta Logar
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
         if (error) {
-            // Se não logou, tenta cadastrar automaticamente
-            const { data: signupData, error: signupError } = await supabase.auth.signUp({ email, password });
-            if (signupError) {
-                msg.innerText = "Erro: " + signupError.message;
+            // Se falhar (usuário não existe), tenta cadastrar
+            const { data: sData, error: sError } = await supabaseClient.auth.signUp({ email, password });
+            if (sError) {
+                msg.style.color = "#d93025";
+                msg.innerText = "Erro: " + sError.message;
             } else {
-                msg.style.color = "green";
-                msg.innerText = "Conta criada! Tente clicar em entrar agora.";
+                msg.style.color = "#34a853";
+                msg.innerText = "Conta criada! Verifique seu e-mail ou tente entrar novamente.";
             }
         } else {
-            userSession = data.user;
-            startApp();
+            userLogged = data.user;
+            startDashboard();
         }
     }
 
-    function startApp() {
+    function startDashboard() {
         document.getElementById('auth-card').style.display = 'none';
         document.getElementById('app-content').style.display = 'block';
         loadData();
@@ -76,7 +96,7 @@
         div.innerHTML = `
             <input type="text" placeholder="Descrição" class="desc" value="${val.d}">
             <input type="number" placeholder="R$" class="valor" value="${val.v}">
-            <button onclick="this.parentElement.remove()" style="width:40px; background:#ea4335">X</button>
+            <button class="btn-del" onclick="this.parentElement.remove()">✕</button>
         `;
         document.getElementById('lista').appendChild(div);
     }
@@ -87,22 +107,28 @@
             v: row.querySelector('.valor').value
         }));
 
-        const { error } = await supabase.from('finance_data').upsert({
-            id: userSession.id,
+        const { error } = await supabaseClient.from('finance_data').upsert({
+            id: userLogged.id,
             content: items,
             updated_at: new Date()
         });
 
         if (error) alert("Erro ao salvar: " + error.message);
-        else alert("Salvo com sucesso!");
+        else alert("Dados salvos na nuvem com sucesso! ☁️");
     }
 
     async function loadData() {
-        const { data } = await supabase.from('finance_data').select('content').eq('id', userSession.id).single();
+        const { data, error } = await supabaseClient
+            .from('finance_data')
+            .select('content')
+            .eq('id', userLogged.id)
+            .maybeSingle();
+
         if (data && data.content) {
+            document.getElementById('lista').innerHTML = '';
             data.content.forEach(item => addRow(item));
         } else {
-            addRow(); // Começa com uma linha vazia
+            addRow(); // Linha inicial vazia
         }
     }
 </script>
