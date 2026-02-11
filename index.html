@@ -45,14 +45,12 @@
         input, select { background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 8px; font-size: 13px; width: 100%; box-sizing: border-box; outline: none; }
         .val-input { text-align: right; font-weight: 600; }
 
-        /* Estilos de Status das Metas */
         .status-select { font-weight: bold; cursor: pointer; }
         .st-iniciar { color: var(--gray); }
         .st-andamento { color: var(--accent); }
         .st-concluido { color: var(--success); }
         .st-cancelado { color: var(--danger); }
 
-        /* Componentes Flutuantes */
         #calc { position: absolute; top: 150px; right: 50px; width: 240px; background: #222; padding: 15px; border-radius: 20px; cursor: move; z-index: 1000; display: none; box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
         .calc-screen { width: 100%; height: 50px; background: #000; color: #0f0; border: none; border-radius: 10px; margin-bottom: 10px; text-align: right; padding: 10px; font-size: 20px; font-family: monospace; }
         .calc-btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
@@ -167,8 +165,9 @@
 </div>
 
 <script>
-    const S_URL = 'SUA_URL_AQUI'; 
-    const S_KEY = 'SUA_KEY_AQUI';
+    // --- INSIRA SUAS CHAVES AQUI ---
+    const S_URL = 'https://xpamnljjxvfnpzdmuive.supabase.co'; 
+    const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhwYW1ubGpqeHZmbnB6ZG11aXZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzOTA2ODIsImV4cCI6MjA4NTk2NjY4Mn0.ePhhjJcpYAiVM3f6LRD66LKVhnUv854lvztudybx6_Q';
     const supabaseClient = window.supabase.createClient(S_URL, S_KEY);
     
     let userLogged = null, chart;
@@ -202,9 +201,8 @@
         const tbody = document.getElementById('tbody-metas');
         const tr = document.createElement('tr');
         const status = data ? data.s : 'iniciar';
-        
         tr.innerHTML = `
-            <td><input type="text" class="meta-desc" value="${data ? data.d : ''}" placeholder="Ex: Comprar um carro novo"></td>
+            <td><input type="text" class="meta-desc" value="${data ? data.d : ''}" placeholder="Descrição da meta"></td>
             <td>
                 <select class="status-select st-${status}" onchange="updateStatusColor(this)">
                     <option value="iniciar" ${status === 'iniciar' ? 'selected' : ''}>A iniciar</option>
@@ -218,16 +216,16 @@
         tbody.appendChild(tr);
     }
 
-    function updateStatusColor(select) {
-        select.className = `status-select st-${select.value}`;
-    }
+    function updateStatusColor(select) { select.className = `status-select st-${select.value}`; }
 
     function updateAll() {
         let tR = 0, tP = 0, tA = 0, mEx = Array(12).fill(0);
-        document.querySelectorAll('tr').forEach(row => {
+        document.querySelectorAll('tbody tr').forEach(row => {
             const vIn = row.querySelector('.val-input');
-            if(vIn) {
-                const v = parseFloat(vIn.value) || 0, m = parseInt(row.querySelector('.month-select').value);
+            const mSel = row.querySelector('.month-select');
+            if(vIn && mSel) {
+                const v = parseFloat(vIn.value) || 0;
+                const m = parseInt(mSel.value);
                 if(vIn.classList.contains('v-r')) tR += v;
                 if(vIn.classList.contains('v-p')) { tP += v; mEx[m] += v; }
                 if(vIn.classList.contains('v-a')) tA += v;
@@ -239,7 +237,7 @@
         const saldoFinal = tR - tP - tA;
         document.getElementById('res-s').innerText = "R$ " + saldoFinal.toLocaleString('pt-BR',{minimumFractionDigits:2});
         document.getElementById('res-s').style.color = saldoFinal < 0 ? 'var(--danger)' : 'var(--accent)';
-        chart.data.datasets[0].data = mEx; chart.update();
+        if(chart) { chart.data.datasets[0].data = mEx; chart.update(); }
     }
 
     function initChart() {
@@ -247,7 +245,7 @@
         Chart.register(ChartDataLabels);
         chart = new Chart(ctx, {
             type: 'bar',
-            data: { labels: months, datasets: [{ data: [], backgroundColor: '#ef4444', borderRadius: 6 }] },
+            data: { labels: months, datasets: [{ data: Array(12).fill(0), backgroundColor: '#ef4444', borderRadius: 6 }] },
             options: {
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false }, datalabels: { color: '#888', anchor: 'end', align: 'top', formatter: Math.round } },
@@ -267,31 +265,45 @@
     }
 
     async function saveData() {
-        const getI = (id) => Array.from(document.querySelectorAll(`#${id} tr`)).map(tr => ({ d: tr.querySelector('.desc-input').value, m: tr.querySelector('.month-select').value, v: tr.querySelector('.val-input').value }));
-        const getM = () => Array.from(document.querySelectorAll('#tbody-metas tr')).map(tr => ({ d: tr.querySelector('.meta-desc').value, s: tr.querySelector('.status-select').value }));
+        const getItems = (id) => Array.from(document.querySelectorAll(`#${id} tr`)).map(tr => ({
+            d: tr.querySelector('.desc-input').value,
+            m: tr.querySelector('.month-select').value,
+            v: tr.querySelector('.val-input').value
+        }));
         
-        await supabaseClient.from('finance_data').upsert({ 
-            id: userLogged.id, 
-            content: { 
-                r: getI('tbody-receber'), 
-                p: getI('tbody-pagar'), 
-                a: getI('tbody-aportes'), 
-                m: getM(),
-                n: document.getElementById('agenda-text').value 
-            }, 
-            updated_at: new Date() 
+        const getMetas = () => Array.from(document.querySelectorAll('#tbody-metas tr')).map(tr => ({
+            d: tr.querySelector('.meta-desc').value,
+            s: tr.querySelector('.status-select').value
+        }));
+
+        const content = {
+            r: getItems('tbody-receber'),
+            p: getItems('tbody-pagar'),
+            a: getItems('tbody-aportes'),
+            m: getMetas(),
+            n: document.getElementById('agenda-text').value
+        };
+
+        const { error } = await supabaseClient.from('finance_data').upsert({
+            id: userLogged.id,
+            content: content,
+            updated_at: new Date()
         });
-        alert("Sincronizado! ☁️");
+
+        if (error) alert("Erro: " + error.message);
+        else alert("Sincronizado! ☁️");
     }
 
     async function loadData() {
-        const { data } = await supabaseClient.from('finance_data').select('content').eq('id', userLogged.id).maybeSingle();
+        const { data, error } = await supabaseClient.from('finance_data').select('content').eq('id', userLogged.id).maybeSingle();
         if(data && data.content) {
-            data.content.r.forEach(x => addRow('tbody-receber', 'v-r', x));
-            data.content.p.forEach(x => addRow('tbody-pagar', 'v-p', x));
-            data.content.a.forEach(x => addRow('tbody-aportes', 'v-a', x));
-            if(data.content.m) data.content.m.forEach(x => addMetaRow(x));
-            document.getElementById('agenda-text').value = data.content.n || "";
+            const c = data.content;
+            if(c.r) c.r.forEach(x => addRow('tbody-receber', 'v-r', x));
+            if(c.p) c.p.forEach(x => addRow('tbody-pagar', 'v-p', x));
+            if(c.a) c.a.forEach(x => addRow('tbody-aportes', 'v-a', x));
+            if(c.m) c.m.forEach(x => addMetaRow(x));
+            document.getElementById('agenda-text').value = c.n || "";
+            updateAll();
         }
     }
 
