@@ -12,59 +12,67 @@
             --primary: #1e293b; --accent: #3b82f6; --success: #10b981;
             --danger: #ef4444; --bg: #f1f5f9; --white: #ffffff;
             --text: #334155; --card-bg: #ffffff; --border: #e2e8f0;
+            --purple: #8b5cf6; --gray: #94a3b8;
         }
 
         body.dark {
             --primary: #f8fafc; --accent: #60a5fa; --success: #34d399;
             --danger: #f87171; --bg: #0f172a; --white: #1e293b;
             --text: #f1f5f9; --card-bg: #1e293b; --border: #334155;
+            --purple: #a78bfa;
         }
 
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; transition: 0.3s; overflow-x: hidden; }
-        .container { max-width: 1100px; margin: 0 auto; }
+        .container { max-width: 1000px; margin: 0 auto; }
 
         header { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 15px 25px; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; border: 1px solid var(--border); }
         .btn-group { display: flex; gap: 8px; }
 
-        /* Estilo Colapsável */
         .section-box { background: var(--card-bg); border-radius: 16px; margin-bottom: 15px; border: 1px solid var(--border); overflow: hidden; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; cursor: pointer; user-select: none; background: rgba(0,0,0,0.02); }
-        .section-content { padding: 0 20px 20px 20px; display: block; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; cursor: pointer; background: rgba(0,0,0,0.02); border-bottom: 1px solid var(--border); }
+        .section-content { padding: 10px 20px 20px; display: block; }
         .section-content.hidden { display: none; }
-        .arrow { transition: 0.3s; font-size: 12px; }
-        .arrow.rotated { transform: rotate(180deg); }
-
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; font-size: 11px; padding: 10px; opacity: 0.6; }
-        td { padding: 6px; border-bottom: 1px solid var(--border); }
         
-        input, select { background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 8px; }
-        .desc-input { width: 100%; }
-        .val-input { width: 100px; text-align: right; }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        th { text-align: left; font-size: 11px; padding: 10px; opacity: 0.6; text-transform: uppercase; }
+        td { padding: 6px 4px; border-bottom: 1px solid var(--border); }
+        
+        .col-desc { width: 50%; }
+        .col-month { width: 20%; }
+        .col-val { width: 20%; }
+        .col-del { width: 10%; text-align: center; }
 
-        /* Calculadora Arrastável */
+        input, select { background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 8px; font-size: 13px; width: 100%; box-sizing: border-box; outline: none; }
+        .val-input { text-align: right; font-weight: 600; }
+
+        /* Estilos de Status das Metas */
+        .status-select { font-weight: bold; cursor: pointer; }
+        .st-iniciar { color: var(--gray); }
+        .st-andamento { color: var(--accent); }
+        .st-concluido { color: var(--success); }
+        .st-cancelado { color: var(--danger); }
+
+        /* Componentes Flutuantes */
         #calc { position: absolute; top: 150px; right: 50px; width: 240px; background: #222; padding: 15px; border-radius: 20px; cursor: move; z-index: 1000; display: none; box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
         .calc-screen { width: 100%; height: 50px; background: #000; color: #0f0; border: none; border-radius: 10px; margin-bottom: 10px; text-align: right; padding: 10px; font-size: 20px; font-family: monospace; }
         .calc-btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
         .calc-btns button { padding: 12px; border-radius: 8px; border: none; cursor: pointer; background: #444; color: white; font-weight: bold; }
-        .calc-btns button:active { background: #666; }
 
-        /* Agenda Moderna */
         #agenda-side { position: fixed; right: -350px; top: 0; width: 320px; height: 100%; background: var(--card-bg); box-shadow: -5px 0 15px rgba(0,0,0,0.1); transition: 0.4s; z-index: 2000; padding: 25px; border-left: 1px solid var(--border); }
         #agenda-side.open { right: 0; }
-        #agenda-text { width: 100%; height: 80%; background: var(--bg); color: var(--text); border: none; border-radius: 10px; padding: 15px; resize: none; font-size: 14px; line-height: 1.6; }
+        #agenda-text { width: 100%; height: 85%; background: var(--bg); color: var(--text); border: none; border-radius: 10px; padding: 15px; resize: none; font-size: 14px; }
 
-        .chart-container { background: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--border); height: 350px; margin-top: 20px; }
+        .chart-container { background: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--border); height: 320px; margin-top: 20px; }
         
         button { cursor: pointer; border-radius: 8px; font-weight: bold; border: none; transition: 0.2s; }
-        .btn-main { padding: 10px 15px; font-size: 13px; }
+        .btn-main { padding: 8px 15px; font-size: 12px; }
     </style>
 </head>
-<body onclick="closeAgendaOutside(event)">
+<body>
 
 <div class="container">
     <header>
-        <h2 style="margin:0;">📊 Dash Finanças</h2>
+        <h2 style="margin:0; font-size: 20px;">📊 Dash Finanças</h2>
         <div class="btn-group">
             <button class="btn-main" style="background:var(--primary); color:white" onclick="toggleCalc()">🖩 Calc</button>
             <button class="btn-main" style="background:var(--accent); color:white" onclick="toggleAgenda()">📅 Agenda</button>
@@ -73,32 +81,38 @@
         </div>
     </header>
 
-    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px;">
-        <div class="section-box" style="padding:15px; text-align:center;">
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px;">
+        <div class="section-box" style="padding:15px; text-align:center; border-bottom: 4px solid var(--success);">
             <small>RECEITAS</small><div id="res-r" style="color:var(--success); font-weight:bold; font-size:18px;">R$ 0,00</div>
         </div>
-        <div class="section-box" style="padding:15px; text-align:center;">
+        <div class="section-box" style="padding:15px; text-align:center; border-bottom: 4px solid var(--danger);">
             <small>DESPESAS</small><div id="res-p" style="color:var(--danger); font-weight:bold; font-size:18px;">R$ 0,00</div>
         </div>
-        <div class="section-box" style="padding:15px; text-align:center;">
-            <small>SALDO</small><div id="res-s" style="font-weight:bold; font-size:18px;">R$ 0,00</div>
+        <div class="section-box" style="padding:15px; text-align:center; border-bottom: 4px solid var(--purple);">
+            <small>APORTES</small><div id="res-a" style="color:var(--purple); font-weight:bold; font-size:18px;">R$ 0,00</div>
+        </div>
+        <div class="section-box" style="padding:15px; text-align:center; border-bottom: 4px solid var(--accent);">
+            <small>SALDO FINAL</small><div id="res-s" style="font-weight:bold; font-size:18px;">R$ 0,00</div>
         </div>
     </div>
 
     <div class="section-box">
         <div class="section-header" onclick="toggleSection('sec-r', this)">
-            <h3 style="margin:0; color:var(--success); font-size:16px;">💰 Contas a Receber</h3>
-            <div><button class="btn-main" style="background:var(--success); color:white; padding:4px 10px;" onclick="event.stopPropagation(); addRow('tbody-receber', 'v-r')">+</button> <span class="arrow">▼</span></div>
+            <h3 style="margin:0; color:var(--success); font-size:15px;">💰 Contas a Receber</h3>
+            <div><button class="btn-main" style="background:var(--success); color:white; padding:4px 8px;" onclick="event.stopPropagation(); addRow('tbody-receber', 'v-r')">+</button></div>
         </div>
         <div id="sec-r" class="section-content">
-            <table><tbody id="tbody-receber"></tbody></table>
+            <table>
+                <thead><tr><th class="col-desc">Descrição</th><th class="col-month">Mês</th><th class="col-val">Valor</th><th class="col-del"></th></tr></thead>
+                <tbody id="tbody-receber"></tbody>
+            </table>
         </div>
     </div>
 
     <div class="section-box">
         <div class="section-header" onclick="toggleSection('sec-p', this)">
-            <h3 style="margin:0; color:var(--danger); font-size:16px;">📉 Contas a Pagar</h3>
-            <div><button class="btn-main" style="background:var(--danger); color:white; padding:4px 10px;" onclick="event.stopPropagation(); addRow('tbody-pagar', 'v-p')">+</button> <span class="arrow">▼</span></div>
+            <h3 style="margin:0; color:var(--danger); font-size:15px;">📉 Contas a Pagar</h3>
+            <div><button class="btn-main" style="background:var(--danger); color:white; padding:4px 8px;" onclick="event.stopPropagation(); addRow('tbody-pagar', 'v-p')">+</button></div>
         </div>
         <div id="sec-p" class="section-content">
             <table><tbody id="tbody-pagar"></tbody></table>
@@ -107,11 +121,24 @@
 
     <div class="section-box">
         <div class="section-header" onclick="toggleSection('sec-a', this)">
-            <h3 style="margin:0; color:var(--accent); font-size:16px;">🚀 Aportes</h3>
-            <div><button class="btn-main" style="background:var(--accent); color:white; padding:4px 10px;" onclick="event.stopPropagation(); addRow('tbody-aportes', 'v-a')">+</button> <span class="arrow">▼</span></div>
+            <h3 style="margin:0; color:var(--purple); font-size:15px;">🚀 Aportes & Investimentos</h3>
+            <div><button class="btn-main" style="background:var(--purple); color:white; padding:4px 8px;" onclick="event.stopPropagation(); addRow('tbody-aportes', 'v-a')">+</button></div>
         </div>
         <div id="sec-a" class="section-content">
             <table><tbody id="tbody-aportes"></tbody></table>
+        </div>
+    </div>
+
+    <div class="section-box">
+        <div class="section-header" onclick="toggleSection('sec-m', this)">
+            <h3 style="margin:0; color:var(--primary); font-size:15px;">🎯 Metas do Ano</h3>
+            <div><button class="btn-main" style="background:var(--primary); color:white; padding:4px 8px;" onclick="event.stopPropagation(); addMetaRow()">+</button></div>
+        </div>
+        <div id="sec-m" class="section-content">
+            <table>
+                <thead><tr><th style="width:70%;">Descrição da Meta</th><th style="width:20%;">Status</th><th style="width:10%;"></th></tr></thead>
+                <tbody id="tbody-metas"></tbody>
+            </table>
         </div>
     </div>
 
@@ -122,51 +149,38 @@
 
 <div id="agenda-side">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h3 style="margin:0;">📝 Minhas Notas</h3>
-        <button onclick="toggleAgenda()" style="background:none; font-size:20px;">×</button>
+        <h3>📝 Notas</h3><button onclick="toggleAgenda()" style="background:none; font-size:20px;">×</button>
     </div>
-    <textarea id="agenda-text" placeholder="Escreva aqui suas ideias ou lembretes..."></textarea>
-    <p style="font-size:10px; opacity:0.5; margin-top:10px;">Salva automaticamente ao clicar em Salvar na Nuvem.</p>
+    <textarea id="agenda-text" placeholder="Suas anotações..."></textarea>
 </div>
 
 <div id="calc">
     <input type="text" class="calc-screen" id="display" disabled>
     <div class="calc-btns">
         <button onclick="clearCalc()" style="background:var(--danger)">C</button>
-        <button onclick="btnCalc('%')">%</button>
-        <button onclick="backCalc()">←</button>
-        <button onclick="btnCalc('/')">/</button>
+        <button onclick="btnCalc('%')">%</button><button onclick="backCalc()">←</button><button onclick="btnCalc('/')">/</button>
         <button onclick="btnCalc('7')">7</button><button onclick="btnCalc('8')">8</button><button onclick="btnCalc('9')">9</button><button onclick="btnCalc('*')">×</button>
         <button onclick="btnCalc('4')">4</button><button onclick="btnCalc('5')">5</button><button onclick="btnCalc('6')">6</button><button onclick="btnCalc('-')">-</button>
         <button onclick="btnCalc('1')">1</button><button onclick="btnCalc('2')">2</button><button onclick="btnCalc('3')">3</button><button onclick="btnCalc('+')">+</button>
-        <button onclick="btnCalc('0')" style="grid-column: span 2">0</button>
-        <button onclick="btnCalc('.')">.</button>
-        <button onclick="resCalc()" style="background:var(--success)">=</button>
+        <button onclick="btnCalc('0')" style="grid-column: span 2">0</button><button onclick="btnCalc('.')">.</button><button onclick="resCalc()" style="background:var(--success)">=</button>
     </div>
 </div>
 
 <script>
-    const S_URL = 'https://xpamnljjxvfnpzdmuive.supabase.co'; 
-    const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhwYW1ubGpqeHZmbnB6ZG11aXZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzOTA2ODIsImV4cCI6MjA4NTk2NjY4Mn0.ePhhjJcpYAiVM3f6LRD66LKVhnUv854lvztudybx6_Q';
+    const S_URL = 'SUA_URL_AQUI'; 
+    const S_KEY = 'SUA_KEY_AQUI';
     const supabaseClient = window.supabase.createClient(S_URL, S_KEY);
     
-    let userLogged = null;
-    let chart;
+    let userLogged = null, chart;
     const months = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
 
     window.onload = async () => {
-        initChart();
-        dragElement(document.getElementById("calc"));
+        initChart(); dragElement(document.getElementById("calc"));
         const { data: { user } } = await supabaseClient.auth.getUser();
         if (user) { userLogged = user; loadData(); }
     };
 
-    // --- LÓGICA DE INTERFACE ---
-    function toggleSection(id, header) {
-        document.getElementById(id).classList.toggle('hidden');
-        header.querySelector('.arrow').classList.toggle('rotated');
-    }
-
+    function toggleSection(id, header) { document.getElementById(id).classList.toggle('hidden'); }
     function toggleAgenda() { document.getElementById('agenda-side').classList.toggle('open'); }
     function toggleCalc() { const c = document.getElementById('calc'); c.style.display = c.style.display === 'block' ? 'none' : 'block'; }
 
@@ -175,34 +189,57 @@
         const tr = document.createElement('tr');
         let mOpts = months.map((m, i) => `<option value="${i}" ${data && data.m == i ? 'selected' : ''}>${m}</option>`).join('');
         tr.innerHTML = `
-            <td width="60%"><input type="text" class="desc-input" value="${data ? data.d : ''}" placeholder="Descrição"></td>
-            <td><select class="month-select" onchange="updateAll()">${mOpts}</select></td>
-            <td><input type="number" class="val-input ${type}" value="${data ? data.v : 0}" oninput="updateAll()"></td>
-            <td><button style="color:var(--danger); background:none;" onclick="this.parentElement.parentElement.remove(); updateAll()">✕</button></td>
+            <td class="col-desc"><input type="text" class="desc-input" value="${data ? data.d : ''}" placeholder="Descrição"></td>
+            <td class="col-month"><select class="month-select" onchange="updateAll()">${mOpts}</select></td>
+            <td class="col-val"><input type="number" class="val-input ${type}" value="${data ? data.v : 0}" oninput="updateAll()"></td>
+            <td class="col-del"><button style="color:var(--danger); background:none;" onclick="this.parentElement.parentElement.remove(); updateAll()">✕</button></td>
         `;
         tbody.appendChild(tr);
         updateAll();
     }
 
+    function addMetaRow(data = null) {
+        const tbody = document.getElementById('tbody-metas');
+        const tr = document.createElement('tr');
+        const status = data ? data.s : 'iniciar';
+        
+        tr.innerHTML = `
+            <td><input type="text" class="meta-desc" value="${data ? data.d : ''}" placeholder="Ex: Comprar um carro novo"></td>
+            <td>
+                <select class="status-select st-${status}" onchange="updateStatusColor(this)">
+                    <option value="iniciar" ${status === 'iniciar' ? 'selected' : ''}>A iniciar</option>
+                    <option value="andamento" ${status === 'andamento' ? 'selected' : ''}>Em andamento</option>
+                    <option value="concluido" ${status === 'concluido' ? 'selected' : ''}>Concluído</option>
+                    <option value="cancelado" ${status === 'cancelado' ? 'selected' : ''}>Cancelado</option>
+                </select>
+            </td>
+            <td style="text-align:center;"><button style="color:var(--danger); background:none;" onclick="this.parentElement.parentElement.remove()">✕</button></td>
+        `;
+        tbody.appendChild(tr);
+    }
+
+    function updateStatusColor(select) {
+        select.className = `status-select st-${select.value}`;
+    }
+
     function updateAll() {
-        let tR = 0, tP = 0, tA = 0;
-        let mEx = Array(12).fill(0);
+        let tR = 0, tP = 0, tA = 0, mEx = Array(12).fill(0);
         document.querySelectorAll('tr').forEach(row => {
             const vIn = row.querySelector('.val-input');
-            const mSe = row.querySelector('.month-select');
             if(vIn) {
-                const v = parseFloat(vIn.value) || 0;
-                const m = parseInt(mSe.value);
+                const v = parseFloat(vIn.value) || 0, m = parseInt(row.querySelector('.month-select').value);
                 if(vIn.classList.contains('v-r')) tR += v;
                 if(vIn.classList.contains('v-p')) { tP += v; mEx[m] += v; }
                 if(vIn.classList.contains('v-a')) tA += v;
             }
         });
-        document.getElementById('res-r').innerText = "R$ " + tR.toFixed(2);
-        document.getElementById('res-p').innerText = "R$ " + tP.toFixed(2);
-        document.getElementById('res-s').innerText = "R$ " + (tR - tP - tA).toFixed(2);
-        chart.data.datasets[0].data = mEx;
-        chart.update();
+        document.getElementById('res-r').innerText = "R$ " + tR.toLocaleString('pt-BR',{minimumFractionDigits:2});
+        document.getElementById('res-p').innerText = "R$ " + tP.toLocaleString('pt-BR',{minimumFractionDigits:2});
+        document.getElementById('res-a').innerText = "R$ " + tA.toLocaleString('pt-BR',{minimumFractionDigits:2});
+        const saldoFinal = tR - tP - tA;
+        document.getElementById('res-s').innerText = "R$ " + saldoFinal.toLocaleString('pt-BR',{minimumFractionDigits:2});
+        document.getElementById('res-s').style.color = saldoFinal < 0 ? 'var(--danger)' : 'var(--accent)';
+        chart.data.datasets[0].data = mEx; chart.update();
     }
 
     function initChart() {
@@ -210,66 +247,40 @@
         Chart.register(ChartDataLabels);
         chart = new Chart(ctx, {
             type: 'bar',
-            data: { labels: months, datasets: [{ label: 'Gastos', data: [], backgroundColor: '#ef4444', borderRadius: 6 }] },
+            data: { labels: months, datasets: [{ data: [], backgroundColor: '#ef4444', borderRadius: 6 }] },
             options: {
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    datalabels: { color: '#888', anchor: 'end', align: 'top', formatter: Math.round, font: { weight: 'bold' } }
-                },
-                scales: { 
-                    y: { display: false }, 
-                    x: { grid: { display: false }, border: { display: false } } 
-                }
+                plugins: { legend: { display: false }, datalabels: { color: '#888', anchor: 'end', align: 'top', formatter: Math.round } },
+                scales: { y: { display: false }, x: { grid: { display: false } } }
             }
         });
     }
 
-    // --- CALCULADORA ---
     function btnCalc(v) { document.getElementById('display').value += v; }
     function clearCalc() { document.getElementById('display').value = ''; }
     function backCalc() { const d = document.getElementById('display'); d.value = d.value.slice(0, -1); }
-    function resCalc() { 
-        try { 
-            let exp = document.getElementById('display').value.replace('%', '/100');
-            document.getElementById('display').value = eval(exp); 
-        } catch { document.getElementById('display').value = 'Erro'; } 
-    }
+    function resCalc() { try { let exp = document.getElementById('display').value.replace('%', '/100'); document.getElementById('display').value = eval(exp); } catch { document.getElementById('display').value = 'Erro'; } }
 
-    // --- FUNÇÃO ARRASTAR ---
     function dragElement(elmnt) {
-        var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-        elmnt.onmousedown = dragMouseDown;
-        function dragMouseDown(e) {
-            e = e || window.event; e.preventDefault();
-            pos3 = e.clientX; pos4 = e.clientY;
-            document.onmouseup = closeDragElement;
-            document.onmousemove = elementDrag;
-        }
-        function elementDrag(e) {
-            e = e || window.event; e.preventDefault();
-            pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY;
-            pos3 = e.clientX; pos4 = e.clientY;
-            elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-            elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-        }
-        function closeDragElement() { document.onmouseup = null; document.onmousemove = null; }
+        var p1 = 0, p2 = 0, p3 = 0, p4 = 0;
+        elmnt.onmousedown = (e) => { e.preventDefault(); p3 = e.clientX; p4 = e.clientY; document.onmouseup = () => { document.onmouseup = null; document.onmousemove = null; }; document.onmousemove = (e) => { p1 = p3 - e.clientX; p2 = p4 - e.clientY; p3 = e.clientX; p4 = e.clientY; elmnt.style.top = (elmnt.offsetTop - p2) + "px"; elmnt.style.left = (elmnt.offsetLeft - p1) + "px"; }; };
     }
 
-    // --- PERSISTÊNCIA ---
     async function saveData() {
-        const getI = (id) => Array.from(document.querySelectorAll(`#${id} tr`)).map(tr => ({
-            d: tr.querySelector('.desc-input').value,
-            m: tr.querySelector('.month-select').value,
-            v: tr.querySelector('.val-input').value
-        }));
-        const payload = { 
-            r: getI('tbody-receber'), 
-            p: getI('tbody-pagar'), 
-            a: getI('tbody-aportes'),
-            n: document.getElementById('agenda-text').value
-        };
-        await supabaseClient.from('finance_data').upsert({ id: userLogged.id, content: payload, updated_at: new Date() });
+        const getI = (id) => Array.from(document.querySelectorAll(`#${id} tr`)).map(tr => ({ d: tr.querySelector('.desc-input').value, m: tr.querySelector('.month-select').value, v: tr.querySelector('.val-input').value }));
+        const getM = () => Array.from(document.querySelectorAll('#tbody-metas tr')).map(tr => ({ d: tr.querySelector('.meta-desc').value, s: tr.querySelector('.status-select').value }));
+        
+        await supabaseClient.from('finance_data').upsert({ 
+            id: userLogged.id, 
+            content: { 
+                r: getI('tbody-receber'), 
+                p: getI('tbody-pagar'), 
+                a: getI('tbody-aportes'), 
+                m: getM(),
+                n: document.getElementById('agenda-text').value 
+            }, 
+            updated_at: new Date() 
+        });
         alert("Sincronizado! ☁️");
     }
 
@@ -279,6 +290,7 @@
             data.content.r.forEach(x => addRow('tbody-receber', 'v-r', x));
             data.content.p.forEach(x => addRow('tbody-pagar', 'v-p', x));
             data.content.a.forEach(x => addRow('tbody-aportes', 'v-a', x));
+            if(data.content.m) data.content.m.forEach(x => addMetaRow(x));
             document.getElementById('agenda-text').value = data.content.n || "";
         }
     }
