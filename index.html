@@ -23,9 +23,15 @@
         }
 
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; transition: 0.3s; overflow-x: hidden; }
-        .container { max-width: 1000px; margin: 0 auto; }
+        .container { max-width: 1000px; margin: 0 auto; display: none; }
+
+        #login-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .login-card { background: var(--white); padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 320px; text-align: center; }
 
         header { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 15px 25px; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; border: 1px solid var(--border); }
+        .header-title-group { display: flex; flex-direction: column; }
+        .sync-info { font-size: 10px; opacity: 0.7; margin-top: 2px; font-weight: normal; }
+        
         .btn-group { display: flex; gap: 8px; }
 
         .section-box { background: var(--card-bg); border-radius: 16px; margin-bottom: 15px; border: 1px solid var(--border); overflow: hidden; }
@@ -37,13 +43,7 @@
         th { text-align: left; font-size: 11px; padding: 10px; opacity: 0.6; text-transform: uppercase; }
         td { padding: 6px 4px; border-bottom: 1px solid var(--border); }
         
-        .col-desc { width: 50%; }
-        .col-month { width: 20%; }
-        .col-val { width: 20%; }
-        .col-del { width: 10%; text-align: center; }
-
         input, select { background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 8px; font-size: 13px; width: 100%; box-sizing: border-box; outline: none; }
-        .val-input { text-align: right; font-weight: 600; }
 
         .status-select { font-weight: bold; cursor: pointer; }
         .st-iniciar { color: var(--gray); }
@@ -52,7 +52,7 @@
         .st-cancelado { color: var(--danger); }
 
         #calc { position: absolute; top: 150px; right: 50px; width: 240px; background: #222; padding: 15px; border-radius: 20px; cursor: move; z-index: 1000; display: none; box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
-        .calc-screen { width: 100%; height: 50px; background: #000; color: #0f0; border: none; border-radius: 10px; margin-bottom: 10px; text-align: right; padding: 10px; font-size: 20px; font-family: monospace; }
+        .calc-screen { width: 100%; height: 50px; background: #000; color: #0f0; border-radius: 10px; margin-bottom: 10px; text-align: right; padding: 10px; font-size: 20px; border: none; font-family: monospace; }
         .calc-btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
         .calc-btns button { padding: 12px; border-radius: 8px; border: none; cursor: pointer; background: #444; color: white; font-weight: bold; }
 
@@ -60,22 +60,35 @@
         #agenda-side.open { right: 0; }
         #agenda-text { width: 100%; height: 85%; background: var(--bg); color: var(--text); border: none; border-radius: 10px; padding: 15px; resize: none; font-size: 14px; }
 
-        .chart-container { background: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--border); height: 320px; margin-top: 20px; }
-        
         button { cursor: pointer; border-radius: 8px; font-weight: bold; border: none; transition: 0.2s; }
         .btn-main { padding: 8px 15px; font-size: 12px; }
+        .btn-login { width: 100%; padding: 12px; background: var(--accent); color: white; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div id="login-container">
+    <div class="login-card">
+        <h2 style="color: var(--primary);">🔒 Acesso Cloud</h2>
+        <input type="email" id="login-email" placeholder="E-mail">
+        <input type="password" id="login-pass" placeholder="Senha">
+        <button class="btn-login" onclick="handleAuth()">Entrar / Cadastrar</button>
+        <p id="login-msg" style="color: var(--danger); font-size: 12px; margin-top: 10px;"></p>
+    </div>
+</div>
+
+<div class="container" id="main-app">
     <header>
-        <h2 style="margin:0; font-size: 20px;">📊 Dash Finanças</h2>
+        <div class="header-title-group">
+            <h2 style="margin:0; font-size: 20px;">📊 Dash Finanças</h2>
+            <div id="last-sync" class="sync-info">Nuvem não sincronizada</div>
+        </div>
         <div class="btn-group">
             <button class="btn-main" style="background:var(--primary); color:white" onclick="toggleCalc()">🖩 Calc</button>
             <button class="btn-main" style="background:var(--accent); color:white" onclick="toggleAgenda()">📅 Agenda</button>
-            <button class="btn-main" style="background:var(--success); color:white" onclick="saveData()">💾 Salvar</button>
+            <button id="btn-save" class="btn-main" style="background:var(--success); color:white" onclick="saveData()">☁️ Salvar na Nuvem</button>
             <button class="btn-main" style="background:#64748b; color:white" onclick="toggleDark()">🌓 Dark</button>
+            <button class="btn-main" style="background:var(--danger); color:white" onclick="handleLogout()">🔒 Sair</button>
         </div>
     </header>
 
@@ -101,7 +114,7 @@
         </div>
         <div id="sec-r" class="section-content">
             <table>
-                <thead><tr><th class="col-desc">Descrição</th><th class="col-month">Mês</th><th class="col-val">Valor</th><th class="col-del"></th></tr></thead>
+                <thead><tr><th style="width:50%;">Descrição</th><th style="width:20%;">Mês</th><th style="width:20%;">Valor</th><th style="width:10%;"></th></tr></thead>
                 <tbody id="tbody-receber"></tbody>
             </table>
         </div>
@@ -134,13 +147,13 @@
         </div>
         <div id="sec-m" class="section-content">
             <table>
-                <thead><tr><th style="width:70%;">Descrição da Meta</th><th style="width:20%;">Status</th><th style="width:10%;"></th></tr></thead>
+                <thead><tr><th style="width:70%;">Meta</th><th style="width:20%;">Status</th><th style="width:10%;"></th></tr></thead>
                 <tbody id="tbody-metas"></tbody>
             </table>
         </div>
     </div>
 
-    <div class="chart-container">
+    <div style="background: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--border); height: 320px; margin-top: 20px;">
         <canvas id="expenseChart"></canvas>
     </div>
 </div>
@@ -165,33 +178,52 @@
 </div>
 
 <script>
-    // --- INSIRA SUAS CHAVES AQUI ---
-    const S_URL = 'https://xpamnljjxvfnpzdmuive.supabase.co'; 
-    const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhwYW1ubGpqeHZmbnB6ZG11aXZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzOTA2ODIsImV4cCI6MjA4NTk2NjY4Mn0.ePhhjJcpYAiVM3f6LRD66LKVhnUv854lvztudybx6_Q';
+    const S_URL = 'SUA_URL_AQUI'; 
+    const S_KEY = 'SUA_KEY_AQUI';
     const supabaseClient = window.supabase.createClient(S_URL, S_KEY);
     
     let userLogged = null, chart;
     const months = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
 
     window.onload = async () => {
-        initChart(); dragElement(document.getElementById("calc"));
-        const { data: { user } } = await supabaseClient.auth.getUser();
-        if (user) { userLogged = user; loadData(); }
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session) { userLogged = session.user; showDashboard(); }
     };
+
+    async function handleAuth() {
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-pass').value;
+        const msg = document.getElementById('login-msg');
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) {
+            const signup = await supabaseClient.auth.signUp({ email, password });
+            if (signup.error) msg.innerText = "Erro: " + signup.error.message;
+            else msg.innerText = "Verifique seu e-mail ou tente logar.";
+        } else { userLogged = data.user; showDashboard(); }
+    }
+
+    function showDashboard() {
+        document.getElementById('login-container').style.display = 'none';
+        document.getElementById('main-app').style.display = 'block';
+        initChart(); dragElement(document.getElementById("calc")); loadData();
+    }
+
+    function handleLogout() { supabaseClient.auth.signOut().then(() => location.reload()); }
 
     function toggleSection(id, header) { document.getElementById(id).classList.toggle('hidden'); }
     function toggleAgenda() { document.getElementById('agenda-side').classList.toggle('open'); }
     function toggleCalc() { const c = document.getElementById('calc'); c.style.display = c.style.display === 'block' ? 'none' : 'block'; }
+    function toggleDark() { document.body.classList.toggle('dark'); }
 
     function addRow(target, type, data = null) {
         const tbody = document.getElementById(target);
         const tr = document.createElement('tr');
         let mOpts = months.map((m, i) => `<option value="${i}" ${data && data.m == i ? 'selected' : ''}>${m}</option>`).join('');
         tr.innerHTML = `
-            <td class="col-desc"><input type="text" class="desc-input" value="${data ? data.d : ''}" placeholder="Descrição"></td>
-            <td class="col-month"><select class="month-select" onchange="updateAll()">${mOpts}</select></td>
-            <td class="col-val"><input type="number" class="val-input ${type}" value="${data ? data.v : 0}" oninput="updateAll()"></td>
-            <td class="col-del"><button style="color:var(--danger); background:none;" onclick="this.parentElement.parentElement.remove(); updateAll()">✕</button></td>
+            <td><input type="text" value="${data ? data.d : ''}" placeholder="Descrição"></td>
+            <td><select onchange="updateAll()">${mOpts}</select></td>
+            <td><input type="number" class="val-input ${type}" value="${data ? data.v : 0}" oninput="updateAll()"></td>
+            <td style="text-align:center"><button style="color:var(--danger); background:none" onclick="this.parentElement.parentElement.remove(); updateAll()">✕</button></td>
         `;
         tbody.appendChild(tr);
         updateAll();
@@ -200,32 +232,22 @@
     function addMetaRow(data = null) {
         const tbody = document.getElementById('tbody-metas');
         const tr = document.createElement('tr');
-        const status = data ? data.s : 'iniciar';
+        const st = data ? data.s : 'iniciar';
         tr.innerHTML = `
-            <td><input type="text" class="meta-desc" value="${data ? data.d : ''}" placeholder="Descrição da meta"></td>
-            <td>
-                <select class="status-select st-${status}" onchange="updateStatusColor(this)">
-                    <option value="iniciar" ${status === 'iniciar' ? 'selected' : ''}>A iniciar</option>
-                    <option value="andamento" ${status === 'andamento' ? 'selected' : ''}>Em andamento</option>
-                    <option value="concluido" ${status === 'concluido' ? 'selected' : ''}>Concluído</option>
-                    <option value="cancelado" ${status === 'cancelado' ? 'selected' : ''}>Cancelado</option>
-                </select>
-            </td>
-            <td style="text-align:center;"><button style="color:var(--danger); background:none;" onclick="this.parentElement.parentElement.remove()">✕</button></td>
+            <td><input type="text" class="meta-desc" value="${data ? data.d : ''}" placeholder="Ex: Meta 2026"></td>
+            <td><select class="status-select st-${st}" onchange="this.className='status-select st-'+this.value"><option value="iniciar" ${st==='iniciar'?'selected':''}>A iniciar</option><option value="andamento" ${st==='andamento'?'selected':''}>Em andamento</option><option value="concluido" ${st==='concluido'?'selected':''}>Concluído</option><option value="cancelado" ${st==='cancelado'?'selected':''}>Cancelado</option></select></td>
+            <td style="text-align:center"><button style="color:var(--danger); background:none" onclick="this.parentElement.parentElement.remove()">✕</button></td>
         `;
         tbody.appendChild(tr);
     }
-
-    function updateStatusColor(select) { select.className = `status-select st-${select.value}`; }
 
     function updateAll() {
         let tR = 0, tP = 0, tA = 0, mEx = Array(12).fill(0);
         document.querySelectorAll('tbody tr').forEach(row => {
             const vIn = row.querySelector('.val-input');
-            const mSel = row.querySelector('.month-select');
+            const mSel = row.querySelector('select');
             if(vIn && mSel) {
-                const v = parseFloat(vIn.value) || 0;
-                const m = parseInt(mSel.value);
+                const v = parseFloat(vIn.value) || 0, m = parseInt(mSel.value);
                 if(vIn.classList.contains('v-r')) tR += v;
                 if(vIn.classList.contains('v-p')) { tP += v; mEx[m] += v; }
                 if(vIn.classList.contains('v-a')) tA += v;
@@ -235,79 +257,73 @@
         document.getElementById('res-p').innerText = "R$ " + tP.toLocaleString('pt-BR',{minimumFractionDigits:2});
         document.getElementById('res-a').innerText = "R$ " + tA.toLocaleString('pt-BR',{minimumFractionDigits:2});
         const saldoFinal = tR - tP - tA;
-        document.getElementById('res-s').innerText = "R$ " + saldoFinal.toLocaleString('pt-BR',{minimumFractionDigits:2});
-        document.getElementById('res-s').style.color = saldoFinal < 0 ? 'var(--danger)' : 'var(--accent)';
+        const resS = document.getElementById('res-s');
+        resS.innerText = "R$ " + saldoFinal.toLocaleString('pt-BR',{minimumFractionDigits:2});
+        resS.style.color = saldoFinal < 0 ? 'var(--danger)' : 'var(--accent)';
         if(chart) { chart.data.datasets[0].data = mEx; chart.update(); }
     }
 
     function initChart() {
         const ctx = document.getElementById('expenseChart').getContext('2d');
-        Chart.register(ChartDataLabels);
+        if (Chart.registry.plugins.get('datalabels') === undefined) Chart.register(ChartDataLabels);
         chart = new Chart(ctx, {
             type: 'bar',
             data: { labels: months, datasets: [{ data: Array(12).fill(0), backgroundColor: '#ef4444', borderRadius: 6 }] },
-            options: {
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false }, datalabels: { color: '#888', anchor: 'end', align: 'top', formatter: Math.round } },
-                scales: { y: { display: false }, x: { grid: { display: false } } }
-            }
+            options: { maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { color: '#888', anchor: 'end', align: 'top', formatter: Math.round } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
         });
     }
 
+    // --- CALCULADORA ---
     function btnCalc(v) { document.getElementById('display').value += v; }
     function clearCalc() { document.getElementById('display').value = ''; }
     function backCalc() { const d = document.getElementById('display'); d.value = d.value.slice(0, -1); }
-    function resCalc() { try { let exp = document.getElementById('display').value.replace('%', '/100'); document.getElementById('display').value = eval(exp); } catch { document.getElementById('display').value = 'Erro'; } }
-
+    function resCalc() { try { document.getElementById('display').value = eval(document.getElementById('display').value.replace('%', '/100')); } catch { document.getElementById('display').value = 'Erro'; } }
     function dragElement(elmnt) {
         var p1 = 0, p2 = 0, p3 = 0, p4 = 0;
         elmnt.onmousedown = (e) => { e.preventDefault(); p3 = e.clientX; p4 = e.clientY; document.onmouseup = () => { document.onmouseup = null; document.onmousemove = null; }; document.onmousemove = (e) => { p1 = p3 - e.clientX; p2 = p4 - e.clientY; p3 = e.clientX; p4 = e.clientY; elmnt.style.top = (elmnt.offsetTop - p2) + "px"; elmnt.style.left = (elmnt.offsetLeft - p1) + "px"; }; };
     }
 
+    // --- BANCO DE DADOS & DATA/HORA ---
+    function updateSyncLabel(dateStr) {
+        const d = dateStr ? new Date(dateStr) : new Date();
+        const formatada = d.toLocaleDateString('pt-BR') + ' às ' + d.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+        document.getElementById('last-sync').innerText = "Backup na nuvem: " + formatada;
+    }
+
     async function saveData() {
-        const getItems = (id) => Array.from(document.querySelectorAll(`#${id} tr`)).map(tr => ({
-            d: tr.querySelector('.desc-input').value,
-            m: tr.querySelector('.month-select').value,
-            v: tr.querySelector('.val-input').value
-        }));
+        const btn = document.getElementById('btn-save');
+        btn.innerText = "⏳ Sincronizando...";
+        const getI = (id) => Array.from(document.querySelectorAll(`#${id} tr`)).map(tr => ({ d: tr.querySelector('input').value, m: tr.querySelector('select').value, v: tr.querySelector('.val-input').value }));
+        const getM = () => Array.from(document.querySelectorAll('#tbody-metas tr')).map(tr => ({ d: tr.querySelector('.meta-desc').value, s: tr.querySelector('select').value }));
         
-        const getMetas = () => Array.from(document.querySelectorAll('#tbody-metas tr')).map(tr => ({
-            d: tr.querySelector('.meta-desc').value,
-            s: tr.querySelector('.status-select').value
-        }));
-
-        const content = {
-            r: getItems('tbody-receber'),
-            p: getItems('tbody-pagar'),
-            a: getItems('tbody-aportes'),
-            m: getMetas(),
-            n: document.getElementById('agenda-text').value
-        };
-
-        const { error } = await supabaseClient.from('finance_data').upsert({
-            id: userLogged.id,
-            content: content,
-            updated_at: new Date()
+        const now = new Date();
+        const { error } = await supabaseClient.from('finance_data').upsert({ 
+            id: userLogged.id, 
+            content: { r: getI('tbody-receber'), p: getI('tbody-pagar'), a: getI('tbody-aportes'), m: getM(), n: document.getElementById('agenda-text').value, last_sync: now }, 
+            updated_at: now 
         });
 
         if (error) alert("Erro: " + error.message);
-        else alert("Sincronizado! ☁️");
+        else {
+            btn.innerText = "☁️ Sincronizado!";
+            updateSyncLabel(now);
+        }
+        setTimeout(() => btn.innerText = "☁️ Salvar na Nuvem", 2000);
     }
 
     async function loadData() {
-        const { data, error } = await supabaseClient.from('finance_data').select('content').eq('id', userLogged.id).maybeSingle();
+        const { data } = await supabaseClient.from('finance_data').select('content').eq('id', userLogged.id).maybeSingle();
         if(data && data.content) {
             const c = data.content;
             if(c.r) c.r.forEach(x => addRow('tbody-receber', 'v-r', x));
             if(c.p) c.p.forEach(x => addRow('tbody-pagar', 'v-p', x));
             if(c.a) c.a.forEach(x => addRow('tbody-aportes', 'v-a', x));
             if(c.m) c.m.forEach(x => addMetaRow(x));
+            if(c.last_sync) updateSyncLabel(c.last_sync);
             document.getElementById('agenda-text').value = c.n || "";
             updateAll();
         }
     }
-
-    function toggleDark() { document.body.classList.toggle('dark'); }
 </script>
 </body>
 </html>
