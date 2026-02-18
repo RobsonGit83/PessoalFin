@@ -4,168 +4,249 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Financeiro Cloud Pro 2026</title>
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
         :root {
-            --primary: #1e293b; --accent: #3b82f6; --success: #10b981;
-            --danger: #ef4444; --bg: #f1f5f9; --white: #ffffff;
-            --text: #334155; --card-bg: #ffffff; --border: #e2e8f0;
+            --primary: #0f172a; --accent: #3b82f6; --success: #10b981;
+            --danger: #ef4444; --bg: #f8fafc; --white: #ffffff;
+            --text: #334155; --card-bg: rgba(255, 255, 255, 0.8); --border: rgba(226, 232, 240, 0.8);
             --purple: #8b5cf6; --gray: #94a3b8;
         }
 
         body.dark {
             --primary: #f8fafc; --accent: #60a5fa; --success: #34d399;
-            --danger: #f87171; --bg: #0f172a; --white: #1e293b;
-            --text: #f1f5f9; --card-bg: #1e293b; --border: #334155;
-            --purple: #a78bfa;
+            --danger: #f87171; --bg: #020617; --white: #1e293b;
+            --text: #f1f5f9; --card-bg: rgba(30, 41, 59, 0.7); --border: rgba(51, 65, 85, 0.5);
         }
 
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; transition: 0.3s; overflow-x: hidden; }
-        .container { max-width: 1000px; margin: 0 auto; display: none; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            margin: 0; 
+            padding: 20px; 
+            transition: background 0.4s ease, color 0.4s ease;
+            background-image: radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.05) 0px, transparent 50%), 
+                              radial-gradient(at 50% 0%, rgba(139, 92, 246, 0.05) 0px, transparent 50%);
+        }
 
-        #login-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .login-card { background: var(--white); padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 320px; text-align: center; }
+        /* Glassmorphism Effect */
+        .glass {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
 
-        header { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 15px 25px; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; border: 1px solid var(--border); }
-        .header-title-group { display: flex; flex-direction: column; }
-        .sync-info { font-size: 10px; opacity: 0.7; margin-top: 2px; font-weight: normal; }
+        .container { max-width: 1100px; margin: 0 auto; display: none; animation: fadeIn 0.6s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 20px 25px; border-radius: 20px; margin-bottom: 25px; 
+        }
+
+        .btn-group { display: flex; gap: 10px; align-items: center; }
+
+        /* Micro-interações nos botões */
+        button { 
+            cursor: pointer; border-radius: 10px; font-weight: 600; border: none; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        button:hover { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        button:active { transform: translateY(0); }
+
+        .btn-main { padding: 10px 18px; font-size: 13px; }
+
+        .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
+        .card { padding: 20px; border-radius: 20px; text-align: left; }
+        .card i { margin-bottom: 10px; opacity: 0.8; }
+        .card h3 { margin: 0; font-size: 12px; letter-spacing: 0.05em; opacity: 0.6; }
+        .card p { margin: 5px 0 0; font-size: 20px; font-weight: 700; }
+
+        /* Seções Colapsáveis com Animação */
+        .section-box { border-radius: 20px; margin-bottom: 15px; overflow: hidden; transition: all 0.3s ease; }
+        .section-header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 15px 25px; cursor: pointer; border-bottom: 1px solid var(--border);
+        }
+        .section-content { 
+            padding: 15px 25px 25px; 
+            transition: max-height 0.4s ease;
+        }
+        .hidden { display: none; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th { font-size: 11px; padding: 12px; opacity: 0.5; font-weight: 700; text-transform: uppercase; }
+        td { padding: 8px 4px; border-bottom: 1px solid var(--border); }
         
-        .btn-group { display: flex; gap: 8px; }
+        input, select { 
+            background: rgba(0,0,0,0.03); color: var(--text); border: 1px solid transparent; 
+            border-radius: 8px; padding: 10px; font-size: 13px; width: 100%; transition: 0.2s;
+        }
+        input:focus { border-color: var(--accent); background: var(--white); outline: none; }
 
-        .section-box { background: var(--card-bg); border-radius: 16px; margin-bottom: 15px; border: 1px solid var(--border); overflow: hidden; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; cursor: pointer; background: rgba(0,0,0,0.02); border-bottom: 1px solid var(--border); }
-        .section-content { padding: 10px 20px 20px; display: block; }
-        .section-content.hidden { display: none; }
-        
-        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        th { text-align: left; font-size: 11px; padding: 10px; opacity: 0.6; text-transform: uppercase; }
-        td { padding: 6px 4px; border-bottom: 1px solid var(--border); }
-        
-        input, select { background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 8px; font-size: 13px; width: 100%; box-sizing: border-box; outline: none; }
-
-        .status-select { font-weight: bold; cursor: pointer; }
-        .st-iniciar { color: var(--gray); }
-        .st-andamento { color: var(--accent); }
-        .st-concluido { color: var(--success); }
-        .st-cancelado { color: var(--danger); }
-
-        #calc { position: absolute; top: 150px; right: 50px; width: 240px; background: #222; padding: 15px; border-radius: 20px; cursor: move; z-index: 1000; display: none; box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
-        .calc-screen { width: 100%; height: 50px; background: #000; color: #0f0; border-radius: 10px; margin-bottom: 10px; text-align: right; padding: 10px; font-size: 20px; border: none; font-family: monospace; }
-        .calc-btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-        .calc-btns button { padding: 12px; border-radius: 8px; border: none; cursor: pointer; background: #444; color: white; font-weight: bold; }
-
-        #agenda-side { position: fixed; right: -350px; top: 0; width: 320px; height: 100%; background: var(--card-bg); box-shadow: -5px 0 15px rgba(0,0,0,0.1); transition: 0.4s; z-index: 2000; padding: 25px; border-left: 1px solid var(--border); }
+        /* Agenda e Calc Modernos */
+        #agenda-side { 
+            position: fixed; right: -380px; top: 0; width: 340px; height: 100%; 
+            z-index: 2000; padding: 30px; border-left: 1px solid var(--border); transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+        }
         #agenda-side.open { right: 0; }
-        #agenda-text { width: 100%; height: 85%; background: var(--bg); color: var(--text); border: none; border-radius: 10px; padding: 15px; resize: none; font-size: 14px; }
+        #agenda-text { 
+            width: 100%; height: 80%; background: transparent; color: var(--text); 
+            border: 1px solid var(--border); border-radius: 12px; padding: 15px; resize: none;
+        }
 
-        button { cursor: pointer; border-radius: 8px; font-weight: bold; border: none; transition: 0.2s; }
-        .btn-main { padding: 8px 15px; font-size: 12px; }
-        .btn-login { width: 100%; padding: 12px; background: var(--accent); color: white; margin-top: 10px; }
+        #calc { 
+            position: absolute; width: 260px; padding: 20px; border-radius: 24px; 
+            cursor: move; z-index: 1000; display: none; border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .export-content { 
+            display: none; position: absolute; top: 100%; right: 0; margin-top: 5px;
+            min-width: 140px; border-radius: 12px; overflow: hidden; z-index: 10;
+        }
+        .export-content button { width: 100%; border-radius: 0; padding: 12px; background: transparent; color: var(--text); }
+        .export-content button:hover { background: rgba(59, 130, 246, 0.1); }
     </style>
 </head>
 <body>
 
 <div id="login-container">
-    <div class="login-card">
-        <h2 style="color: var(--primary);">🔒 Acesso Cloud</h2>
+    <div class="login-card glass" style="padding: 40px; border-radius: 30px; width: 350px; text-align: center; margin: 15vh auto;">
+        <h2 style="margin-bottom: 30px;">💎 Financeiro Cloud</h2>
         <input type="email" id="login-email" placeholder="E-mail">
         <input type="password" id="login-pass" placeholder="Senha">
-        <button class="btn-login" onclick="handleAuth()">Entrar / Cadastrar</button>
-        <p id="login-msg" style="color: var(--danger); font-size: 12px; margin-top: 10px;"></p>
+        <button onclick="handleAuth()" style="width:100%; padding:15px; background:var(--accent); color:white; margin-top: 20px; justify-content: center;">Acessar Painel <i data-lucide="arrow-right"></i></button>
+        <p id="login-msg" style="color: var(--danger); font-size: 12px; margin-top: 15px;"></p>
     </div>
 </div>
 
 <div class="container" id="main-app">
-    <header>
+    <header class="glass">
         <div class="header-title-group">
-            <h2 style="margin:0; font-size: 20px;">📊 Dash Finanças</h2>
-            <div id="last-sync" class="sync-info">Nuvem não sincronizada</div>
+            <h2 style="margin:0; font-weight: 700;">Dash Finanças</h2>
+            <div id="last-sync" class="sync-info"><i data-lucide="cloud-check" size="12"></i> Sincronizado agora</div>
         </div>
         <div class="btn-group">
-            <button class="btn-main" style="background:var(--primary); color:white" onclick="toggleCalc()">🖩 Calc</button>
-            <button class="btn-main" style="background:var(--accent); color:white" onclick="toggleAgenda()">📅 Agenda</button>
-            <button id="btn-save" class="btn-main" style="background:var(--success); color:white" onclick="saveData()">☁️ Salvar na Nuvem</button>
-            <button class="btn-main" style="background:#64748b; color:white" onclick="toggleDark()">🌓 Dark</button>
-            <button class="btn-main" style="background:var(--danger); color:white" onclick="handleLogout()">🔒 Sair</button>
+            <button class="btn-main glass" onclick="toggleCalc()"><i data-lucide="calculator"></i> Calc</button>
+            <div style="position: relative;">
+                <button class="btn-main glass" style="color: var(--purple)" onclick="toggleExport()"><i data-lucide="download"></i> Exportar</button>
+                <div id="export-list" class="export-content glass">
+                    <button onclick="exportExcel()">Excel (.xlsx)</button>
+                    <button onclick="exportPDF()">PDF (.pdf)</button>
+                </div>
+            </div>
+            <button class="btn-main glass" onclick="toggleAgenda()"><i data-lucide="book-marked"></i> Agenda</button>
+            <button id="btn-save" class="btn-main" style="background:var(--success); color:white" onclick="saveData()"><i data-lucide="cloud-upload"></i> Salvar</button>
+            <button class="btn-main glass" onclick="toggleDark()"><i data-lucide="moon"></i></button>
+            <button class="btn-main" style="background:var(--danger); color:white" onclick="handleLogout()"><i data-lucide="log-out"></i></button>
         </div>
     </header>
 
-    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px;">
-        <div class="section-box" style="padding:15px; text-align:center; border-bottom: 4px solid var(--success);">
-            <small>RECEITAS</small><div id="res-r" style="color:var(--success); font-weight:bold; font-size:18px;">R$ 0,00</div>
+    
+
+    <div class="summary-grid">
+        <div class="card glass">
+            <i data-lucide="trending-up" style="color:var(--success)"></i>
+            <h3>RECEITAS</h3>
+            <p id="res-r" style="color:var(--success)">R$ 0,00</p>
         </div>
-        <div class="section-box" style="padding:15px; text-align:center; border-bottom: 4px solid var(--danger);">
-            <small>DESPESAS</small><div id="res-p" style="color:var(--danger); font-weight:bold; font-size:18px;">R$ 0,00</div>
+        <div class="card glass">
+            <i data-lucide="trending-down" style="color:var(--danger)"></i>
+            <h3>DESPESAS</h3>
+            <p id="res-p" style="color:var(--danger)">R$ 0,00</p>
         </div>
-        <div class="section-box" style="padding:15px; text-align:center; border-bottom: 4px solid var(--purple);">
-            <small>APORTES</small><div id="res-a" style="color:var(--purple); font-weight:bold; font-size:18px;">R$ 0,00</div>
+        <div class="card glass">
+            <i data-lucide="rocket" style="color:var(--purple)"></i>
+            <h3>APORTES</h3>
+            <p id="res-a" style="color:var(--purple)">R$ 0,00</p>
         </div>
-        <div class="section-box" style="padding:15px; text-align:center; border-bottom: 4px solid var(--accent);">
-            <small>SALDO FINAL</small><div id="res-s" style="font-weight:bold; font-size:18px;">R$ 0,00</div>
+        <div class="card glass">
+            <i data-lucide="wallet" style="color:var(--accent)"></i>
+            <h3>SALDO</h3>
+            <p id="res-s">R$ 0,00</p>
         </div>
     </div>
 
-<div class="section-box">
+    <div class="section-box glass">
+        <div class="section-header" onclick="toggleSection('sec-r', this)">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <i data-lucide="plus-circle" style="color:var(--success)"></i>
+                <h3 style="margin:0; font-size:15px;">Contas a Receber</h3>
+            </div>
+            <button class="btn-main" style="background:var(--success); color:white; padding:5px 12px;" onclick="event.stopPropagation(); addRow('tbody-receber', 'v-r')">Adicionar</button>
+        </div>
+        <div id="sec-r" class="section-content">
+            <table><tbody id="tbody-receber"></tbody></table>
+        </div>
+    </div>
+
+    <div class="section-box glass">
         <div class="section-header" onclick="toggleSection('sec-p', this)">
-            <h3 style="margin:0; color:var(--danger); font-size:15px;">📉 Contas a Pagar</h3>
-            <div><button class="btn-main" style="background:var(--danger); color:white; padding:4px 8px;" onclick="event.stopPropagation(); addRow('tbody-pagar', 'v-p')">+</button></div>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <i data-lucide="minus-circle" style="color:var(--danger)"></i>
+                <h3 style="margin:0; font-size:15px;">Contas a Pagar</h3>
+            </div>
+            <button class="btn-main" style="background:var(--danger); color:white; padding:5px 12px;" onclick="event.stopPropagation(); addRow('tbody-pagar', 'v-p')">Adicionar</button>
         </div>
         <div id="sec-p" class="section-content">
             <table><tbody id="tbody-pagar"></tbody></table>
         </div>
     </div>
-    
-    <div class="section-box">
-        <div class="section-header" onclick="toggleSection('sec-r', this)">
-            <h3 style="margin:0; color:var(--success); font-size:15px;">💰 Contas a Receber</h3>
-            <div><button class="btn-main" style="background:var(--success); color:white; padding:4px 8px;" onclick="event.stopPropagation(); addRow('tbody-receber', 'v-r')">+</button></div>
-        </div>
-        <div id="sec-r" class="section-content">
-            <table>
-                <thead><tr><th style="width:50%;">Descrição</th><th style="width:20%;">Mês</th><th style="width:20%;">Valor</th><th style="width:10%;"></th></tr></thead>
-                <tbody id="tbody-receber"></tbody>
-            </table>
-        </div>
-    </div>
 
-    <div class="section-box">
+    <div class="section-box glass">
         <div class="section-header" onclick="toggleSection('sec-a', this)">
-            <h3 style="margin:0; color:var(--purple); font-size:15px;">🚀 Aportes & Investimentos</h3>
-            <div><button class="btn-main" style="background:var(--purple); color:white; padding:4px 8px;" onclick="event.stopPropagation(); addRow('tbody-aportes', 'v-a')">+</button></div>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <i data-lucide="gem" style="color:var(--purple)"></i>
+                <h3 style="margin:0; font-size:15px;">Aportes & Investimentos</h3>
+            </div>
+            <button class="btn-main" style="background:var(--purple); color:white; padding:5px 12px;" onclick="event.stopPropagation(); addRow('tbody-aportes', 'v-a')">Adicionar</button>
         </div>
         <div id="sec-a" class="section-content">
             <table><tbody id="tbody-aportes"></tbody></table>
         </div>
     </div>
 
-    <div class="section-box">
+    <div class="section-box glass">
         <div class="section-header" onclick="toggleSection('sec-m', this)">
-            <h3 style="margin:0; color:var(--primary); font-size:15px;">🎯 Metas do Ano</h3>
-            <div><button class="btn-main" style="background:var(--primary); color:white; padding:4px 8px;" onclick="event.stopPropagation(); addMetaRow()">+</button></div>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <i data-lucide="target" style="color:var(--accent)"></i>
+                <h3 style="margin:0; font-size:15px;">Metas do Ano</h3>
+            </div>
+            <button class="btn-main" style="background:var(--accent); color:white; padding:5px 12px;" onclick="event.stopPropagation(); addMetaRow()">Adicionar</button>
         </div>
         <div id="sec-m" class="section-content">
-            <table>
-                <thead><tr><th style="width:70%;">Meta</th><th style="width:20%;">Status</th><th style="width:10%;"></th></tr></thead>
-                <tbody id="tbody-metas"></tbody>
-            </table>
+            <table><tbody id="tbody-metas"></tbody></table>
         </div>
     </div>
 
-    <div style="background: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--border); height: 320px; margin-top: 20px;">
+    <div class="glass" style="padding: 25px; border-radius: 20px; height: 350px; margin-top: 20px;">
         <canvas id="expenseChart"></canvas>
     </div>
 </div>
 
-<div id="agenda-side">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h3>📝 Notas</h3><button onclick="toggleAgenda()" style="background:none; font-size:20px;">×</button>
+<div id="agenda-side" class="glass">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
+        <h3 style="margin:0;">📝 Minhas Notas</h3>
+        <button onclick="toggleAgenda()" style="background:var(--danger); color:white; padding:6px 12px; font-size:11px;">FECHAR</button>
     </div>
-    <textarea id="agenda-text" placeholder="Suas anotações..."></textarea>
+    <textarea id="agenda-text" placeholder="Suas anotações são salvas na nuvem..."></textarea>
 </div>
 
-<div id="calc">
+<div id="calc" class="glass">
     <input type="text" class="calc-screen" id="display" disabled>
     <div class="calc-btns">
         <button onclick="clearCalc()" style="background:var(--danger)">C</button>
@@ -178,14 +259,17 @@
 </div>
 
 <script>
-    const S_URL = 'https://xpamnljjxvfnpzdmuive.supabase.co'; 
-    const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhwYW1ubGpqeHZmbnB6ZG11aXZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzOTA2ODIsImV4cCI6MjA4NTk2NjY4Mn0.ePhhjJcpYAiVM3f6LRD66LKVhnUv854lvztudybx6_Q';
+    // --- SUPABASE CONFIG ---
+    const S_URL = 'SUA_URL_AQUI'; 
+    const S_KEY = 'SUA_KEY_AQUI';
     const supabaseClient = window.supabase.createClient(S_URL, S_KEY);
     
     let userLogged = null, chart;
     const months = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
 
+    // Inicialização
     window.onload = async () => {
+        lucide.createIcons(); // Ativa os ícones profissionais
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (session) { userLogged = session.user; showDashboard(); }
     };
@@ -193,12 +277,10 @@
     async function handleAuth() {
         const email = document.getElementById('login-email').value;
         const password = document.getElementById('login-pass').value;
-        const msg = document.getElementById('login-msg');
         const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) {
-            const signup = await supabaseClient.auth.signUp({ email, password });
-            if (signup.error) msg.innerText = "Erro: " + signup.error.message;
-            else msg.innerText = "Verifique seu e-mail ou tente logar.";
+            await supabaseClient.auth.signUp({ email, password });
+            document.getElementById('login-msg').innerText = "Verifique o e-mail ou dados de acesso.";
         } else { userLogged = data.user; showDashboard(); }
     }
 
@@ -210,22 +292,33 @@
 
     function handleLogout() { supabaseClient.auth.signOut().then(() => location.reload()); }
 
+    // --- INTERFACE ---
     function toggleSection(id, header) { document.getElementById(id).classList.toggle('hidden'); }
     function toggleAgenda() { document.getElementById('agenda-side').classList.toggle('open'); }
-    function toggleCalc() { const c = document.getElementById('calc'); c.style.display = c.style.display === 'block' ? 'none' : 'block'; }
-    function toggleDark() { document.body.classList.toggle('dark'); }
+    function toggleCalc() { const c = document.getElementById('calc'); c.style.display = (c.style.display === 'block') ? 'none' : 'block'; }
+    function toggleExport() { const e = document.getElementById('export-list'); e.style.display = (e.style.display === 'block') ? 'none' : 'block'; }
+    
+    function toggleDark() { 
+        document.body.classList.toggle('dark'); 
+        if(chart) {
+            chart.options.scales.x.ticks.color = document.body.classList.contains('dark') ? '#fff' : '#888';
+            chart.update();
+        }
+    }
 
+    // --- LÓGICA FINANCEIRA ---
     function addRow(target, type, data = null) {
         const tbody = document.getElementById(target);
         const tr = document.createElement('tr');
         let mOpts = months.map((m, i) => `<option value="${i}" ${data && data.m == i ? 'selected' : ''}>${m}</option>`).join('');
         tr.innerHTML = `
-            <td><input type="text" value="${data ? data.d : ''}" placeholder="Descrição"></td>
+            <td style="width:50%"><input type="text" value="${data ? data.d : ''}" placeholder="Descrição"></td>
             <td><select onchange="updateAll()">${mOpts}</select></td>
             <td><input type="number" class="val-input ${type}" value="${data ? data.v : 0}" oninput="updateAll()"></td>
-            <td style="text-align:center"><button style="color:var(--danger); background:none" onclick="this.parentElement.parentElement.remove(); updateAll()">✕</button></td>
+            <td style="text-align:center"><button style="color:var(--danger); background:none" onclick="this.parentElement.parentElement.remove(); updateAll()"><i data-lucide="trash-2" size="16"></i></button></td>
         `;
         tbody.appendChild(tr);
+        lucide.createIcons();
         updateAll();
     }
 
@@ -234,11 +327,12 @@
         const tr = document.createElement('tr');
         const st = data ? data.s : 'iniciar';
         tr.innerHTML = `
-            <td><input type="text" class="meta-desc" value="${data ? data.d : ''}" placeholder="Ex: Meta 2026"></td>
-            <td><select class="status-select st-${st}" onchange="this.className='status-select st-'+this.value"><option value="iniciar" ${st==='iniciar'?'selected':''}>A iniciar</option><option value="andamento" ${st==='andamento'?'selected':''}>Em andamento</option><option value="concluido" ${st==='concluido'?'selected':''}>Concluído</option><option value="cancelado" ${st==='cancelado'?'selected':''}>Cancelado</option></select></td>
-            <td style="text-align:center"><button style="color:var(--danger); background:none" onclick="this.parentElement.parentElement.remove()">✕</button></td>
+            <td style="width:70%"><input type="text" value="${data ? data.d : ''}" placeholder="Qual sua meta?"></td>
+            <td><select class="st-${st}" onchange="this.className='st-'+this.value"><option value="iniciar" ${st==='iniciar'?'selected':''}>A iniciar</option><option value="andamento" ${st==='andamento'?'selected':''}>Em andamento</option><option value="concluido" ${st==='concluido'?'selected':''}>Concluído</option><option value="cancelado" ${st==='cancelado'?'selected':''}>Cancelado</option></select></td>
+            <td style="text-align:center"><button style="color:var(--danger); background:none" onclick="this.parentElement.parentElement.remove()"><i data-lucide="trash-2" size="16"></i></button></td>
         `;
         tbody.appendChild(tr);
+        lucide.createIcons();
     }
 
     function updateAll() {
@@ -253,77 +347,100 @@
                 if(vIn.classList.contains('v-a')) tA += v;
             }
         });
-        document.getElementById('res-r').innerText = "R$ " + tR.toLocaleString('pt-BR',{minimumFractionDigits:2});
-        document.getElementById('res-p').innerText = "R$ " + tP.toLocaleString('pt-BR',{minimumFractionDigits:2});
-        document.getElementById('res-a').innerText = "R$ " + tA.toLocaleString('pt-BR',{minimumFractionDigits:2});
-        const saldoFinal = tR - tP - tA;
-        const resS = document.getElementById('res-s');
-        resS.innerText = "R$ " + saldoFinal.toLocaleString('pt-BR',{minimumFractionDigits:2});
-        resS.style.color = saldoFinal < 0 ? 'var(--danger)' : 'var(--accent)';
+        document.getElementById('res-r').innerText = "R$ " + tR.toFixed(2);
+        document.getElementById('res-p').innerText = "R$ " + tP.toFixed(2);
+        document.getElementById('res-a').innerText = "R$ " + tA.toFixed(2);
+        const sf = tR - tP - tA;
+        document.getElementById('res-s').innerText = "R$ " + sf.toFixed(2);
+        document.getElementById('res-s').style.color = sf < 0 ? 'var(--danger)' : 'var(--accent)';
         if(chart) { chart.data.datasets[0].data = mEx; chart.update(); }
     }
 
     function initChart() {
         const ctx = document.getElementById('expenseChart').getContext('2d');
-        if (Chart.registry.plugins.get('datalabels') === undefined) Chart.register(ChartDataLabels);
+        if (!Chart.registry.plugins.get('datalabels')) Chart.register(ChartDataLabels);
         chart = new Chart(ctx, {
             type: 'bar',
-            data: { labels: months, datasets: [{ data: Array(12).fill(0), backgroundColor: '#ef4444', borderRadius: 6 }] },
-            options: { maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { color: '#888', anchor: 'end', align: 'top', formatter: Math.round } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
+            data: { labels: months, datasets: [{ data: Array(12).fill(0), backgroundColor: '#3b82f6', borderRadius: 10 }] },
+            options: {
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false }, datalabels: { color: '#888', anchor: 'end', align: 'top', formatter: Math.round } },
+                scales: { y: { display: false }, x: { grid: { display: false }, ticks: { color: '#888' } } }
+            }
         });
     }
 
-    // --- CALCULADORA ---
+    // --- COMPONENTES ---
     function btnCalc(v) { document.getElementById('display').value += v; }
     function clearCalc() { document.getElementById('display').value = ''; }
     function backCalc() { const d = document.getElementById('display'); d.value = d.value.slice(0, -1); }
     function resCalc() { try { document.getElementById('display').value = eval(document.getElementById('display').value.replace('%', '/100')); } catch { document.getElementById('display').value = 'Erro'; } }
-    function dragElement(elmnt) {
-        var p1 = 0, p2 = 0, p3 = 0, p4 = 0;
-        elmnt.onmousedown = (e) => { e.preventDefault(); p3 = e.clientX; p4 = e.clientY; document.onmouseup = () => { document.onmouseup = null; document.onmousemove = null; }; document.onmousemove = (e) => { p1 = p3 - e.clientX; p2 = p4 - e.clientY; p3 = e.clientX; p4 = e.clientY; elmnt.style.top = (elmnt.offsetTop - p2) + "px"; elmnt.style.left = (elmnt.offsetLeft - p1) + "px"; }; };
+    function dragElement(e) {
+        let p1=0,p2=0,p3=0,p4=0;
+        e.onmousedown = (m) => { if(m.target.tagName === 'BUTTON') return; m.preventDefault(); p3=m.clientX; p4=m.clientY; document.onmouseup=()=>{document.onmouseup=null;document.onmousemove=null;}; document.onmousemove=(m)=>{p1=p3-m.clientX;p2=p4-m.clientY;p3=m.clientX;p4=m.clientY;e.style.top=(e.offsetTop-p2)+"px";e.style.left=(e.offsetLeft-p1)+"px";};};
     }
 
-    // --- BANCO DE DADOS & DATA/HORA ---
-    function updateSyncLabel(dateStr) {
-        const d = dateStr ? new Date(dateStr) : new Date();
-        const formatada = d.toLocaleDateString('pt-BR') + ' às ' + d.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
-        document.getElementById('last-sync').innerText = "Backup na nuvem: " + formatada;
+    // --- EXPORTAR ---
+    function exportExcel() {
+        const rows = Array.from(document.querySelectorAll('tbody tr')).map(tr => [
+            tr.querySelector('input')?.value || "",
+            tr.querySelector('select')?.options[tr.querySelector('select')?.selectedIndex]?.text || "",
+            tr.querySelector('.val-input')?.value || "0"
+        ]);
+        const ws = XLSX.utils.aoa_to_sheet([["Descrição", "Mês", "Valor"], ...rows]);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Dados");
+        XLSX.writeFile(wb, "Financeiro_Cloud.xlsx");
     }
 
+    function exportPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const rows = Array.from(document.querySelectorAll('tbody tr')).map(tr => [
+            tr.querySelector('input')?.value || "",
+            tr.querySelector('select')?.options[tr.querySelector('select')?.selectedIndex]?.text || "",
+            "R$ " + (tr.querySelector('.val-input')?.value || "0")
+        ]);
+        doc.autoTable({ head: [['Descrição', 'Mês', 'Valor']], body: rows });
+        doc.save("Financeiro_Cloud.pdf");
+    }
+
+    // --- SYNC ---
     async function saveData() {
-        const btn = document.getElementById('btn-save');
-        btn.innerText = "⏳ Sincronizando...";
-        const getI = (id) => Array.from(document.querySelectorAll(`#${id} tr`)).map(tr => ({ d: tr.querySelector('input').value, m: tr.querySelector('select').value, v: tr.querySelector('.val-input').value }));
-        const getM = () => Array.from(document.querySelectorAll('#tbody-metas tr')).map(tr => ({ d: tr.querySelector('.meta-desc').value, s: tr.querySelector('select').value }));
-        
+        const b = document.getElementById('btn-save'); 
+        b.innerHTML = `<span style="animation: spin 1s linear infinite">⏳</span> Sincronizando...`;
+        const g = (id) => Array.from(document.querySelectorAll(`#${id} tr`)).map(tr => ({ d: tr.querySelector('input').value, m: tr.querySelector('select').value, v: tr.querySelector('.val-input').value }));
+        const m = () => Array.from(document.querySelectorAll('#tbody-metas tr')).map(tr => ({ d: tr.querySelector('input').value, s: tr.querySelector('select').value }));
         const now = new Date();
-        const { error } = await supabaseClient.from('finance_data').upsert({ 
-            id: userLogged.id, 
-            content: { r: getI('tbody-receber'), p: getI('tbody-pagar'), a: getI('tbody-aportes'), m: getM(), n: document.getElementById('agenda-text').value, last_sync: now }, 
-            updated_at: now 
-        });
-
-        if (error) alert("Erro: " + error.message);
-        else {
-            btn.innerText = "☁️ Sincronizado!";
-            updateSyncLabel(now);
+        const { error } = await supabaseClient.from('finance_data').upsert({ id: userLogged.id, content: { r: g('tbody-receber'), p: g('tbody-pagar'), a: g('tbody-aportes'), m: m(), n: document.getElementById('agenda-text').value, sync: now }, updated_at: now });
+        
+        if (!error) {
+            b.innerHTML = `<i data-lucide="check"></i> Salvo!`;
+            lucide.createIcons();
+            document.getElementById('last-sync').innerHTML = `<i data-lucide="cloud-check" size="12"></i> Sincronizado: ${now.toLocaleTimeString()}`;
+            lucide.createIcons();
         }
-        setTimeout(() => btn.innerText = "☁️ Salvar na Nuvem", 2000);
+        setTimeout(() => { b.innerHTML = `<i data-lucide="cloud-upload"></i> Salvar`; lucide.createIcons(); }, 2000);
     }
 
     async function loadData() {
         const { data } = await supabaseClient.from('finance_data').select('content').eq('id', userLogged.id).maybeSingle();
-        if(data && data.content) {
+        if(data?.content) {
             const c = data.content;
             if(c.r) c.r.forEach(x => addRow('tbody-receber', 'v-r', x));
             if(c.p) c.p.forEach(x => addRow('tbody-pagar', 'v-p', x));
             if(c.a) c.a.forEach(x => addRow('tbody-aportes', 'v-a', x));
             if(c.m) c.m.forEach(x => addMetaRow(x));
-            if(c.last_sync) updateSyncLabel(c.last_sync);
             document.getElementById('agenda-text').value = c.n || "";
+            if(c.sync) document.getElementById('last-sync').innerHTML = `<i data-lucide="cloud-check" size="12"></i> Sincronizado: ${new Date(c.sync).toLocaleTimeString()}`;
+            lucide.createIcons();
             updateAll();
         }
     }
 </script>
+
+<style>
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+</style>
 </body>
 </html>
