@@ -13,50 +13,78 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
 
+        /* TEMAS - PADRÃO DARK OCEAN */
         :root {
-            --primary: #f8fafc; --accent: #60a5fa; --success: #34d399;
-            --danger: #f87171; --bg: #020617; --white: #1e293b;
-            --text: #f1f5f9; --card-bg: rgba(30, 41, 59, 0.8); 
-            --border: rgba(255, 255, 255, 0.15); --purple: #a78bfa;
+            --bg: #020617; --card-bg: rgba(30, 41, 59, 0.7);
+            --text: #f1f5f9; --accent: #60a5fa; --border: rgba(255, 255, 255, 0.1);
+            --success: #34d399; --danger: #f87171; --purple: #a78bfa;
         }
 
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; transition: 0.4s; overflow-x: hidden; }
+        /* TEMA DRACULA */
+        body.theme-dracula {
+            --bg: #282a36; --card-bg: rgba(68, 71, 90, 0.8);
+            --text: #f8f8f2; --accent: #bd93f9; --border: rgba(189, 147, 249, 0.2);
+            --success: #50fa7b; --danger: #ff5555; --purple: #ff79c6;
+        }
+
+        /* TEMA EMERALD */
+        body.theme-emerald {
+            --bg: #064e3b; --card-bg: rgba(6, 78, 59, 0.8);
+            --text: #ecfdf5; --accent: #34d399; --border: rgba(52, 211, 153, 0.2);
+            --success: #10b981; --danger: #fb7185; --purple: #fbbf24;
+        }
+
+        /* ESTILIZAÇÃO DA BARRA DE ROLAGEM (SCROLLBAR) */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; border: 2px solid var(--bg); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); overflow-x: hidden; }
         .glass { backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: var(--card-bg); border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 
         .container { max-width: 1600px; margin: 0 auto; display: none; }
         header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; border-radius: 20px; margin-bottom: 25px; gap: 20px; }
         
         button { cursor: pointer; border-radius: 12px; font-weight: 600; border: none; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; color: #fff; font-size: 13px; }
-        .btn-main { padding: 10px 16px; background: rgba(255,255,255,0.1); }
-        .btn-main:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
+        .btn-main { padding: 10px 16px; background: rgba(255,255,255,0.08); }
+        .btn-main:hover { background: rgba(255,255,255,0.15); transform: translateY(-2px); }
+
+        /* MENU DE TEMAS */
+        .theme-menu { position: relative; }
+        .theme-options { display: none; position: absolute; top: 120%; right: 0; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 10px; z-index: 10000; min-width: 120px; }
+        .theme-options button { width: 100%; padding: 8px; margin: 2px 0; justify-content: flex-start; background: transparent; }
+        .theme-options button:hover { background: rgba(255,255,255,0.1); }
 
         .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
         .card { padding: 18px; border-radius: 20px; border-left: 4px solid var(--accent); }
 
         .section-box { border-radius: 20px; margin-bottom: 15px; overflow: hidden; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; cursor: pointer; background: rgba(255,255,255,0.03); }
-        .section-content { padding: 20px; overflow-x: auto; transition: max-height 0.3s ease; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; cursor: pointer; background: rgba(255,255,255,0.02); }
+        .section-content { padding: 20px; overflow-x: auto; transition: 0.3s; }
         .collapsed { display: none !important; }
 
         table { width: 100%; border-collapse: collapse; min-width: 1300px; }
-        th { font-size: 10px; padding: 10px; opacity: 0.6; text-transform: uppercase; border: 1px solid var(--border); text-align: center; background: rgba(255,255,255,0.02); }
-        td { padding: 4px; border: 1px solid var(--border); position: relative; }
+        th { font-size: 10px; padding: 10px; opacity: 0.6; text-transform: uppercase; border: 1px solid var(--border); text-align: center; background: rgba(255,255,255,0.01); }
+        td { padding: 4px; border: 1px solid var(--border); }
         
         .input-wrapper { position: relative; display: flex; align-items: center; }
         .input-wrapper span { position: absolute; left: 5px; font-size: 9px; opacity: 0.4; pointer-events: none; }
         
-        input, select { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid transparent; border-radius: 6px; padding: 8px; font-size: 12px; width: 100%; box-sizing: border-box; outline: none; }
-        input:focus { border-color: var(--accent); background: rgba(255,255,255,0.1); }
+        input, select { background: rgba(255,255,255,0.04); color: var(--text); border: 1px solid transparent; border-radius: 6px; padding: 8px; font-size: 12px; width: 100%; box-sizing: border-box; outline: none; }
+        input:focus { border-color: var(--accent); background: rgba(255,255,255,0.08); }
         
         input.val-month { padding-left: 20px; text-align: right; }
         input.venc-in { text-align: center; color: var(--accent); font-weight: bold; }
 
-        #agenda-side { position: fixed; right: -400px; top: 0; width: 340px; height: 100%; z-index: 5000; padding: 30px; transition: 0.5s; background: #0f172a; border-left: 1px solid var(--border); }
+        #agenda-side { position: fixed; right: -400px; top: 0; width: 340px; height: 100%; z-index: 5000; padding: 30px; transition: 0.5s; background: var(--bg); border-left: 1px solid var(--border); }
         #agenda-side.open { right: 0; }
-        #agenda-text { width: 100%; height: 80%; background: #020617; color: #fff; border: 1px solid var(--border); border-radius: 15px; padding: 15px; resize: none; }
+        #agenda-text { width: 100%; height: 80%; background: rgba(0,0,0,0.2); color: var(--text); border: 1px solid var(--border); border-radius: 15px; padding: 15px; resize: none; }
 
         #calc { position: fixed; top: 100px; left: 100px; width: 250px; padding: 20px; border-radius: 25px; z-index: 6000; display: none; background: #111; border: 1px solid #333; }
         .calc-screen { width: 100%; height: 50px; background: #000; color: #10b981; text-align: right; padding: 10px; font-size: 20px; border: none; }
+        .calc-btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .calc-btns button { padding: 12px; border-radius: 10px; background: #222; justify-content: center; }
     </style>
 </head>
 <body>
@@ -75,10 +103,18 @@
     <header class="glass">
         <div>
             <h2 style="margin:0; font-size: 18px;">Dash Finanças</h2>
-            <div id="last-sync" style="font-size: 9px; opacity: 0.5;">Sincronizado via Nuvem</div>
+            <div id="last-sync" style="font-size: 9px; opacity: 0.5;">Backup Sincronizado</div>
         </div>
         <div class="btn-group">
             <button class="btn-main glass" onclick="toggleCalc()"><i data-lucide="calculator" size="16"></i> Calc</button>
+            <div class="theme-menu">
+                <button class="btn-main glass" onclick="toggleThemes()"><i data-lucide="palette" size="16"></i> Temas</button>
+                <div id="theme-options" class="theme-options glass">
+                    <button onclick="changeTheme('default')">🔵 Ocean (Dark)</button>
+                    <button onclick="changeTheme('dracula')">🟣 Dracula</button>
+                    <button onclick="changeTheme('emerald')">🟢 Emerald</button>
+                </div>
+            </div>
             <button class="btn-main glass" onclick="toggleAgenda()"><i data-lucide="book-open" size="16"></i> Agenda</button>
             <button id="btn-save" class="btn-main" style="background:var(--success)" onclick="saveData()"><i data-lucide="cloud" size="16"></i> Salvar</button>
             <button class="btn-main" style="background:var(--danger)" onclick="handleLogout()"><i data-lucide="log-out" size="16"></i> Sair</button>
@@ -94,64 +130,40 @@
 
     <div class="section-box glass" id="box-r">
         <div class="section-header" onclick="toggleSection('box-r')">
-            <div style="display:flex; align-items:center; gap:10px;">
-                <i data-lucide="eye" size="16"></i>
-                <h3 style="margin:0; font-size:14px; color:var(--success)">💰 Contas a Receber</h3>
-            </div>
+            <div style="display:flex; align-items:center; gap:10px;"><i data-lucide="eye" size="16"></i><h3 style="margin:0; font-size:14px; color:var(--success)">💰 Contas a Receber</h3></div>
             <button class="btn-main" style="background:var(--success); padding: 4px 10px;" onclick="event.stopPropagation(); addRow('tbody-receber', 'v-r', false)">+</button>
         </div>
         <div class="section-content" id="content-box-r">
-            <table>
-                <thead>
-                    <tr><th style="width: 200px;">Descrição</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:50px;"></th></tr>
-                </thead>
-                <tbody id="tbody-receber"></tbody>
-            </table>
+            <table><thead><tr><th style="width: 200px;">Descrição</th><th style="width: 80px;"></th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:50px;"></th></tr></thead>
+            <tbody id="tbody-receber"></tbody></table>
         </div>
     </div>
 
     <div class="section-box glass" id="box-p">
         <div class="section-header" onclick="toggleSection('box-p')">
-            <div style="display:flex; align-items:center; gap:10px;">
-                <i data-lucide="eye" size="16"></i>
-                <h3 style="margin:0; font-size:14px; color:var(--danger)">📉 Contas a Pagar</h3>
-            </div>
+            <div style="display:flex; align-items:center; gap:10px;"><i data-lucide="eye" size="16"></i><h3 style="margin:0; font-size:14px; color:var(--danger)">📉 Contas a Pagar</h3></div>
             <button class="btn-main" style="background:var(--danger); padding: 4px 10px;" onclick="event.stopPropagation(); addRow('tbody-pagar', 'v-p', true)">+</button>
         </div>
         <div class="section-content" id="content-box-p">
-            <table>
-                <thead>
-                    <tr><th style="width: 200px;">Descrição</th><th style="width: 80px;">Venc.</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:50px;"></th></tr>
-                </thead>
-                <tbody id="tbody-pagar"></tbody>
-            </table>
+            <table><thead><tr><th style="width: 200px;">Descrição</th><th style="width: 80px;">Venc.</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:50px;"></th></tr></thead>
+            <tbody id="tbody-pagar"></tbody></table>
         </div>
     </div>
 
     <div class="section-box glass" id="box-a">
         <div class="section-header" onclick="toggleSection('box-a')">
-            <div style="display:flex; align-items:center; gap:10px;">
-                <i data-lucide="eye" size="16"></i>
-                <h3 style="margin:0; font-size:14px; color:var(--purple)">🚀 Aportes</h3>
-            </div>
+            <div style="display:flex; align-items:center; gap:10px;"><i data-lucide="eye" size="16"></i><h3 style="margin:0; font-size:14px; color:var(--purple)">🚀 Aportes</h3></div>
             <button class="btn-main" style="background:var(--purple); padding: 4px 10px;" onclick="event.stopPropagation(); addRow('tbody-aportes', 'v-a', false)">+</button>
         </div>
         <div class="section-content" id="content-box-a">
-            <table>
-                <thead>
-                    <tr><th style="width: 200px;">Descrição</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:50px;"></th></tr>
-                </thead>
-                <tbody id="tbody-aportes"></tbody>
-            </table>
+            <table><thead><tr><th style="width: 200px;">Descrição</th><th style="width: 80px;"></th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:50px;"></th></tr></thead>
+            <tbody id="tbody-aportes"></tbody></table>
         </div>
     </div>
 
     <div class="section-box glass" id="box-m">
         <div class="section-header" onclick="toggleSection('box-m')">
-            <div style="display:flex; align-items:center; gap:10px;">
-                <i data-lucide="eye" size="16"></i>
-                <h3 style="margin:0; font-size:14px; color:var(--accent)">🎯 Metas</h3>
-            </div>
+            <div style="display:flex; align-items:center; gap:10px;"><i data-lucide="eye" size="16"></i><h3 style="margin:0; font-size:14px; color:var(--accent)">🎯 Metas</h3></div>
             <button class="btn-main" style="background:var(--accent); padding: 4px 10px;" onclick="event.stopPropagation(); addMetaRow()">+</button>
         </div>
         <div class="section-content" id="content-box-m"><table><tbody id="tbody-metas"></tbody></table></div>
@@ -192,6 +204,18 @@
         if (session) { userLogged = session.user; showDashboard(); }
     };
 
+    // --- CONTROLE DE TEMAS ---
+    function toggleThemes() { const t = document.getElementById('theme-options'); t.style.display = (t.style.display === 'block') ? 'none' : 'block'; }
+    function changeTheme(theme) {
+        document.body.className = '';
+        if (theme !== 'default') document.body.classList.add('theme-' + theme);
+        document.getElementById('theme-options').style.display = 'none';
+        if(chart) {
+            chart.options.scales.x.ticks.color = getComputedStyle(document.body).getPropertyValue('--text');
+            chart.update();
+        }
+    }
+
     async function handleAuth() {
         const email = document.getElementById('login-email').value;
         const password = document.getElementById('login-pass').value;
@@ -207,7 +231,6 @@
     }
 
     function handleLogout() { supabaseClient.auth.signOut().then(() => location.reload()); }
-    
     function toggleSection(boxId) { 
         const content = document.getElementById('content-' + boxId);
         content.classList.toggle('collapsed');
@@ -228,56 +251,36 @@
             const v = data ? data.vals[i] : 0;
             inputs += `<td><div class="input-wrapper"><span>R$</span><input type="number" class="val-month ${type}" value="${v}" oninput="updateAll()"></div></td>`;
         }
-        
-        const vencCell = showVenc ? `<td><input type="text" class="venc-in" value="${data ? data.venc : ''}" placeholder="Dia"></td>` : '';
-
-        tr.innerHTML = `
-            <td><input type="text" class="desc-row" value="${data ? data.d : ''}" placeholder="Descrição..."></td>
-            ${vencCell}
-            ${inputs}
-            <td style="text-align:center;"><button style="color:var(--danger); background:none" onclick="this.parentElement.parentElement.remove(); updateAll()"><i data-lucide="trash-2" size="14"></i></button></td>
-        `;
-        tbody.appendChild(tr);
-        lucide.createIcons();
-        updateAll();
+        const vencCell = showVenc ? `<td><input type="text" class="venc-in" value="${data ? data.venc : ''}" placeholder="Dia"></td>` : '<td></td>';
+        tr.innerHTML = `<td><input type="text" class="desc-row" value="${data ? data.d : ''}" placeholder="Descrição..."></td>${vencCell}${inputs}<td><button style="color:var(--danger); background:none" onclick="this.parentElement.parentElement.remove(); updateAll()"><i data-lucide="trash-2" size="14"></i></button></td>`;
+        tbody.appendChild(tr); lucide.createIcons(); updateAll();
     }
 
     function addMetaRow(data = null) {
         const tbody = document.getElementById('tbody-metas');
         const tr = document.createElement('tr');
         const st = data ? data.s : 'iniciar';
-        tr.innerHTML = `
-            <td style="width:70%"><input type="text" class="meta-d" value="${data ? data.d : ''}"></td>
-            <td><select onchange="this.className='status-select st-'+this.value" class="st-${st}"><option value="iniciar" ${st==='iniciar'?'selected':''}>A iniciar</option><option value="andamento" ${st==='andamento'?'selected':''}>Em andamento</option><option value="concluido" ${st==='concluido'?'selected':''}>Concluído</option></select></td>
-            <td style="text-align:center;"><button style="color:var(--danger); background:none" onclick="this.parentElement.parentElement.remove()"><i data-lucide="trash-2" size="14"></i></button></td>
-        `;
-        tbody.appendChild(tr);
-        lucide.createIcons();
+        tr.innerHTML = `<td style="width:70%"><input type="text" class="meta-d" value="${data ? data.d : ''}"></td><td><select onchange="this.className='status-select st-'+this.value" class="st-${st}" style="background:transparent; color:inherit"><option value="iniciar" ${st==='iniciar'?'selected':''}>A iniciar</option><option value="andamento" ${st==='andamento'?'selected':''}>Em andamento</option><option value="concluido" ${st==='concluido'?'selected':''}>Concluído</option></select></td><td><button style="color:var(--danger); background:none" onclick="this.parentElement.parentElement.remove()"><i data-lucide="trash-2" size="14"></i></button></td>`;
+        tbody.appendChild(tr); lucide.createIcons();
     }
 
     function updateAll() {
         let tR = 0, tP = 0, tA = 0;
         let mEx = Array(12).fill(0);
-
         document.querySelectorAll('.v-r').forEach(el => tR += parseFloat(el.value) || 0);
         document.querySelectorAll('.v-a').forEach(el => tA += parseFloat(el.value) || 0);
-        
-        // Pagar (Gastos e Gráfico)
         document.querySelectorAll('#tbody-pagar tr').forEach(row => {
             row.querySelectorAll('.v-p').forEach((el, idx) => {
                 const val = parseFloat(el.value) || 0;
-                tP += val;
-                mEx[idx % 12] += val;
+                tP += val; mEx[idx % 12] += val;
             });
         });
-
         document.getElementById('res-r').innerText = "R$ " + tR.toLocaleString();
         document.getElementById('res-p').innerText = "R$ " + tP.toLocaleString();
         document.getElementById('res-a').innerText = "R$ " + tA.toLocaleString();
         const sl = tR - (tP + tA);
         document.getElementById('res-s').innerText = "R$ " + sl.toLocaleString();
         document.getElementById('res-s').style.color = sl < 0 ? 'var(--danger)' : 'var(--success)';
-        
         if(chart) { chart.data.datasets[0].data = mEx; chart.update(); }
     }
 
@@ -323,6 +326,7 @@
             if(c.a) c.a.forEach(x => addRow('tbody-aportes', 'v-a', false, x));
             if(c.m) c.m.forEach(x => addMetaRow(x));
             document.getElementById('agenda-text').value = c.n || "";
+            if(c.sync) document.getElementById('last-sync').innerText = "Backup: " + new Date(c.sync).toLocaleTimeString();
             updateAll(); lucide.createIcons();
         }
     }
