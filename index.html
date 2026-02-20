@@ -13,66 +13,85 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
 
-        /* TEMAS - PADRÃO DARK OCEAN */
+        /* TEMAS */
         :root {
             --bg: #020617; --card-bg: rgba(30, 41, 59, 0.7);
             --text: #f1f5f9; --accent: #60a5fa; --border: rgba(255, 255, 255, 0.1);
             --success: #34d399; --danger: #f87171; --purple: #a78bfa;
         }
 
-        /* TEMA DRACULA */
         body.theme-dracula {
             --bg: #282a36; --card-bg: rgba(68, 71, 90, 0.8);
             --text: #f8f8f2; --accent: #bd93f9; --border: rgba(189, 147, 249, 0.2);
             --success: #50fa7b; --danger: #ff5555; --purple: #ff79c6;
         }
 
-        /* TEMA EMERALD */
         body.theme-emerald {
             --bg: #064e3b; --card-bg: rgba(6, 78, 59, 0.8);
             --text: #ecfdf5; --accent: #34d399; --border: rgba(52, 211, 153, 0.2);
             --success: #10b981; --danger: #fb7185; --purple: #fbbf24;
         }
 
-        /* ESTILIZAÇÃO DA BARRA DE ROLAGEM (SCROLLBAR) */
+        /* SCROLLBAR MODERNA */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; border: 2px solid var(--bg); }
         ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); overflow-x: hidden; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; transition: 0.5s; overflow-x: hidden; }
         .glass { backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: var(--card-bg); border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 
         .container { max-width: 1600px; margin: 0 auto; display: none; }
-        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; border-radius: 20px; margin-bottom: 25px; gap: 20px; }
         
-        button { cursor: pointer; border-radius: 12px; font-weight: 600; border: none; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; color: #fff; font-size: 13px; }
+        /* HEADER COM BOTOES LADO A LADO */
+        header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 15px 25px; border-radius: 20px; margin-bottom: 25px; gap: 20px; 
+            flex-wrap: nowrap; /* Garante que fiquem na horizontal */
+        }
+        
+        .btn-group { 
+            display: flex; gap: 10px; align-items: center; 
+            flex-direction: row; /* Horizontal */
+        }
+        
+        button { 
+            cursor: pointer; border-radius: 12px; font-weight: 600; border: none; 
+            transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; 
+            color: #fff; font-size: 13px; white-space: nowrap; 
+        }
         .btn-main { padding: 10px 16px; background: rgba(255,255,255,0.08); }
         .btn-main:hover { background: rgba(255,255,255,0.15); transform: translateY(-2px); }
 
-        /* MENU DE TEMAS */
+        /* MENU DE TEMAS CORRIGIDO */
         .theme-menu { position: relative; }
-        .theme-options { display: none; position: absolute; top: 120%; right: 0; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 10px; z-index: 10000; min-width: 120px; }
-        .theme-options button { width: 100%; padding: 8px; margin: 2px 0; justify-content: flex-start; background: transparent; }
+        .theme-options { 
+            display: none; position: absolute; top: 130%; right: 0; 
+            background: var(--card-bg); border: 1px solid var(--border); 
+            border-radius: 15px; padding: 8px; 
+            z-index: 99999; /* Camada mais alta de todas */
+            min-width: 160px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .theme-options button { width: 100%; padding: 10px; margin: 2px 0; justify-content: flex-start; background: transparent; border-radius: 8px; }
         .theme-options button:hover { background: rgba(255,255,255,0.1); }
 
         .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
         .card { padding: 18px; border-radius: 20px; border-left: 4px solid var(--accent); }
 
-        .section-box { border-radius: 20px; margin-bottom: 15px; overflow: hidden; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; cursor: pointer; background: rgba(255,255,255,0.02); }
-        .section-content { padding: 20px; overflow-x: auto; transition: 0.3s; }
+        .section-box { border-radius: 20px; margin-bottom: 15px; overflow: visible; } /* Permite menu de temas vazar */
+        .section-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; cursor: pointer; }
+        .section-content { padding: 20px; overflow-x: auto; }
         .collapsed { display: none !important; }
 
         table { width: 100%; border-collapse: collapse; min-width: 1300px; }
-        th { font-size: 10px; padding: 10px; opacity: 0.6; text-transform: uppercase; border: 1px solid var(--border); text-align: center; background: rgba(255,255,255,0.01); }
+        th { font-size: 10px; padding: 10px; opacity: 0.6; text-transform: uppercase; border: 1px solid var(--border); text-align: center; }
         td { padding: 4px; border: 1px solid var(--border); }
         
         .input-wrapper { position: relative; display: flex; align-items: center; }
         .input-wrapper span { position: absolute; left: 5px; font-size: 9px; opacity: 0.4; pointer-events: none; }
         
         input, select { background: rgba(255,255,255,0.04); color: var(--text); border: 1px solid transparent; border-radius: 6px; padding: 8px; font-size: 12px; width: 100%; box-sizing: border-box; outline: none; }
-        input:focus { border-color: var(--accent); background: rgba(255,255,255,0.08); }
+        input:focus { border-color: var(--accent); }
         
         input.val-month { padding-left: 20px; text-align: right; }
         input.venc-in { text-align: center; color: var(--accent); font-weight: bold; }
@@ -82,7 +101,7 @@
         #agenda-text { width: 100%; height: 80%; background: rgba(0,0,0,0.2); color: var(--text); border: 1px solid var(--border); border-radius: 15px; padding: 15px; resize: none; }
 
         #calc { position: fixed; top: 100px; left: 100px; width: 250px; padding: 20px; border-radius: 25px; z-index: 6000; display: none; background: #111; border: 1px solid #333; }
-        .calc-screen { width: 100%; height: 50px; background: #000; color: #10b981; text-align: right; padding: 10px; font-size: 20px; border: none; }
+        .calc-screen { width: 100%; height: 50px; background: #000; color: #10b981; text-align: right; padding: 10px; font-size: 20px; border: none; width: 100%; box-sizing: border-box; }
         .calc-btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
         .calc-btns button { padding: 12px; border-radius: 10px; background: #222; justify-content: center; }
     </style>
@@ -204,7 +223,6 @@
         if (session) { userLogged = session.user; showDashboard(); }
     };
 
-    // --- CONTROLE DE TEMAS ---
     function toggleThemes() { const t = document.getElementById('theme-options'); t.style.display = (t.style.display === 'block') ? 'none' : 'block'; }
     function changeTheme(theme) {
         document.body.className = '';
@@ -220,8 +238,10 @@
         const email = document.getElementById('login-email').value;
         const password = document.getElementById('login-pass').value;
         const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-        if (error) document.getElementById('login-msg').innerText = "Erro no acesso.";
-        else { userLogged = data.user; showDashboard(); }
+        if (error) {
+            await supabaseClient.auth.signUp({ email, password });
+            document.getElementById('login-msg').innerText = "Verifique o e-mail ou dados.";
+        } else { userLogged = data.user; showDashboard(); }
     }
 
     function showDashboard() {
@@ -286,10 +306,11 @@
 
     function initChart() {
         const ctx = document.getElementById('expenseChart').getContext('2d');
+        if (!Chart.registry.plugins.get('datalabels')) Chart.register(ChartDataLabels);
         chart = new Chart(ctx, {
             type: 'bar',
             data: { labels: months, datasets: [{ data: Array(12).fill(0), backgroundColor: '#60a5fa', borderRadius: 5 }] },
-            options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false }, ticks: {color: '#fff'} } } }
+            options: { maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { color: '#888', anchor: 'end', align: 'top', formatter: Math.round } }, scales: { y: { display: false }, x: { grid: { display: false }, ticks: {color: '#fff'} } } }
         });
     }
 
@@ -305,11 +326,7 @@
 
     async function saveData() {
         const b = document.getElementById('btn-save'); b.innerText = "...";
-        const gMat = (id, hasVenc) => Array.from(document.querySelectorAll(`#${id} tr`)).map(tr => ({ 
-            d: tr.querySelector('.desc-row').value, 
-            venc: hasVenc ? tr.querySelector('.venc-in').value : '',
-            vals: Array.from(tr.querySelectorAll('.val-month')).map(i => i.value) 
-        }));
+        const gMat = (id, hasVenc) => Array.from(document.querySelectorAll(`#${id} tr`)).map(tr => ({ d: tr.querySelector('.desc-row').value, venc: hasVenc ? tr.querySelector('.venc-in').value : '', vals: Array.from(tr.querySelectorAll('.val-month')).map(i => i.value) }));
         const m = () => Array.from(document.querySelectorAll('#tbody-metas tr')).map(tr => ({ d: tr.querySelector('.meta-d').value, s: tr.querySelector('select').value }));
         const payload = { r: gMat('tbody-receber', false), p: gMat('tbody-pagar', true), a: gMat('tbody-aportes', false), m: m(), n: document.getElementById('agenda-text').value, sync: new Date() };
         await supabaseClient.from('finance_data').upsert({ id: userLogged.id, content: payload, updated_at: new Date() });
