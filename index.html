@@ -48,7 +48,6 @@
         input, select { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid transparent; border-radius: 6px; padding: 8px; font-size: 12px; width: 100%; box-sizing: border-box; outline: none; }
         input:focus { border-color: var(--accent); background: rgba(255,255,255,0.1); }
         
-        .status-select { background-color: #1e293b !important; color: #fff !important; }
         input.val-month { padding-left: 20px; text-align: right; }
         input.venc-in { text-align: center; color: var(--accent); font-weight: bold; }
 
@@ -99,12 +98,12 @@
                 <i data-lucide="eye" size="16"></i>
                 <h3 style="margin:0; font-size:14px; color:var(--success)">💰 Contas a Receber</h3>
             </div>
-            <button class="btn-main" style="background:var(--success); padding: 4px 10px;" onclick="event.stopPropagation(); addRow('tbody-receber', 'v-r')">+</button>
+            <button class="btn-main" style="background:var(--success); padding: 4px 10px;" onclick="event.stopPropagation(); addRow('tbody-receber', 'v-r', false)">+</button>
         </div>
         <div class="section-content" id="content-box-r">
             <table>
                 <thead>
-                    <tr><th style="width: 200px;">Descrição</th><th style="width: 80px;">Venc.</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:50px;"></th></tr>
+                    <tr><th style="width: 200px;">Descrição</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:50px;"></th></tr>
                 </thead>
                 <tbody id="tbody-receber"></tbody>
             </table>
@@ -117,10 +116,15 @@
                 <i data-lucide="eye" size="16"></i>
                 <h3 style="margin:0; font-size:14px; color:var(--danger)">📉 Contas a Pagar</h3>
             </div>
-            <button class="btn-main" style="background:var(--danger); padding: 4px 10px;" onclick="event.stopPropagation(); addRow('tbody-pagar', 'v-p')">+</button>
+            <button class="btn-main" style="background:var(--danger); padding: 4px 10px;" onclick="event.stopPropagation(); addRow('tbody-pagar', 'v-p', true)">+</button>
         </div>
         <div class="section-content" id="content-box-p">
-            <table><tbody id="tbody-pagar"></tbody></table>
+            <table>
+                <thead>
+                    <tr><th style="width: 200px;">Descrição</th><th style="width: 80px;">Venc.</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:50px;"></th></tr>
+                </thead>
+                <tbody id="tbody-pagar"></tbody>
+            </table>
         </div>
     </div>
 
@@ -130,10 +134,15 @@
                 <i data-lucide="eye" size="16"></i>
                 <h3 style="margin:0; font-size:14px; color:var(--purple)">🚀 Aportes</h3>
             </div>
-            <button class="btn-main" style="background:var(--purple); padding: 4px 10px;" onclick="event.stopPropagation(); addRow('tbody-aportes', 'v-a')">+</button>
+            <button class="btn-main" style="background:var(--purple); padding: 4px 10px;" onclick="event.stopPropagation(); addRow('tbody-aportes', 'v-a', false)">+</button>
         </div>
         <div class="section-content" id="content-box-a">
-            <table><tbody id="tbody-aportes"></tbody></table>
+            <table>
+                <thead>
+                    <tr><th style="width: 200px;">Descrição</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:50px;"></th></tr>
+                </thead>
+                <tbody id="tbody-aportes"></tbody>
+            </table>
         </div>
     </div>
 
@@ -211,8 +220,7 @@
     function toggleAgenda() { document.getElementById('agenda-side').classList.toggle('open'); }
     function toggleCalc() { const c = document.getElementById('calc'); c.style.display = (c.style.display === 'block') ? 'none' : 'block'; }
 
-    // ADICIONA LINHA MATRIZ PARA TODAS AS TABELAS
-    function addRow(target, type, data = null) {
+    function addRow(target, type, showVenc, data = null) {
         const tbody = document.getElementById(target);
         const tr = document.createElement('tr');
         let inputs = '';
@@ -220,9 +228,12 @@
             const v = data ? data.vals[i] : 0;
             inputs += `<td><div class="input-wrapper"><span>R$</span><input type="number" class="val-month ${type}" value="${v}" oninput="updateAll()"></div></td>`;
         }
+        
+        const vencCell = showVenc ? `<td><input type="text" class="venc-in" value="${data ? data.venc : ''}" placeholder="Dia"></td>` : '';
+
         tr.innerHTML = `
             <td><input type="text" class="desc-row" value="${data ? data.d : ''}" placeholder="Descrição..."></td>
-            <td><input type="text" class="venc-in" value="${data ? data.venc : ''}" placeholder="Dia"></td>
+            ${vencCell}
             ${inputs}
             <td style="text-align:center;"><button style="color:var(--danger); background:none" onclick="this.parentElement.parentElement.remove(); updateAll()"><i data-lucide="trash-2" size="14"></i></button></td>
         `;
@@ -237,7 +248,7 @@
         const st = data ? data.s : 'iniciar';
         tr.innerHTML = `
             <td style="width:70%"><input type="text" class="meta-d" value="${data ? data.d : ''}"></td>
-            <td><select class="status-select st-${st}" onchange="this.className='status-select st-'+this.value"><option value="iniciar" ${st==='iniciar'?'selected':''}>A iniciar</option><option value="andamento" ${st==='andamento'?'selected':''}>Em andamento</option><option value="concluido" ${st==='concluido'?'selected':''}>Concluído</option></select></td>
+            <td><select onchange="this.className='status-select st-'+this.value" class="st-${st}"><option value="iniciar" ${st==='iniciar'?'selected':''}>A iniciar</option><option value="andamento" ${st==='andamento'?'selected':''}>Em andamento</option><option value="concluido" ${st==='concluido'?'selected':''}>Concluído</option></select></td>
             <td style="text-align:center;"><button style="color:var(--danger); background:none" onclick="this.parentElement.parentElement.remove()"><i data-lucide="trash-2" size="14"></i></button></td>
         `;
         tbody.appendChild(tr);
@@ -250,7 +261,8 @@
 
         document.querySelectorAll('.v-r').forEach(el => tR += parseFloat(el.value) || 0);
         document.querySelectorAll('.v-a').forEach(el => tA += parseFloat(el.value) || 0);
-
+        
+        // Pagar (Gastos e Gráfico)
         document.querySelectorAll('#tbody-pagar tr').forEach(row => {
             row.querySelectorAll('.v-p').forEach((el, idx) => {
                 const val = parseFloat(el.value) || 0;
@@ -262,10 +274,9 @@
         document.getElementById('res-r').innerText = "R$ " + tR.toLocaleString();
         document.getElementById('res-p').innerText = "R$ " + tP.toLocaleString();
         document.getElementById('res-a').innerText = "R$ " + tA.toLocaleString();
-        
-        const saldoLiquido = tR - (tP + tA);
-        document.getElementById('res-s').innerText = "R$ " + saldoLiquido.toLocaleString();
-        document.getElementById('res-s').style.color = saldoLiquido < 0 ? 'var(--danger)' : 'var(--success)';
+        const sl = tR - (tP + tA);
+        document.getElementById('res-s').innerText = "R$ " + sl.toLocaleString();
+        document.getElementById('res-s').style.color = sl < 0 ? 'var(--danger)' : 'var(--success)';
         
         if(chart) { chart.data.datasets[0].data = mEx; chart.update(); }
     }
@@ -291,13 +302,13 @@
 
     async function saveData() {
         const b = document.getElementById('btn-save'); b.innerText = "...";
-        const gMat = (id) => Array.from(document.querySelectorAll(`#${id} tr`)).map(tr => ({ 
+        const gMat = (id, hasVenc) => Array.from(document.querySelectorAll(`#${id} tr`)).map(tr => ({ 
             d: tr.querySelector('.desc-row').value, 
-            venc: tr.querySelector('.venc-in').value,
+            venc: hasVenc ? tr.querySelector('.venc-in').value : '',
             vals: Array.from(tr.querySelectorAll('.val-month')).map(i => i.value) 
         }));
         const m = () => Array.from(document.querySelectorAll('#tbody-metas tr')).map(tr => ({ d: tr.querySelector('.meta-d').value, s: tr.querySelector('select').value }));
-        const payload = { r: gMat('tbody-receber'), p: gMat('tbody-pagar'), a: gMat('tbody-aportes'), m: m(), n: document.getElementById('agenda-text').value, sync: new Date() };
+        const payload = { r: gMat('tbody-receber', false), p: gMat('tbody-pagar', true), a: gMat('tbody-aportes', false), m: m(), n: document.getElementById('agenda-text').value, sync: new Date() };
         await supabaseClient.from('finance_data').upsert({ id: userLogged.id, content: payload, updated_at: new Date() });
         b.innerHTML = `<i data-lucide="check"></i> Salvo`; lucide.createIcons();
         setTimeout(() => { b.innerHTML = `<i data-lucide="cloud"></i> Salvar`; lucide.createIcons(); }, 2000);
@@ -307,9 +318,9 @@
         const { data } = await supabaseClient.from('finance_data').select('content').eq('id', userLogged.id).maybeSingle();
         if(data?.content) {
             const c = data.content;
-            if(c.r) c.r.forEach(x => addRow('tbody-receber', 'v-r', x));
-            if(c.p) c.p.forEach(x => addRow('tbody-pagar', 'v-p', x));
-            if(c.a) c.a.forEach(x => addRow('tbody-aportes', 'v-a', x));
+            if(c.r) c.r.forEach(x => addRow('tbody-receber', 'v-r', false, x));
+            if(c.p) c.p.forEach(x => addRow('tbody-pagar', 'v-p', true, x));
+            if(c.a) c.a.forEach(x => addRow('tbody-aportes', 'v-a', false, x));
             if(c.m) c.m.forEach(x => addMetaRow(x));
             document.getElementById('agenda-text').value = c.n || "";
             updateAll(); lucide.createIcons();
