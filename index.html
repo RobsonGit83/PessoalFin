@@ -18,18 +18,11 @@
             --bg: #020617; --card-bg: rgba(30, 41, 59, 0.85);
             --text: #f1f5f9; --accent: #60a5fa; --border: rgba(255, 255, 255, 0.15);
             --success: #34d399; --danger: #f87171; --purple: #a78bfa;
+            --paid-bg: rgba(16, 185, 129, 0.2); /* Fundo para conta paga */
         }
 
-        /* REMOVE SETINHAS DO INPUT NUMBER */
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
-
-        /* SCROLLBAR MODERNA */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg); }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; border: 2px solid var(--bg); }
-        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; transition: 0.5s; overflow-x: hidden; }
         .glass { backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: var(--card-bg); border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
@@ -37,35 +30,33 @@
         .container { max-width: 1600px; margin: 0 auto; display: none; }
         header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; border-radius: 20px; margin-bottom: 25px; gap: 20px; position: relative; z-index: 1000; }
         
-        .btn-group { display: flex; gap: 10px; align-items: center; }
-        button { cursor: pointer; border-radius: 12px; font-weight: 600; border: none; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; color: #fff; font-size: 13px; white-space: nowrap; }
+        button { cursor: pointer; border-radius: 12px; font-weight: 600; border: none; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; color: #fff; font-size: 13px; }
         .btn-main { padding: 10px 16px; background: rgba(255,255,255,0.08); }
-        .btn-main:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
 
         .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
         .card { padding: 18px; border-radius: 20px; border-left: 4px solid var(--accent); }
 
         .section-box { border-radius: 20px; margin-bottom: 15px; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; cursor: pointer; background: rgba(255,255,255,0.02); }
+        .section-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; cursor: pointer; }
         .section-content { padding: 20px; overflow-x: auto; }
         .collapsed { display: none !important; }
 
         table { width: 100%; border-collapse: collapse; min-width: 1350px; table-layout: fixed; }
         th { font-size: 10px; padding: 12px 5px; opacity: 0.6; text-transform: uppercase; border: 1px solid var(--border); text-align: center; }
-        td { padding: 5px; border: 1px solid var(--border); text-align: center; }
+        td { padding: 5px; border: 1px solid var(--border); text-align: center; transition: 0.3s; }
         
-        input, select { background: rgba(255,255,255,0.05); color: var(--text); border: 1px solid transparent; border-radius: 6px; padding: 8px; font-size: 12px; width: 100%; box-sizing: border-box; outline: none; transition: 0.2s; }
-        input.val-month { text-align: right; font-weight: 600; }
-        input.venc-in { text-align: center; color: var(--accent); font-weight: bold; }
+        /* ESTILO LINHA PAGA */
+        tr.row-paid { background: var(--paid-bg) !important; }
+        tr.row-paid input { color: var(--success); font-weight: bold; }
 
-        /* COMPONENTES FLUTUANTES */
+        input, select { background: rgba(255,255,255,0.05); color: var(--text); border: 1px solid transparent; border-radius: 6px; padding: 8px; font-size: 12px; width: 100%; box-sizing: border-box; outline: none; }
+        input.val-month { text-align: right; }
+        
         #agenda-side { position: fixed; right: -400px; top: 0; width: 340px; height: 100%; z-index: 5000; padding: 30px; transition: 0.5s; background: #0f172a; border-left: 1px solid var(--border); }
         #agenda-side.open { right: 0; }
         
-        #calc { position: fixed; top: 100px; left: 100px; width: 250px; padding: 20px; border-radius: 25px; z-index: 6000; display: none; background: #111; border: 1px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
-        .calc-screen { width: 100%; height: 50px; background: #000; color: #10b981; text-align: right; padding: 10px; font-size: 20px; border: none; margin-bottom: 10px; border-radius: 10px; }
-        .calc-btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-        .calc-btns button { padding: 12px; border-radius: 10px; background: #222; justify-content: center; }
+        #calc { position: fixed; top: 100px; left: 100px; width: 250px; padding: 20px; border-radius: 25px; z-index: 6000; display: none; background: #111; border: 1px solid #333; }
+        .calc-screen { width: 100%; height: 50px; background: #000; color: #10b981; text-align: right; padding: 10px; font-size: 20px; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -93,49 +84,43 @@
         </div>
     </header>
 
+    
+
     <div class="summary-grid">
         <div class="card glass" style="border-left-color: var(--danger);"><small>GASTOS ANUAL</small><p id="res-p" style="color:var(--danger)">R$ 0,00</p></div>
         <div class="card glass" style="border-left-color: var(--success);"><small>RECEITA ANUAL</small><p id="res-r" style="color:var(--success)">R$ 0,00</p></div>
         <div class="card glass" style="border-left-color: var(--purple);"><small>APORTES ANUAL</small><p id="res-a" style="color:var(--purple)">R$ 0,00</p></div>
-        <div class="card glass" style="border-left-color: var(--accent);"><small>SALDO LÍQUIDO</small><p id="res-s">R$ 0,00</p></div>
+        <div class="card glass" style="border-left-color: #fbbf24;"><small>TAXA SELIC Hoje</small><p id="selic-val" style="color:#fbbf24">Consultando...</p></div>
     </div>
 
     <div class="section-box glass" id="box-p">
-        <div class="section-header" onclick="toggleSection('box-p')">
+        <div class="section-header" onclick="toggleSection('p')">
             <h3 style="margin:0; font-size:14px; color:var(--danger)">📉 Contas a Pagar</h3>
             <button class="btn-main" style="background:var(--danger); padding: 4px 10px;" onclick="event.stopPropagation(); addRow('tbody-pagar', 'v-p', true)">+</button>
         </div>
-        <div class="section-content" id="content-box-p">
-            <table><thead><tr><th style="width: 200px;">Descrição</th><th style="width: 60px;">Venc.</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:60px;">APAGAR</th></tr></thead><tbody id="tbody-pagar"></tbody></table>
+        <div class="section-content" id="content-p">
+            <table><thead><tr><th style="width: 200px;">Descrição</th><th style="width: 60px;">Venc.</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:80px;">AÇÃO</th></tr></thead><tbody id="tbody-pagar"></tbody></table>
         </div>
     </div>
 
     <div class="section-box glass" id="box-r">
-        <div class="section-header" onclick="toggleSection('box-r')">
+        <div class="section-header" onclick="toggleSection('r')">
             <h3 style="margin:0; font-size:14px; color:var(--success)">💰 Contas a Receber</h3>
             <button class="btn-main" style="background:var(--success); padding: 4px 10px;" onclick="event.stopPropagation(); addRow('tbody-receber', 'v-r', false)">+</button>
         </div>
-        <div class="section-content" id="content-box-r">
-            <table><thead><tr><th style="width: 250px;">Descrição</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:60px;">APAGAR</th></tr></thead><tbody id="tbody-receber"></tbody></table>
+        <div class="section-content" id="content-r">
+            <table><thead><tr><th style="width: 250px;">Descrição</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:60px;">AÇÃO</th></tr></thead><tbody id="tbody-receber"></tbody></table>
         </div>
     </div>
 
     <div class="section-box glass" id="box-a">
-        <div class="section-header" onclick="toggleSection('box-a')">
+        <div class="section-header" onclick="toggleSection('a')">
             <h3 style="margin:0; font-size:14px; color:var(--purple)">🚀 Aportes</h3>
             <button class="btn-main" style="background:var(--purple); padding: 4px 10px;" onclick="event.stopPropagation(); addRow('tbody-aportes', 'v-a', false)">+</button>
         </div>
-        <div class="section-content" id="content-box-a">
-            <table><thead><tr><th style="width: 250px;">Descrição</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:60px;">APAGAR</th></tr></thead><tbody id="tbody-aportes"></tbody></table>
+        <div class="section-content" id="content-a">
+            <table><thead><tr><th style="width: 250px;">Descrição</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:60px;">AÇÃO</th></tr></thead><tbody id="tbody-aportes"></tbody></table>
         </div>
-    </div>
-
-    <div class="section-box glass" id="box-m">
-        <div class="section-header" onclick="toggleSection('box-m')">
-            <h3 style="margin:0; font-size:14px; color:var(--accent)">🎯 Metas</h3>
-            <button class="btn-main" style="background:var(--accent); padding: 4px 10px;" onclick="event.stopPropagation(); addMetaRow()">+</button>
-        </div>
-        <div class="section-content" id="content-box-m"><table><tbody id="tbody-metas"></tbody></table></div>
     </div>
 
     <div class="glass" style="padding: 20px; border-radius: 20px; height: 300px;"><canvas id="expenseChart"></canvas></div>
@@ -143,7 +128,7 @@
 
 <div id="agenda-side" class="glass">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h3>📝 Notas Cloud</h3><button onclick="toggleAgenda()" style="color:var(--danger); background:none; cursor:pointer;"><i data-lucide="x"></i></button>
+        <h3>📝 Notas Cloud</h3><button onclick="toggleAgenda()" style="color:var(--danger); background:none;"><i data-lucide="x"></i></button>
     </div>
     <textarea id="agenda-text" style="width:100%; height:80%; background:rgba(0,0,0,0.2); color:#fff; border-radius:10px; padding:10px; border:1px solid var(--border); resize:none;"></textarea>
 </div>
@@ -170,9 +155,21 @@
 
     window.onload = async () => {
         lucide.createIcons();
+        fetchSelic();
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (session) { userLogged = session.user; showDashboard(); }
     };
+
+    async function fetchSelic() {
+        try {
+            const resp = await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.11/dados/ultimos/1?formato=json');
+            const data = await resp.json();
+            // A Selic over é diária, a Meta Selic anualizada é a 1178 (vou usar a over como exemplo rápido ou buscar a anualizada)
+            const respMeta = await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.432/dados/ultimos/1?formato=json');
+            const dataMeta = await respMeta.json();
+            document.getElementById('selic-val').innerText = dataMeta[0].valor + "% a.a.";
+        } catch (e) { document.getElementById('selic-val').innerText = "Erro ao carregar"; }
+    }
 
     function showDashboard() {
         document.getElementById('login-container').style.display = 'none';
@@ -184,11 +181,10 @@
         const email = document.getElementById('login-email').value;
         const password = document.getElementById('login-pass').value;
         const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-        if (error) { await supabaseClient.auth.signUp({ email, password }); } 
-        else { userLogged = data.user; showDashboard(); }
+        if (!error) { userLogged = data.user; showDashboard(); }
     }
 
-    function toggleSection(id) { document.getElementById('content-box-' + id.split('-')[1]).classList.toggle('collapsed'); }
+    function toggleSection(id) { document.getElementById('content-' + id).classList.toggle('collapsed'); }
     function toggleAgenda() { document.getElementById('agenda-side').classList.toggle('open'); }
     function toggleCalc() { const c = document.getElementById('calc'); c.style.display = (c.style.display === 'block') ? 'none' : 'block'; }
     function handleLogout() { supabaseClient.auth.signOut().then(() => location.reload()); }
@@ -196,22 +192,24 @@
     function addRow(target, type, showVenc, data = null) {
         const tbody = document.getElementById(target);
         const tr = document.createElement('tr');
+        if (data && data.paid) tr.classList.add('row-paid');
+
         let inputs = '';
         for(let i=0; i<12; i++) {
             const v = data ? data.vals[i] : 0;
             inputs += `<td><input type="number" class="val-month ${type}" value="${v}" oninput="updateAll()"></td>`;
         }
+        
         const vencCell = showVenc ? `<td><input type="number" class="venc-in" value="${data ? data.venc : ''}" placeholder="Dia"></td>` : '';
-        tr.innerHTML = `<td><input type="text" class="desc-row" value="${data ? data.d : ''}" placeholder="Nome..."></td>${vencCell}${inputs}<td><button class="btn-del-row" style="background:none; color:var(--danger)" onclick="this.parentElement.parentElement.remove(); updateAll()"><i data-lucide="trash-2" size="16"></i></button></td>`;
+        const actionBtn = showVenc ? `<button onclick="togglePaid(this)" style="background:none; color:var(--success)"><i data-lucide="check-circle" size="14"></i></button>` : '';
+
+        tr.innerHTML = `<td><input type="text" class="desc-row" value="${data ? data.d : ''}" placeholder="Nome..."></td>${vencCell}${inputs}<td><div style="display:flex; gap:8px; justify-content:center;">${actionBtn}<button class="btn-del-row" style="background:none; color:var(--danger)" onclick="this.closest('tr').remove(); updateAll()"><i data-lucide="trash-2" size="14"></i></button></div></td>`;
         tbody.appendChild(tr); lucide.createIcons(); updateAll();
     }
 
-    function addMetaRow(data = null) {
-        const tbody = document.getElementById('tbody-metas');
-        const tr = document.createElement('tr');
-        const st = data ? data.s : 'iniciar';
-        tr.innerHTML = `<td style="width:70%"><input type="text" class="meta-d" value="${data ? data.d : ''}"></td><td><select onchange="this.className='status-select st-'+this.value" style="background:rgba(255,255,255,0.05); color:#fff; border:none; border-radius:5px; padding:5px;"><option value="iniciar" ${st==='iniciar'?'selected':''}>A iniciar</option><option value="andamento" ${st==='andamento'?'selected':''}>Em andamento</option><option value="concluido" ${st==='concluido'?'selected':''}>Concluído</option></select></td><td style="text-align:center;"><button class="btn-del-row" style="background:none; color:var(--danger)" onclick="this.parentElement.parentElement.remove()"><i data-lucide="trash-2" size="16"></i></button></td>`;
-        tbody.appendChild(tr); lucide.createIcons();
+    function togglePaid(btn) {
+        const tr = btn.closest('tr');
+        tr.classList.toggle('row-paid');
     }
 
     function updateAll() {
@@ -227,7 +225,6 @@
         document.getElementById('res-r').innerText = "R$ " + tR.toLocaleString();
         document.getElementById('res-p').innerText = "R$ " + tP.toLocaleString();
         document.getElementById('res-a').innerText = "R$ " + tA.toLocaleString();
-        document.getElementById('res-s').innerText = "R$ " + (tR - (tP + tA)).toLocaleString();
         if(chart) { chart.data.datasets[0].data = mEx; chart.update(); }
     }
 
@@ -263,12 +260,17 @@
 
     async function saveData() {
         const b = document.getElementById('btn-save'); b.innerText = "...";
-        const gMat = (id, hasVenc) => Array.from(document.querySelectorAll(`#${id} tr`)).map(tr => ({ d: tr.querySelector('.desc-row').value, venc: hasVenc ? tr.querySelector('.venc-in').value : '', vals: Array.from(tr.querySelectorAll('.val-month')).map(i => i.value) }));
-        const m = () => Array.from(document.querySelectorAll('#tbody-metas tr')).map(tr => ({ d: tr.querySelector('.meta-d').value, s: tr.querySelector('select').value }));
-        const now = new Date();
-        await supabaseClient.from('finance_data').upsert({ id: userLogged.id, content: { r: gMat('tbody-receber', false), p: gMat('tbody-pagar', true), a: gMat('tbody-aportes', false), m: m(), n: document.getElementById('agenda-text').value, sync: now }, updated_at: now });
+        const gMat = (id, hasVenc) => Array.from(document.querySelectorAll(`#${id} tr`)).map(tr => ({ 
+            d: tr.querySelector('.desc-row').value, 
+            venc: hasVenc ? tr.querySelector('.venc-in').value : '', 
+            vals: Array.from(tr.querySelectorAll('.val-month')).map(i => i.value),
+            paid: tr.classList.contains('row-paid') // SALVA O STATUS DE PAGO
+        }));
+        
+        const payload = { r: gMat('tbody-receber', false), p: gMat('tbody-pagar', true), a: gMat('tbody-aportes', false), n: document.getElementById('agenda-text').value, sync: new Date() };
+        await supabaseClient.from('finance_data').upsert({ id: userLogged.id, content: payload, updated_at: new Date() });
         b.innerHTML = `<i data-lucide="check"></i> Salvo`;
-        document.getElementById('last-sync').innerText = "Último backup: " + now.toLocaleTimeString();
+        document.getElementById('last-sync').innerText = "Último backup: " + new Date().toLocaleTimeString();
         setTimeout(() => { b.innerHTML = `<i data-lucide="cloud"></i> Salvar`; lucide.createIcons(); }, 2000);
     }
 
@@ -279,7 +281,6 @@
             if(c.p) c.p.forEach(x => addRow('tbody-pagar', 'v-p', true, x));
             if(c.r) c.r.forEach(x => addRow('tbody-receber', 'v-r', false, x));
             if(c.a) c.a.forEach(x => addRow('tbody-aportes', 'v-a', false, x));
-            if(c.m) c.m.forEach(x => addMetaRow(x));
             document.getElementById('agenda-text').value = c.n || "";
             if(c.sync) document.getElementById('last-sync').innerText = "Último backup: " + new Date(c.sync).toLocaleTimeString();
             updateAll(); lucide.createIcons();
