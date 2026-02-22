@@ -27,10 +27,6 @@
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; transition: 0.5s; overflow-x: hidden; }
         .glass { backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: var(--card-bg); border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 
-        /* LOGIN */
-        #login-container { max-width: 400px; margin: 10vh auto; text-align: center; padding: 40px; border-radius: 30px; }
-        #login-msg { margin-top: 15px; font-size: 13px; font-weight: 600; min-height: 20px; }
-
         .container { max-width: 1650px; margin: 0 auto; display: none; }
         header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; border-radius: 20px; margin-bottom: 25px; gap: 20px; }
         
@@ -51,6 +47,7 @@
         th { font-size: 10px; padding: 10px 5px; opacity: 0.6; text-transform: uppercase; border: 1px solid var(--border); text-align: center; }
         td { padding: 3px; border: 1px solid var(--border); text-align: center; transition: 0.2s; }
         
+        /* CÉLULA PAGA */
         .cell-paid { background: var(--paid-cell) !important; position: relative; }
         .cell-paid::after { content: '✓'; position: absolute; top: 2px; right: 2px; font-size: 8px; color: var(--success); font-weight: bold; }
 
@@ -60,9 +57,16 @@
         input, select { background: rgba(255,255,255,0.05); color: var(--text); border: 1px solid transparent; border-radius: 6px; padding: 8px; font-size: 12px; width: 100%; box-sizing: border-box; outline: none; transition: 0.2s; }
         input.val-month { padding-left: 22px; text-align: right; background: transparent; }
         
+        /* VENCIMENTO AZUL E CENTRALIZADO */
         input.venc-in { text-align: center; color: var(--accent); font-weight: 700; border: 1px solid rgba(96, 165, 250, 0.2); }
 
-        .status-select { background-color: var(--bg) !important; color: var(--text) !important; border: 1px solid var(--border); cursor: pointer; }
+        /* SELECT METAS DARK */
+        .status-select { 
+            background-color: var(--bg) !important; 
+            color: var(--text) !important; 
+            border: 1px solid var(--border);
+            cursor: pointer;
+        }
         .status-select option { background-color: #1e293b; color: #fff; }
 
         #agenda-side { position: fixed; right: -400px; top: 0; width: 340px; height: 100%; z-index: 9999; padding: 30px; transition: 0.5s; background: #0f172a; border-left: 1px solid var(--border); box-shadow: -10px 0 30px rgba(0,0,0,0.5); }
@@ -78,13 +82,13 @@
 </head>
 <body>
 
-<div id="login-container" class="glass">
-    <h2 style="font-weight:700">💎 Financeiro Cloud</h2>
-    <p style="font-size:12px; opacity:0.6; margin-bottom:20px;">Acesse sua conta para sincronizar</p>
-    <input type="email" id="login-email" placeholder="E-mail" style="margin-bottom:10px;">
-    <input type="password" id="login-pass" placeholder="Senha">
-    <button onclick="handleAuth()" style="width:100%; padding:14px; background:var(--accent); justify-content: center; margin-top: 20px;">Entrar / Cadastrar</button>
-    <p id="login-msg"></p>
+<div id="login-container">
+    <div class="login-card glass" style="padding: 40px; border-radius: 30px; width: 340px; margin: 15vh auto; text-align: center;">
+        <h2 style="font-weight:700">💎 Financeiro Cloud</h2>
+        <input type="email" id="login-email" placeholder="E-mail">
+        <input type="password" id="login-pass" placeholder="Senha">
+        <button onclick="handleAuth()" style="width:100%; padding:14px; background:var(--accent); justify-content: center; margin-top: 20px;">Entrar</button>
+    </div>
 </div>
 
 <div class="container" id="main-app">
@@ -189,25 +193,6 @@
         if (session) { userLogged = session.user; showDashboard(); }
     };
 
-    async function handleAuth() {
-        const email = document.getElementById('login-email').value;
-        const password = document.getElementById('login-pass').value;
-        const msgEl = document.getElementById('login-msg');
-        msgEl.innerText = "Processando..."; msgEl.style.color = "var(--accent)";
-
-        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-
-        if (error) {
-            if (error.message.includes("Invalid login credentials")) {
-                const { error: signUpError } = await supabaseClient.auth.signUp({ email, password });
-                if (signUpError) { msgEl.innerText = "Erro: " + signUpError.message; msgEl.style.color = "var(--danger)"; }
-                else { msgEl.innerText = "Conta criada! Confirme seu e-mail."; msgEl.style.color = "#fbbf24"; }
-            } else {
-                msgEl.innerText = "Erro: " + error.message; msgEl.style.color = "var(--danger)";
-            }
-        } else { userLogged = data.user; showDashboard(); }
-    }
-
     async function updateMarketData() {
         try {
             const rSelic = await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.432/dados/ultimos/1?formato=json');
@@ -225,12 +210,23 @@
         initChart(); dragElement(document.getElementById("calc")); loadData();
     }
 
+    async function handleAuth() {
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-pass').value;
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (!error) { userLogged = data.user; showDashboard(); }
+    }
+
     function handleLogout() { supabaseClient.auth.signOut().then(() => location.reload()); }
     function toggleSection(id) { document.getElementById('content-' + id).classList.toggle('collapsed'); }
     function toggleAgenda() { document.getElementById('agenda-side').classList.toggle('open'); }
     function toggleCalc() { const c = document.getElementById('calc'); c.style.display = (c.style.display === 'block') ? 'none' : 'block'; }
 
-    function clearAllPaid() { if(confirm("Limpar marcações verdes?")) document.querySelectorAll('.cell-paid').forEach(td => td.classList.remove('cell-paid')); }
+    function clearAllPaid() {
+        if(confirm("Deseja desmarcar todos os pagamentos realizados?")) {
+            document.querySelectorAll('.cell-paid').forEach(td => td.classList.remove('cell-paid'));
+        }
+    }
 
     function addRow(target, type, showVenc, data = null) {
         const tbody = document.getElementById(target);
@@ -239,10 +235,12 @@
         for(let i=0; i<12; i++) {
             const v = data ? data.vals[i] : 0;
             const paidClass = (data && data.paid && data.paid[i]) ? 'cell-paid' : '';
-            inputs += `<td class="${paidClass}" onclick="this.classList.toggle('cell-paid')"><div class="input-wrapper"><span>R$</span><input type="number" class="val-month ${type}" value="${v}" oninput="updateAll()" onclick="event.stopPropagation()"></div></td>`;
+            inputs += `<td class="${paidClass}" onclick="this.classList.toggle('cell-paid')">
+                <div class="input-wrapper"><span>R$</span><input type="number" class="val-month ${type}" value="${v}" oninput="updateAll()" onclick="event.stopPropagation()"></div>
+            </td>`;
         }
         const vencCell = showVenc ? `<td><input type="number" class="venc-in" value="${data ? data.venc : ''}" placeholder="Dia"></td>` : '';
-        tr.innerHTML = `<td><input type="text" class="desc-row" value="${data ? data.d : ''}"></td>${vencCell}${inputs}<td><button onclick="this.closest('tr').remove(); updateAll()" style="background:none; color:var(--danger)"><i data-lucide="trash-2" size="14"></i></button></td>`;
+        tr.innerHTML = `<td><input type="text" class="desc-row" value="${data ? data.d : ''}" placeholder="Nome..."></td>${vencCell}${inputs}<td><button onclick="this.closest('tr').remove(); updateAll()" style="background:none; color:var(--danger); cursor:pointer"><i data-lucide="trash-2" size="14"></i></button></td>`;
         tbody.appendChild(tr); lucide.createIcons(); updateAll();
     }
 
@@ -250,7 +248,13 @@
         const tbody = document.getElementById('tbody-metas');
         const tr = document.createElement('tr');
         const st = data ? data.s : 'iniciar';
-        tr.innerHTML = `<td><input type="text" class="meta-d" value="${data ? data.d : ''}"></td><td><select class="status-select"><option value="iniciar" ${st==='iniciar'?'selected':''}>A iniciar</option><option value="andamento" ${st==='andamento'?'selected':''}>Andamento</option><option value="concluido" ${st==='concluido'?'selected':''}>Concluído</option></select></td><td><button onclick="this.closest('tr').remove()" style="background:none; color:var(--danger)"><i data-lucide="trash-2" size="14"></i></button></td>`;
+        tr.innerHTML = `<td><input type="text" class="meta-d" value="${data ? data.d : ''}" placeholder="Ex: Viagem..."></td>
+        <td><select class="status-select">
+            <option value="iniciar" ${st==='iniciar'?'selected':''}>A iniciar</option>
+            <option value="andamento" ${st==='andamento'?'selected':''}>Andamento</option>
+            <option value="concluido" ${st==='concluido'?'selected':''}>Concluído</option>
+        </select></td>
+        <td><button onclick="this.closest('tr').remove()" style="background:none; color:var(--danger); cursor:pointer"><i data-lucide="trash-2" size="14"></i></button></td>`;
         tbody.appendChild(tr); lucide.createIcons();
     }
 
@@ -258,7 +262,12 @@
         let tR = 0, tP = 0, tA = 0, mEx = Array(12).fill(0);
         document.querySelectorAll('.v-r').forEach(el => tR += parseFloat(el.value) || 0);
         document.querySelectorAll('.v-a').forEach(el => tA += parseFloat(el.value) || 0);
-        document.querySelectorAll('#tbody-pagar tr').forEach(row => { row.querySelectorAll('.v-p').forEach((el, idx) => { const val = parseFloat(el.value) || 0; tP += val; mEx[idx] += val; }); });
+        document.querySelectorAll('#tbody-pagar tr').forEach(row => {
+            row.querySelectorAll('.v-p').forEach((el, idx) => {
+                const val = parseFloat(el.value) || 0;
+                tP += val; mEx[idx] += val;
+            });
+        });
         document.getElementById('res-r').innerText = "R$ " + tR.toLocaleString();
         document.getElementById('res-p').innerText = "R$ " + tP.toLocaleString();
         document.getElementById('res-a').innerText = "R$ " + tA.toLocaleString();
@@ -282,7 +291,7 @@
         const m = () => Array.from(document.querySelectorAll('#tbody-metas tr')).map(tr => ({ d: tr.querySelector('.meta-d').value, s: tr.querySelector('select').value }));
         const payload = { r: gMat('tbody-receber', false), p: gMat('tbody-pagar', true), a: gMat('tbody-aportes', false), m: m(), n: document.getElementById('agenda-text').value, sync: new Date() };
         await supabaseClient.from('finance_data').upsert({ id: userLogged.id, content: payload, updated_at: new Date() });
-        document.getElementById('last-sync').innerText = "Backup: " + new Date().toLocaleTimeString();
+        document.getElementById('last-sync').innerText = "Salvo: " + new Date().toLocaleTimeString();
     }
 
     async function loadData() {
