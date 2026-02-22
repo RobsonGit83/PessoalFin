@@ -32,7 +32,6 @@
             --success: #10b981; --danger: #fb7185; --purple: #fbbf24;
         }
 
-        /* SCROLLBAR MODERNA */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; border: 2px solid var(--bg); }
@@ -42,53 +41,21 @@
         .glass { backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: var(--card-bg); border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 
         .container { max-width: 1600px; margin: 0 auto; display: none; }
-        
-        header { 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 15px 25px; border-radius: 20px; margin-bottom: 25px; gap: 20px; 
-            flex-wrap: nowrap; position: relative; z-index: 10000;
-        }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; border-radius: 20px; margin-bottom: 25px; gap: 20px; flex-wrap: nowrap; position: relative; z-index: 10000; }
         
         .btn-group { display: flex; gap: 10px; align-items: center; }
-        
-        button { 
-            cursor: pointer; border-radius: 12px; font-weight: 600; border: none; 
-            transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; 
-            color: #fff; font-size: 13px; white-space: nowrap; 
-        }
+        button { cursor: pointer; border-radius: 12px; font-weight: 600; border: none; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; color: #fff; font-size: 13px; white-space: nowrap; }
         .btn-main { padding: 10px 16px; background: rgba(255,255,255,0.08); }
         .btn-main:hover { background: rgba(255,255,255,0.15); transform: translateY(-2px); }
 
-        /* MENU DE TEMAS - CORREÇÃO CRÍTICA */
         .theme-menu { position: relative; }
-        .theme-options { 
-            display: none; 
-            position: absolute; 
-            top: 50px; /* Logo abaixo do botão */
-            right: 0; 
-            background: var(--card-bg); 
-            border: 2px solid var(--accent); 
-            border-radius: 15px; 
-            padding: 8px; 
-            z-index: 999999 !important; /* Valor astronômico para ficar na frente de tudo */
-            min-width: 180px; 
-            box-shadow: 0 15px 40px rgba(0,0,0,0.8);
-            backdrop-filter: blur(25px);
-        }
-        .theme-options button { 
-            width: 100%; 
-            padding: 12px; 
-            margin: 4px 0; 
-            justify-content: flex-start; 
-            background: rgba(255,255,255,0.05); 
-            border-radius: 10px;
-        }
-        .theme-options button:hover { background: var(--accent); color: #000; }
+        .theme-options { display: none; position: absolute; top: 130%; right: 0; background: var(--card-bg); border: 1px solid var(--border); border-radius: 15px; padding: 8px; z-index: 999999; min-width: 160px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .theme-options button { width: 100%; padding: 10px; margin: 2px 0; justify-content: flex-start; background: transparent; }
 
-        .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; position: relative; z-index: 100; }
+        .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
         .card { padding: 18px; border-radius: 20px; border-left: 4px solid var(--accent); }
 
-        .section-box { border-radius: 20px; margin-bottom: 15px; overflow: hidden; }
+        .section-box { border-radius: 20px; margin-bottom: 15px; }
         .section-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; cursor: pointer; background: rgba(255,255,255,0.02); }
         .section-content { padding: 20px; overflow-x: auto; }
         .collapsed { display: none !important; }
@@ -97,12 +64,18 @@
         th { font-size: 10px; padding: 12px 5px; opacity: 0.6; text-transform: uppercase; border: 1px solid var(--border); text-align: center; }
         td { padding: 5px; border: 1px solid var(--border); text-align: center; vertical-align: middle; }
         
-        .input-wrapper { position: relative; display: flex; align-items: center; justify-content: center; }
-        .input-wrapper span { position: absolute; left: 8px; font-size: 9px; opacity: 0.4; pointer-events: none; }
+        /* PREFIXO R$ */
+        .input-wrapper { position: relative; display: flex; align-items: center; }
+        .input-wrapper::before { content: "R$"; position: absolute; left: 8px; font-size: 9px; opacity: 0.5; pointer-events: none; }
         
-        input, select { background: rgba(255,255,255,0.04); color: var(--text); border: 1px solid transparent; border-radius: 6px; padding: 8px; font-size: 12px; width: 100%; box-sizing: border-box; outline: none; }
-        input.val-month { padding-left: 22px; text-align: right; }
+        input, select { background: rgba(255,255,255,0.04); color: var(--text); border: 1px solid transparent; border-radius: 6px; padding: 8px; font-size: 12px; width: 100%; box-sizing: border-box; outline: none; transition: 0.2s; }
+        input:focus, select:focus { border-color: var(--accent); }
+        input.val-month { padding-left: 24px; text-align: right; }
         input.venc-in { text-align: center; color: var(--accent); font-weight: bold; }
+
+        /* STATUS METAS - CORES DO TEMA */
+        .status-select { background: var(--bg) !important; color: var(--text) !important; border: 1px solid var(--border); cursor: pointer; }
+        .status-select option { background: var(--bg); color: var(--text); }
 
         .btn-del-row { color: var(--danger); background: none; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; padding: 5px 0; }
 
@@ -112,8 +85,6 @@
 
         #calc { position: fixed; top: 100px; left: 100px; width: 250px; padding: 20px; border-radius: 25px; z-index: 6000; display: none; background: #111; border: 1px solid #333; }
         .calc-screen { width: 100%; height: 50px; background: #000; color: #10b981; text-align: right; padding: 10px; font-size: 20px; border: none; margin-bottom: 10px; border-radius: 10px; }
-        .calc-btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-        .calc-btns button { padding: 12px; border-radius: 10px; background: #222; justify-content: center; }
     </style>
 </head>
 <body>
@@ -140,8 +111,8 @@
                 <button class="btn-main glass" onclick="toggleThemes()"><i data-lucide="palette" size="16"></i> Temas</button>
                 <div id="theme-options" class="theme-options glass">
                     <button onclick="changeTheme('default')">🔵 Ocean (Padrão)</button>
-                    <button onclick="changeTheme('dracula')">🟣 Dracula (Roxo)</button>
-                    <button onclick="changeTheme('emerald')">🟢 Emerald (Verde)</button>
+                    <button onclick="changeTheme('dracula')">🟣 Dracula</button>
+                    <button onclick="changeTheme('emerald')">🟢 Emerald</button>
                 </div>
             </div>
             <button class="btn-main glass" onclick="toggleAgenda()"><i data-lucide="book-open" size="16"></i> Agenda</button>
@@ -204,7 +175,7 @@
 <div id="agenda-side" class="glass">
     <h3 style="margin-top:0">📝 Notas Cloud</h3>
     <textarea id="agenda-text"></textarea>
-    <button onclick="toggleAgenda()" style="margin-top:15px; background:var(--danger); width:100%; justify-content:center; padding:12px">Fechar Agenda</button>
+    <button onclick="toggleAgenda()" style="margin-top:15px; background:var(--danger); width:100%; padding:10px;">Fechar</button>
 </div>
 
 <div id="calc" class="glass">
@@ -234,11 +205,14 @@
     };
 
     function toggleThemes() { const t = document.getElementById('theme-options'); t.style.display = (t.style.display === 'block') ? 'none' : 'block'; }
+    
     function changeTheme(theme) {
         document.body.className = '';
         if (theme !== 'default') document.body.classList.add('theme-' + theme);
         document.getElementById('theme-options').style.display = 'none';
-        if(chart) { chart.options.scales.x.ticks.color = getComputedStyle(document.body).getPropertyValue('--text'); chart.update(); }
+        // Atualiza cores do gráfico conforme o tema
+        const textColor = getComputedStyle(document.body).getPropertyValue('--text').trim();
+        if(chart) { chart.options.scales.x.ticks.color = textColor; chart.update(); }
     }
 
     async function handleAuth() {
@@ -274,10 +248,10 @@
         let inputs = '';
         for(let i=0; i<12; i++) {
             const v = data ? data.vals[i] : 0;
-            inputs += `<td><div class="input-wrapper"><span>R$</span><input type="number" class="val-month ${type}" value="${v}" oninput="updateAll()"></div></td>`;
+            inputs += `<td><div class="input-wrapper"><input type="number" class="val-month ${type}" value="${v}" oninput="updateAll()"></div></td>`;
         }
-        const vencInp = showVenc ? `<td><input type="text" class="venc-in" value="${data ? data.venc : ''}" placeholder="Dia"></td>` : '';
-        tr.innerHTML = `<td><input type="text" class="desc-row" value="${data ? data.d : ''}" placeholder="Descrição..."></td>${vencInp}${inputs}<td><button class="btn-del-row" onclick="this.parentElement.parentElement.remove(); updateAll()"><i data-lucide="trash-2" size="16"></i></button></td>`;
+        const vencCell = showVenc ? `<td><input type="text" class="venc-in" value="${data ? data.venc : ''}" placeholder="Dia"></td>` : '';
+        tr.innerHTML = `<td><input type="text" class="desc-row" value="${data ? data.d : ''}" placeholder="Descrição..."></td>${vencCell}${inputs}<td><button class="btn-del-row" onclick="this.parentElement.parentElement.remove(); updateAll()"><i data-lucide="trash-2" size="16"></i></button></td>`;
         tbody.appendChild(tr); lucide.createIcons(); updateAll();
     }
 
@@ -285,7 +259,7 @@
         const tbody = document.getElementById('tbody-metas');
         const tr = document.createElement('tr');
         const st = data ? data.s : 'iniciar';
-        tr.innerHTML = `<td style="width:70%"><input type="text" class="meta-d" value="${data ? data.d : ''}"></td><td><select onchange="this.className='status-select st-'+this.value" class="st-${st}" style="background:transparent; color:inherit"><option value="iniciar" ${st==='iniciar'?'selected':''}>A iniciar</option><option value="andamento" ${st==='andamento'?'selected':''}>Em andamento</option><option value="concluido" ${st==='concluido'?'selected':''}>Concluído</option></select></td><td style="text-align:center;"><button class="btn-del-row" onclick="this.parentElement.parentElement.remove()"><i data-lucide="trash-2" size="16"></i></button></td>`;
+        tr.innerHTML = `<td style="width:70%"><input type="text" class="meta-d" value="${data ? data.d : ''}"></td><td><select onchange="this.className='status-select st-'+this.value" class="status-select"><option value="iniciar" ${st==='iniciar'?'selected':''}>A iniciar</option><option value="andamento" ${st==='andamento'?'selected':''}>Em andamento</option><option value="concluido" ${st==='concluido'?'selected':''}>Concluído</option></select></td><td style="text-align:center;"><button class="btn-del-row" onclick="this.parentElement.parentElement.remove()"><i data-lucide="trash-2" size="16"></i></button></td>`;
         tbody.appendChild(tr); lucide.createIcons();
     }
 
