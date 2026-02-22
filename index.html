@@ -18,7 +18,7 @@
             --bg: #020617; --card-bg: rgba(30, 41, 59, 0.85);
             --text: #f1f5f9; --accent: #60a5fa; --border: rgba(255, 255, 255, 0.15);
             --success: #34d399; --danger: #f87171; --purple: #a78bfa;
-            --paid-bg: rgba(16, 185, 129, 0.2); /* Fundo para conta paga */
+            --paid-cell: rgba(16, 185, 129, 0.25);
         }
 
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
@@ -27,8 +27,8 @@
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; transition: 0.5s; overflow-x: hidden; }
         .glass { backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: var(--card-bg); border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 
-        .container { max-width: 1600px; margin: 0 auto; display: none; }
-        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; border-radius: 20px; margin-bottom: 25px; gap: 20px; position: relative; z-index: 1000; }
+        .container { max-width: 1650px; margin: 0 auto; display: none; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; border-radius: 20px; margin-bottom: 25px; gap: 20px; }
         
         button { cursor: pointer; border-radius: 12px; font-weight: 600; border: none; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; color: #fff; font-size: 13px; }
         .btn-main { padding: 10px 16px; background: rgba(255,255,255,0.08); }
@@ -38,25 +38,32 @@
 
         .section-box { border-radius: 20px; margin-bottom: 15px; }
         .section-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; cursor: pointer; }
-        .section-content { padding: 20px; overflow-x: auto; }
+        .section-content { padding: 15px; overflow-x: auto; }
         .collapsed { display: none !important; }
 
-        table { width: 100%; border-collapse: collapse; min-width: 1350px; table-layout: fixed; }
-        th { font-size: 10px; padding: 12px 5px; opacity: 0.6; text-transform: uppercase; border: 1px solid var(--border); text-align: center; }
-        td { padding: 5px; border: 1px solid var(--border); text-align: center; transition: 0.3s; }
+        table { width: 100%; border-collapse: collapse; min-width: 1400px; table-layout: fixed; }
+        th { font-size: 10px; padding: 10px 5px; opacity: 0.6; text-transform: uppercase; border: 1px solid var(--border); text-align: center; }
+        td { padding: 3px; border: 1px solid var(--border); text-align: center; }
         
-        /* ESTILO LINHA PAGA */
-        tr.row-paid { background: var(--paid-bg) !important; }
-        tr.row-paid input { color: var(--success); font-weight: bold; }
+        /* ESTILO CELULA PAGA */
+        .cell-paid { background: var(--paid-cell) !important; }
+        .cell-paid input { color: var(--success) !important; font-weight: 800; }
 
-        input, select { background: rgba(255,255,255,0.05); color: var(--text); border: 1px solid transparent; border-radius: 6px; padding: 8px; font-size: 12px; width: 100%; box-sizing: border-box; outline: none; }
-        input.val-month { text-align: right; }
+        .input-wrapper { position: relative; display: flex; align-items: center; border-radius: 6px; overflow: hidden; transition: 0.2s; }
+        .input-wrapper span { position: absolute; left: 6px; font-size: 9px; opacity: 0.5; pointer-events: none; }
         
+        input, select { background: rgba(255,255,255,0.05); color: var(--text); border: 1px solid transparent; border-radius: 6px; padding: 8px; font-size: 12px; width: 100%; box-sizing: border-box; outline: none; }
+        input.val-month { padding-left: 22px; text-align: right; }
+        input.venc-in { text-align: center; color: var(--accent); font-weight: bold; }
+
+        .btn-action { background: none; color: var(--text); opacity: 0.3; transition: 0.3s; }
+        .btn-action:hover { opacity: 1; transform: scale(1.1); }
+
         #agenda-side { position: fixed; right: -400px; top: 0; width: 340px; height: 100%; z-index: 5000; padding: 30px; transition: 0.5s; background: #0f172a; border-left: 1px solid var(--border); }
         #agenda-side.open { right: 0; }
         
         #calc { position: fixed; top: 100px; left: 100px; width: 250px; padding: 20px; border-radius: 25px; z-index: 6000; display: none; background: #111; border: 1px solid #333; }
-        .calc-screen { width: 100%; height: 50px; background: #000; color: #10b981; text-align: right; padding: 10px; font-size: 20px; border-radius: 10px; }
+        .calc-screen { width: 100%; height: 50px; background: #000; color: #10b981; text-align: right; padding: 10px; font-size: 20px; border-radius: 10px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -74,7 +81,7 @@
     <header class="glass">
         <div>
             <h2 style="margin:0; font-size: 18px;">Dash Finanças</h2>
-            <div id="last-sync" style="font-size: 9px; opacity: 0.5;">Backup Sincronizado</div>
+            <div id="last-sync" style="font-size: 9px; opacity: 0.5;">Carregando nuvem...</div>
         </div>
         <div class="btn-group">
             <button class="btn-main glass" onclick="toggleCalc()"><i data-lucide="calculator" size="16"></i> Calc</button>
@@ -84,13 +91,11 @@
         </div>
     </header>
 
-    
-
     <div class="summary-grid">
         <div class="card glass" style="border-left-color: var(--danger);"><small>GASTOS ANUAL</small><p id="res-p" style="color:var(--danger)">R$ 0,00</p></div>
         <div class="card glass" style="border-left-color: var(--success);"><small>RECEITA ANUAL</small><p id="res-r" style="color:var(--success)">R$ 0,00</p></div>
         <div class="card glass" style="border-left-color: var(--purple);"><small>APORTES ANUAL</small><p id="res-a" style="color:var(--purple)">R$ 0,00</p></div>
-        <div class="card glass" style="border-left-color: #fbbf24;"><small>TAXA SELIC Hoje</small><p id="selic-val" style="color:#fbbf24">Consultando...</p></div>
+        <div class="card glass" style="border-left-color: #fbbf24;"><small>TAXA SELIC Hoje</small><p id="selic-val" style="color:#fbbf24">...</p></div>
     </div>
 
     <div class="section-box glass" id="box-p">
@@ -99,7 +104,7 @@
             <button class="btn-main" style="background:var(--danger); padding: 4px 10px;" onclick="event.stopPropagation(); addRow('tbody-pagar', 'v-p', true)">+</button>
         </div>
         <div class="section-content" id="content-p">
-            <table><thead><tr><th style="width: 200px;">Descrição</th><th style="width: 60px;">Venc.</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:80px;">AÇÃO</th></tr></thead><tbody id="tbody-pagar"></tbody></table>
+            <table><thead><tr><th style="width: 220px;">Descrição</th><th style="width: 55px;">Venc.</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:50px;"></th></tr></thead><tbody id="tbody-pagar"></tbody></table>
         </div>
     </div>
 
@@ -109,7 +114,7 @@
             <button class="btn-main" style="background:var(--success); padding: 4px 10px;" onclick="event.stopPropagation(); addRow('tbody-receber', 'v-r', false)">+</button>
         </div>
         <div class="section-content" id="content-r">
-            <table><thead><tr><th style="width: 250px;">Descrição</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:60px;">AÇÃO</th></tr></thead><tbody id="tbody-receber"></tbody></table>
+            <table><thead><tr><th style="width: 220px;">Descrição</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:50px;"></th></tr></thead><tbody id="tbody-receber"></tbody></table>
         </div>
     </div>
 
@@ -119,18 +124,18 @@
             <button class="btn-main" style="background:var(--purple); padding: 4px 10px;" onclick="event.stopPropagation(); addRow('tbody-aportes', 'v-a', false)">+</button>
         </div>
         <div class="section-content" id="content-a">
-            <table><thead><tr><th style="width: 250px;">Descrição</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:60px;">AÇÃO</th></tr></thead><tbody id="tbody-aportes"></tbody></table>
+            <table><thead><tr><th style="width: 220px;">Descrição</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:50px;"></th></tr></thead><tbody id="tbody-aportes"></tbody></table>
         </div>
     </div>
 
-    <div class="glass" style="padding: 20px; border-radius: 20px; height: 300px;"><canvas id="expenseChart"></canvas></div>
+    <div class="glass" style="padding: 20px; border-radius: 20px; height: 300px; margin-top: 15px;"><canvas id="expenseChart"></canvas></div>
 </div>
 
 <div id="agenda-side" class="glass">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h3>📝 Notas Cloud</h3><button onclick="toggleAgenda()" style="color:var(--danger); background:none;"><i data-lucide="x"></i></button>
+        <h3>📝 Notas</h3><button onclick="toggleAgenda()" style="background:none;"><i data-lucide="x"></i></button>
     </div>
-    <textarea id="agenda-text" style="width:100%; height:80%; background:rgba(0,0,0,0.2); color:#fff; border-radius:10px; padding:10px; border:1px solid var(--border); resize:none;"></textarea>
+    <textarea id="agenda-text" style="width:100%; height:80%;"></textarea>
 </div>
 
 <div id="calc" class="glass">
@@ -146,6 +151,7 @@
 </div>
 
 <script>
+    // --- SUPABASE CONFIG ---
     const S_URL = 'https://xpamnljjxvfnpzdmuive.supabase.co'; 
     const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhwYW1ubGpqeHZmbnB6ZG11aXZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzOTA2ODIsImV4cCI6MjA4NTk2NjY4Mn0.ePhhjJcpYAiVM3f6LRD66LKVhnUv854lvztudybx6_Q';
     const supabaseClient = window.supabase.createClient(S_URL, S_KEY);
@@ -162,13 +168,10 @@
 
     async function fetchSelic() {
         try {
-            const resp = await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.11/dados/ultimos/1?formato=json');
-            const data = await resp.json();
-            // A Selic over é diária, a Meta Selic anualizada é a 1178 (vou usar a over como exemplo rápido ou buscar a anualizada)
-            const respMeta = await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.432/dados/ultimos/1?formato=json');
-            const dataMeta = await respMeta.json();
-            document.getElementById('selic-val').innerText = dataMeta[0].valor + "% a.a.";
-        } catch (e) { document.getElementById('selic-val').innerText = "Erro ao carregar"; }
+            const r = await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.432/dados/ultimos/1?formato=json');
+            const d = await r.json();
+            document.getElementById('selic-val').innerText = d[0].valor + "% a.a.";
+        } catch (e) { document.getElementById('selic-val').innerText = "Erro"; }
     }
 
     function showDashboard() {
@@ -192,24 +195,22 @@
     function addRow(target, type, showVenc, data = null) {
         const tbody = document.getElementById(target);
         const tr = document.createElement('tr');
-        if (data && data.paid) tr.classList.add('row-paid');
 
         let inputs = '';
         for(let i=0; i<12; i++) {
             const v = data ? data.vals[i] : 0;
-            inputs += `<td><input type="number" class="val-month ${type}" value="${v}" oninput="updateAll()"></td>`;
+            const isPaid = (data && data.paid && data.paid[i]) ? 'cell-paid' : '';
+            inputs += `<td class="${isPaid}" onclick="toggleCellPaid(this)"><div class="input-wrapper"><span>R$</span><input type="number" class="val-month ${type}" value="${v}" oninput="updateAll()" onclick="event.stopPropagation()"></div></td>`;
         }
         
         const vencCell = showVenc ? `<td><input type="number" class="venc-in" value="${data ? data.venc : ''}" placeholder="Dia"></td>` : '';
-        const actionBtn = showVenc ? `<button onclick="togglePaid(this)" style="background:none; color:var(--success)"><i data-lucide="check-circle" size="14"></i></button>` : '';
 
-        tr.innerHTML = `<td><input type="text" class="desc-row" value="${data ? data.d : ''}" placeholder="Nome..."></td>${vencCell}${inputs}<td><div style="display:flex; gap:8px; justify-content:center;">${actionBtn}<button class="btn-del-row" style="background:none; color:var(--danger)" onclick="this.closest('tr').remove(); updateAll()"><i data-lucide="trash-2" size="14"></i></button></div></td>`;
+        tr.innerHTML = `<td><input type="text" class="desc-row" value="${data ? data.d : ''}" placeholder="Nome..."></td>${vencCell}${inputs}<td><button class="btn-action" style="color:var(--danger)" onclick="this.closest('tr').remove(); updateAll()"><i data-lucide="trash-2" size="14"></i></button></td>`;
         tbody.appendChild(tr); lucide.createIcons(); updateAll();
     }
 
-    function togglePaid(btn) {
-        const tr = btn.closest('tr');
-        tr.classList.toggle('row-paid');
+    function toggleCellPaid(td) {
+        td.classList.toggle('cell-paid');
     }
 
     function updateAll() {
@@ -219,7 +220,7 @@
         document.querySelectorAll('#tbody-pagar tr').forEach(row => {
             row.querySelectorAll('.v-p').forEach((el, idx) => {
                 const val = parseFloat(el.value) || 0;
-                tP += val; mEx[idx % 12] += val;
+                tP += val; mEx[idx] += val;
             });
         });
         document.getElementById('res-r').innerText = "R$ " + tR.toLocaleString();
@@ -230,7 +231,7 @@
 
     function initChart() {
         const ctx = document.getElementById('expenseChart').getContext('2d');
-        Chart.register(ChartDataLabels);
+        if (!Chart.registry.plugins.get('datalabels')) Chart.register(ChartDataLabels);
         chart = new Chart(ctx, {
             type: 'bar',
             data: { labels: months, datasets: [{ data: Array(12).fill(0), backgroundColor: '#60a5fa', borderRadius: 8 }] },
@@ -264,13 +265,13 @@
             d: tr.querySelector('.desc-row').value, 
             venc: hasVenc ? tr.querySelector('.venc-in').value : '', 
             vals: Array.from(tr.querySelectorAll('.val-month')).map(i => i.value),
-            paid: tr.classList.contains('row-paid') // SALVA O STATUS DE PAGO
+            paid: Array.from(tr.querySelectorAll('td')).filter(td => td.hasAttribute('onclick')).map(td => td.classList.contains('cell-paid'))
         }));
         
         const payload = { r: gMat('tbody-receber', false), p: gMat('tbody-pagar', true), a: gMat('tbody-aportes', false), n: document.getElementById('agenda-text').value, sync: new Date() };
         await supabaseClient.from('finance_data').upsert({ id: userLogged.id, content: payload, updated_at: new Date() });
         b.innerHTML = `<i data-lucide="check"></i> Salvo`;
-        document.getElementById('last-sync').innerText = "Último backup: " + new Date().toLocaleTimeString();
+        document.getElementById('last-sync').innerText = "Backup: " + new Date().toLocaleTimeString();
         setTimeout(() => { b.innerHTML = `<i data-lucide="cloud"></i> Salvar`; lucide.createIcons(); }, 2000);
     }
 
@@ -282,7 +283,7 @@
             if(c.r) c.r.forEach(x => addRow('tbody-receber', 'v-r', false, x));
             if(c.a) c.a.forEach(x => addRow('tbody-aportes', 'v-a', false, x));
             document.getElementById('agenda-text').value = c.n || "";
-            if(c.sync) document.getElementById('last-sync').innerText = "Último backup: " + new Date(c.sync).toLocaleTimeString();
+            if(c.sync) document.getElementById('last-sync').innerText = "Backup: " + new Date(c.sync).toLocaleTimeString();
             updateAll(); lucide.createIcons();
         }
     }
