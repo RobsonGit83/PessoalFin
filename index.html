@@ -13,35 +13,35 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
 
-        /* TEMAS */
+        /* CONFIGURAÇÃO GLOBAL DE COR PARA NAVEGADORES */
         :root {
-            --bg: #020617; --card-bg: rgba(30, 41, 59, 0.85);
-            --text: #f1f5f9; --accent: #60a5fa; --border: rgba(255, 255, 255, 0.15);
+            color-scheme: dark; /* Força o navegador a usar controles dark (scroll, menus, etc) */
+            --bg: #020617; --card-bg: rgba(30, 41, 59, 0.7);
+            --text: #f1f5f9; --accent: #60a5fa; --border: rgba(255, 255, 255, 0.1);
             --success: #34d399; --danger: #f87171; --purple: #a78bfa;
         }
 
         body.theme-dracula {
-            --bg: #282a36; --card-bg: rgba(40, 42, 54, 0.95);
-            --text: #f8f8f2; --accent: #bd93f9; --border: rgba(189, 147, 249, 0.3);
+            --bg: #282a36; --card-bg: rgba(68, 71, 90, 0.8);
+            --text: #f8f8f2; --accent: #bd93f9; --border: rgba(189, 147, 249, 0.2);
             --success: #50fa7b; --danger: #ff5555; --purple: #ff79c6;
         }
 
         body.theme-emerald {
-            --bg: #064e3b; --card-bg: rgba(6, 78, 59, 0.95);
-            --text: #ecfdf5; --accent: #34d399; --border: rgba(52, 211, 153, 0.3);
+            --bg: #064e3b; --card-bg: rgba(6, 78, 59, 0.8);
+            --text: #ecfdf5; --accent: #34d399; --border: rgba(52, 211, 153, 0.2);
             --success: #10b981; --danger: #fb7185; --purple: #fbbf24;
         }
 
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; border: 2px solid var(--bg); }
-        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; transition: 0.5s; overflow-x: hidden; }
         .glass { backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: var(--card-bg); border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 
         .container { max-width: 1600px; margin: 0 auto; display: none; }
-        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; border-radius: 20px; margin-bottom: 25px; gap: 20px; flex-wrap: nowrap; position: relative; z-index: 10000; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; border-radius: 20px; margin-bottom: 25px; gap: 20px; position: relative; z-index: 1000; }
         
         .btn-group { display: flex; gap: 10px; align-items: center; }
         button { cursor: pointer; border-radius: 12px; font-weight: 600; border: none; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; color: #fff; font-size: 13px; white-space: nowrap; }
@@ -49,33 +49,42 @@
         .btn-main:hover { background: rgba(255,255,255,0.15); transform: translateY(-2px); }
 
         .theme-menu { position: relative; }
-        .theme-options { display: none; position: absolute; top: 130%; right: 0; background: var(--card-bg); border: 1px solid var(--border); border-radius: 15px; padding: 8px; z-index: 999999; min-width: 160px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .theme-options { display: none; position: absolute; top: 130%; right: 0; background: var(--card-bg); border: 1px solid var(--border); border-radius: 15px; padding: 8px; z-index: 99999; min-width: 160px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .theme-options button { width: 100%; padding: 10px; margin: 2px 0; justify-content: flex-start; background: transparent; }
 
         .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
         .card { padding: 18px; border-radius: 20px; border-left: 4px solid var(--accent); }
 
-        .section-box { border-radius: 20px; margin-bottom: 15px; }
+        .section-box { border-radius: 20px; margin-bottom: 15px; overflow: visible; }
         .section-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; cursor: pointer; background: rgba(255,255,255,0.02); }
         .section-content { padding: 20px; overflow-x: auto; }
         .collapsed { display: none !important; }
 
         table { width: 100%; border-collapse: collapse; min-width: 1350px; table-layout: fixed; }
         th { font-size: 10px; padding: 12px 5px; opacity: 0.6; text-transform: uppercase; border: 1px solid var(--border); text-align: center; }
-        td { padding: 5px; border: 1px solid var(--border); text-align: center; vertical-align: middle; }
+        td { padding: 5px; border: 1px solid var(--border); text-align: center; }
         
-        /* PREFIXO R$ */
-        .input-wrapper { position: relative; display: flex; align-items: center; }
-        .input-wrapper::before { content: "R$"; position: absolute; left: 8px; font-size: 9px; opacity: 0.5; pointer-events: none; }
+        .input-wrapper { position: relative; display: flex; align-items: center; justify-content: center; }
+        .input-wrapper::before { content: "R$"; position: absolute; left: 8px; font-size: 9px; opacity: 0.4; pointer-events: none; }
         
-        input, select { background: rgba(255,255,255,0.04); color: var(--text); border: 1px solid transparent; border-radius: 6px; padding: 8px; font-size: 12px; width: 100%; box-sizing: border-box; outline: none; transition: 0.2s; }
-        input:focus, select:focus { border-color: var(--accent); }
-        input.val-month { padding-left: 24px; text-align: right; }
+        input, select { background: rgba(255,255,255,0.05); color: var(--text); border: 1px solid transparent; border-radius: 6px; padding: 8px; font-size: 12px; width: 100%; box-sizing: border-box; outline: none; transition: 0.2s; }
+        input.val-month { padding-left: 22px; text-align: right; }
         input.venc-in { text-align: center; color: var(--accent); font-weight: bold; }
 
-        /* STATUS METAS - CORES DO TEMA */
-        .status-select { background: var(--bg) !important; color: var(--text) !important; border: 1px solid var(--border); cursor: pointer; }
-        .status-select option { background: var(--bg); color: var(--text); }
+        /* ESTILO DO SELECT DE METAS */
+        .status-select { 
+            appearance: none; 
+            background: var(--card-bg) !important; 
+            color: var(--text) !important; 
+            border: 1px solid var(--border) !important; 
+            text-align: center;
+            cursor: pointer;
+        }
+        .status-select option { 
+            background-color: #1e293b; /* Fundo fixo dark para as opções */
+            color: #ffffff; 
+            padding: 10px;
+        }
 
         .btn-del-row { color: var(--danger); background: none; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; padding: 5px 0; }
 
@@ -85,6 +94,8 @@
 
         #calc { position: fixed; top: 100px; left: 100px; width: 250px; padding: 20px; border-radius: 25px; z-index: 6000; display: none; background: #111; border: 1px solid #333; }
         .calc-screen { width: 100%; height: 50px; background: #000; color: #10b981; text-align: right; padding: 10px; font-size: 20px; border: none; margin-bottom: 10px; border-radius: 10px; }
+        .calc-btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .calc-btns button { padding: 12px; border-radius: 10px; background: #222; justify-content: center; }
     </style>
 </head>
 <body>
@@ -134,8 +145,12 @@
             <button class="btn-main" style="background:var(--danger); padding: 4px 10px;" onclick="event.stopPropagation(); addRow('tbody-pagar', 'v-p', true)">+</button>
         </div>
         <div class="section-content" id="content-box-p">
-            <table><thead><tr><th style="width: 250px;">Descrição</th><th style="width: 80px;">Venc.</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:60px;">APAGAR</th></tr></thead>
-            <tbody id="tbody-pagar"></tbody></table>
+            <table>
+                <thead>
+                    <tr><th style="width: 250px;">Descrição</th><th style="width: 80px;">Venc.</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:60px;">APAGAR</th></tr>
+                </thead>
+                <tbody id="tbody-pagar"></tbody>
+            </table>
         </div>
     </div>
 
@@ -172,24 +187,6 @@
     <div class="glass" style="padding: 20px; border-radius: 20px; height: 300px;"><canvas id="expenseChart"></canvas></div>
 </div>
 
-<div id="agenda-side" class="glass">
-    <h3 style="margin-top:0">📝 Notas Cloud</h3>
-    <textarea id="agenda-text"></textarea>
-    <button onclick="toggleAgenda()" style="margin-top:15px; background:var(--danger); width:100%; padding:10px;">Fechar</button>
-</div>
-
-<div id="calc" class="glass">
-    <input type="text" class="calc-screen" id="display" disabled>
-    <div class="calc-btns">
-        <button onclick="clearCalc()" style="background:var(--danger)">C</button>
-        <button onclick="btnCalc('%')">%</button><button onclick="backCalc()">←</button><button onclick="btnCalc('/')">/</button>
-        <button onclick="btnCalc('7')">7</button><button onclick="btnCalc('8')">8</button><button onclick="btnCalc('9')">9</button><button onclick="btnCalc('*')">×</button>
-        <button onclick="btnCalc('4')">4</button><button onclick="btnCalc('5')">5</button><button onclick="btnCalc('6')">6</button><button onclick="btnCalc('-')">-</button>
-        <button onclick="btnCalc('1')">1</button><button onclick="btnCalc('2')">2</button><button onclick="btnCalc('3')">3</button><button onclick="btnCalc('+')">+</button>
-        <button onclick="btnCalc('0')" style="grid-column: span 2">0</button><button onclick="btnCalc('.')">.</button><button onclick="resCalc()" style="background:var(--success)">=</button>
-    </div>
-</div>
-
 <script>
     const S_URL = 'https://xpamnljjxvfnpzdmuive.supabase.co'; 
     const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhwYW1ubGpqeHZmbnB6ZG11aXZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzOTA2ODIsImV4cCI6MjA4NTk2NjY4Mn0.ePhhjJcpYAiVM3f6LRD66LKVhnUv854lvztudybx6_Q';
@@ -205,14 +202,11 @@
     };
 
     function toggleThemes() { const t = document.getElementById('theme-options'); t.style.display = (t.style.display === 'block') ? 'none' : 'block'; }
-    
     function changeTheme(theme) {
         document.body.className = '';
         if (theme !== 'default') document.body.classList.add('theme-' + theme);
         document.getElementById('theme-options').style.display = 'none';
-        // Atualiza cores do gráfico conforme o tema
-        const textColor = getComputedStyle(document.body).getPropertyValue('--text').trim();
-        if(chart) { chart.options.scales.x.ticks.color = textColor; chart.update(); }
+        if(chart) { chart.options.scales.x.ticks.color = getComputedStyle(document.body).getPropertyValue('--text'); chart.update(); }
     }
 
     async function handleAuth() {
@@ -239,9 +233,6 @@
         lucide.createIcons();
     }
 
-    function toggleAgenda() { document.getElementById('agenda-side').classList.toggle('open'); }
-    function toggleCalc() { const c = document.getElementById('calc'); c.style.display = (c.style.display === 'block') ? 'none' : 'block'; }
-
     function addRow(target, type, showVenc, data = null) {
         const tbody = document.getElementById(target);
         const tr = document.createElement('tr');
@@ -259,7 +250,17 @@
         const tbody = document.getElementById('tbody-metas');
         const tr = document.createElement('tr');
         const st = data ? data.s : 'iniciar';
-        tr.innerHTML = `<td style="width:70%"><input type="text" class="meta-d" value="${data ? data.d : ''}"></td><td><select onchange="this.className='status-select st-'+this.value" class="status-select"><option value="iniciar" ${st==='iniciar'?'selected':''}>A iniciar</option><option value="andamento" ${st==='andamento'?'selected':''}>Em andamento</option><option value="concluido" ${st==='concluido'?'selected':''}>Concluído</option></select></td><td style="text-align:center;"><button class="btn-del-row" onclick="this.parentElement.parentElement.remove()"><i data-lucide="trash-2" size="16"></i></button></td>`;
+        tr.innerHTML = `
+            <td style="width:70%"><input type="text" class="meta-d" value="${data ? data.d : ''}"></td>
+            <td>
+                <select onchange="this.className='status-select st-'+this.value" class="status-select">
+                    <option value="iniciar" ${st==='iniciar'?'selected':''}>A iniciar</option>
+                    <option value="andamento" ${st==='andamento'?'selected':''}>Em andamento</option>
+                    <option value="concluido" ${st==='concluido'?'selected':''}>Concluído</option>
+                </select>
+            </td>
+            <td style="text-align:center;"><button class="btn-del-row" onclick="this.parentElement.parentElement.remove()"><i data-lucide="trash-2" size="16"></i></button></td>
+        `;
         tbody.appendChild(tr); lucide.createIcons();
     }
 
@@ -306,7 +307,7 @@
         const b = document.getElementById('btn-save'); b.innerText = "...";
         const gMat = (id, hasVenc) => Array.from(document.querySelectorAll(`#${id} tr`)).map(tr => ({ d: tr.querySelector('.desc-row').value, venc: hasVenc ? tr.querySelector('.venc-in').value : '', vals: Array.from(tr.querySelectorAll('.val-month')).map(i => i.value) }));
         const m = () => Array.from(document.querySelectorAll('#tbody-metas tr')).map(tr => ({ d: tr.querySelector('.meta-d').value, s: tr.querySelector('select').value }));
-        const payload = { r: gMat('tbody-receber', false), p: gMat('tbody-pagar', true), a: gMat('tbody-aportes', false), m: m(), n: document.getElementById('agenda-text').value, sync: new Date() };
+        const payload = { r: gMat('tbody-receber', false), p: gMat('tbody-pagar', true), a: gMat('tbody-aportes', false), m: m(), sync: new Date() };
         await supabaseClient.from('finance_data').upsert({ id: userLogged.id, content: payload, updated_at: new Date() });
         b.innerHTML = `<i data-lucide="check" size="16"></i> Salvo`; lucide.createIcons();
         setTimeout(() => { b.innerHTML = `<i data-lucide="cloud" size="16"></i> Salvar`; lucide.createIcons(); }, 2000);
@@ -320,8 +321,6 @@
             if(c.r) c.r.forEach(x => addRow('tbody-receber', 'v-r', false, x));
             if(c.a) c.a.forEach(x => addRow('tbody-aportes', 'v-a', false, x));
             if(c.m) c.m.forEach(x => addMetaRow(x));
-            document.getElementById('agenda-text').value = c.n || "";
-            if(c.sync) document.getElementById('last-sync').innerText = "Backup: " + new Date(c.sync).toLocaleTimeString();
             updateAll(); lucide.createIcons();
         }
     }
