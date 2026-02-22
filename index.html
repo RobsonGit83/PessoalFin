@@ -59,7 +59,11 @@
         .section-content { padding: 20px; overflow-x: auto; }
         .collapsed { display: none !important; }
 
-        table { width: 100%; border-collapse: collapse; min-width: 1350px; table-layout: fixed; }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        /* Tabelas menores que o padrão de 1350px podem se ajustar */
+        #box-r table, #box-a table { min-width: 1100px; }
+        #box-p table { min-width: 1250px; }
+
         th { font-size: 10px; padding: 12px 5px; opacity: 0.6; text-transform: uppercase; border: 1px solid var(--border); text-align: center; }
         td { padding: 5px; border: 1px solid var(--border); text-align: center; vertical-align: middle; }
         
@@ -118,25 +122,10 @@
     </header>
 
     <div class="summary-grid">
+        <div class="card glass" style="border-left-color: var(--danger);"><small>GASTOS ANUAL</small><p id="res-p" style="color:var(--danger)">R$ 0,00</p></div>
         <div class="card glass" style="border-left-color: var(--success);"><small>RECEITA ANUAL</small><p id="res-r" style="color:var(--success)">R$ 0,00</p></div>
         <div class="card glass" style="border-left-color: var(--purple);"><small>APORTES ANUAL</small><p id="res-a" style="color:var(--purple)">R$ 0,00</p></div>
-        <div class="card glass" style="border-left-color: var(--danger);"><small>GASTOS ANUAL</small><p id="res-p" style="color:var(--danger)">R$ 0,00</p></div>
         <div class="card glass" style="border-left-color: var(--accent);"><small>SALDO LÍQUIDO</small><p id="res-s">R$ 0,00</p></div>
-    </div>
-
-    <div class="section-box glass" id="box-r">
-        <div class="section-header" onclick="toggleSection('box-r')">
-            <div style="display:flex; align-items:center; gap:10px;"><i data-lucide="eye" size="16"></i><h3 style="margin:0; font-size:14px; color:var(--success)">💰 Contas a Receber</h3></div>
-            <button class="btn-main" style="background:var(--success); padding: 4px 10px;" onclick="event.stopPropagation(); addRow('tbody-receber', 'v-r', false)">+</button>
-        </div>
-        <div class="section-content" id="content-box-r">
-            <table>
-                <thead>
-                    <tr><th style="width: 250px;">Descrição</th><th style="width: 80px;">INFO</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:60px;">APAGAR</th></tr>
-                </thead>
-                <tbody id="tbody-receber"></tbody>
-            </table>
-        </div>
     </div>
 
     <div class="section-box glass" id="box-p">
@@ -154,6 +143,21 @@
         </div>
     </div>
 
+    <div class="section-box glass" id="box-r">
+        <div class="section-header" onclick="toggleSection('box-r')">
+            <div style="display:flex; align-items:center; gap:10px;"><i data-lucide="eye" size="16"></i><h3 style="margin:0; font-size:14px; color:var(--success)">💰 Contas a Receber</h3></div>
+            <button class="btn-main" style="background:var(--success); padding: 4px 10px;" onclick="event.stopPropagation(); addRow('tbody-receber', 'v-r', false)">+</button>
+        </div>
+        <div class="section-content" id="content-box-r">
+            <table>
+                <thead>
+                    <tr><th style="width: 250px;">Descrição</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:60px;">APAGAR</th></tr>
+                </thead>
+                <tbody id="tbody-receber"></tbody>
+            </table>
+        </div>
+    </div>
+
     <div class="section-box glass" id="box-a">
         <div class="section-header" onclick="toggleSection('box-a')">
             <div style="display:flex; align-items:center; gap:10px;"><i data-lucide="eye" size="16"></i><h3 style="margin:0; font-size:14px; color:var(--purple)">🚀 Aportes</h3></div>
@@ -162,7 +166,7 @@
         <div class="section-content" id="content-box-a">
             <table>
                 <thead>
-                    <tr><th style="width: 250px;">Descrição</th><th style="width: 80px;">INFO</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:60px;">APAGAR</th></tr>
+                    <tr><th style="width: 250px;">Descrição</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:60px;">APAGAR</th></tr>
                 </thead>
                 <tbody id="tbody-aportes"></tbody>
             </table>
@@ -199,6 +203,7 @@
 </div>
 
 <script>
+    // --- SUPABASE CONFIG ---
     const S_URL = 'https://xpamnljjxvfnpzdmuive.supabase.co'; 
     const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhwYW1ubGpqeHZmbnB6ZG11aXZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzOTA2ODIsImV4cCI6MjA4NTk2NjY4Mn0.ePhhjJcpYAiVM3f6LRD66LKVhnUv854lvztudybx6_Q';
     const supabaseClient = window.supabase.createClient(S_URL, S_KEY);
@@ -258,11 +263,13 @@
             const v = data ? data.vals[i] : 0;
             inputs += `<td><div class="input-wrapper"><span>R$</span><input type="number" class="val-month ${type}" value="${v}" oninput="updateAll()"></div></td>`;
         }
-        const vencInp = showVenc ? `<input type="text" class="venc-in" value="${data ? data.venc : ''}" placeholder="Dia">` : `<div style="opacity:0.2; font-size:9px">-</div>`;
+        
+        // Se não tiver vencimento, pula a coluna no corpo
+        const vencInp = showVenc ? `<td><input type="text" class="venc-in" value="${data ? data.venc : ''}" placeholder="Dia"></td>` : '';
         
         tr.innerHTML = `
             <td><input type="text" class="desc-row" value="${data ? data.d : ''}" placeholder="Descrição..."></td>
-            <td>${vencInp}</td>
+            ${vencInp}
             ${inputs}
             <td><button class="btn-del-row" onclick="this.parentElement.parentElement.remove(); updateAll()"><i data-lucide="trash-2" size="16"></i></button></td>
         `;
@@ -330,8 +337,8 @@
         const { data } = await supabaseClient.from('finance_data').select('content').eq('id', userLogged.id).maybeSingle();
         if(data?.content) {
             const c = data.content;
+            if(c.p) c.p.forEach(x => addRow('tbody-pagar', 'v-p', true, x)); // Pagar agora carrega primeiro
             if(c.r) c.r.forEach(x => addRow('tbody-receber', 'v-r', false, x));
-            if(c.p) c.p.forEach(x => addRow('tbody-pagar', 'v-p', true, x));
             if(c.a) c.a.forEach(x => addRow('tbody-aportes', 'v-a', false, x));
             if(c.m) c.m.forEach(x => addMetaRow(x));
             document.getElementById('agenda-text').value = c.n || "";
