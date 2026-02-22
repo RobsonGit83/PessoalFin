@@ -30,8 +30,10 @@
         .container { max-width: 1650px; margin: 0 auto; display: none; }
         header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; border-radius: 20px; margin-bottom: 25px; gap: 20px; }
         
-        button { cursor: pointer; border-radius: 12px; font-weight: 600; border: none; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; color: #fff; font-size: 13px; }
+        .btn-group { display: flex; gap: 8px; align-items: center; }
+        button { cursor: pointer; border-radius: 12px; font-weight: 600; border: none; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; color: #fff; font-size: 13px; white-space: nowrap; }
         .btn-main { padding: 10px 16px; background: rgba(255,255,255,0.08); }
+        .btn-main:hover { background: rgba(255,255,255,0.15); }
 
         .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
         .card { padding: 18px; border-radius: 20px; border-left: 4px solid var(--accent); }
@@ -45,14 +47,28 @@
         th { font-size: 10px; padding: 10px 5px; opacity: 0.6; text-transform: uppercase; border: 1px solid var(--border); text-align: center; }
         td { padding: 3px; border: 1px solid var(--border); text-align: center; transition: 0.2s; }
         
-        .cell-paid { background: var(--paid-cell) !important; box-shadow: inset 0 0 10px rgba(52, 211, 153, 0.2); }
-        .input-wrapper { position: relative; display: flex; align-items: center; cursor: pointer; }
+        /* CÉLULA PAGA */
+        .cell-paid { background: var(--paid-cell) !important; position: relative; }
+        .cell-paid::after { content: '✓'; position: absolute; top: 2px; right: 2px; font-size: 8px; color: var(--success); font-weight: bold; }
+
+        .input-wrapper { position: relative; display: flex; align-items: center; cursor: pointer; width: 100%; height: 100%; }
         .input-wrapper span { position: absolute; left: 6px; font-size: 9px; opacity: 0.5; pointer-events: none; }
         
-        input, select { background: rgba(255,255,255,0.05); color: var(--text); border: 1px solid transparent; border-radius: 6px; padding: 8px; font-size: 12px; width: 100%; box-sizing: border-box; outline: none; }
+        input, select { background: rgba(255,255,255,0.05); color: var(--text); border: 1px solid transparent; border-radius: 6px; padding: 8px; font-size: 12px; width: 100%; box-sizing: border-box; outline: none; transition: 0.2s; }
         input.val-month { padding-left: 22px; text-align: right; background: transparent; }
         
-        /* CALCULADORA E AGENDA - FRENTE DE TUDO */
+        /* VENCIMENTO AZUL E CENTRALIZADO */
+        input.venc-in { text-align: center; color: var(--accent); font-weight: 700; border: 1px solid rgba(96, 165, 250, 0.2); }
+
+        /* SELECT METAS DARK */
+        .status-select { 
+            background-color: var(--bg) !important; 
+            color: var(--text) !important; 
+            border: 1px solid var(--border);
+            cursor: pointer;
+        }
+        .status-select option { background-color: #1e293b; color: #fff; }
+
         #agenda-side { position: fixed; right: -400px; top: 0; width: 340px; height: 100%; z-index: 9999; padding: 30px; transition: 0.5s; background: #0f172a; border-left: 1px solid var(--border); box-shadow: -10px 0 30px rgba(0,0,0,0.5); }
         #agenda-side.open { right: 0; }
         
@@ -68,7 +84,7 @@
 
 <div id="login-container">
     <div class="login-card glass" style="padding: 40px; border-radius: 30px; width: 340px; margin: 15vh auto; text-align: center;">
-        <h2>💎 Financeiro Cloud</h2>
+        <h2 style="font-weight:700">💎 Financeiro Cloud</h2>
         <input type="email" id="login-email" placeholder="E-mail">
         <input type="password" id="login-pass" placeholder="Senha">
         <button onclick="handleAuth()" style="width:100%; padding:14px; background:var(--accent); justify-content: center; margin-top: 20px;">Entrar</button>
@@ -79,11 +95,12 @@
     <header class="glass">
         <div>
             <h2 style="margin:0; font-size: 18px;">Dash Finanças</h2>
-            <div id="last-sync" style="font-size: 9px; opacity: 0.5;">Aguardando...</div>
+            <div id="last-sync" style="font-size: 9px; opacity: 0.5;">Backup Sincronizado</div>
         </div>
         <div class="btn-group">
             <button class="btn-main glass" onclick="toggleCalc()"><i data-lucide="calculator" size="16"></i> Calc</button>
             <button class="btn-main glass" onclick="toggleAgenda()"><i data-lucide="book-open" size="16"></i> Agenda</button>
+            <button class="btn-main glass" style="color:var(--success)" onclick="clearAllPaid()"><i data-lucide="refresh-cw" size="16"></i> Limpar Pagos</button>
             <button id="btn-save" class="btn-main" style="background:var(--success)" onclick="saveData()"><i data-lucide="cloud" size="16"></i> Salvar</button>
             <button class="btn-main" style="background:var(--danger)" onclick="handleLogout()"><i data-lucide="log-out" size="16"></i> Sair</button>
         </div>
@@ -106,7 +123,7 @@
             <button class="btn-main" style="background:var(--danger); padding: 4px 10px;" onclick="event.stopPropagation(); addRow('tbody-pagar', 'v-p', true)">+</button>
         </div>
         <div class="section-content" id="content-p">
-            <table><thead><tr><th style="width: 220px;">Descrição</th><th style="width: 55px;">Venc.</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:50px;"></th></tr></thead><tbody id="tbody-pagar"></tbody></table>
+            <table><thead><tr><th style="width: 220px;">Descrição</th><th style="width: 60px;">Venc.</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:50px;"></th></tr></thead><tbody id="tbody-pagar"></tbody></table>
         </div>
     </div>
 
@@ -201,13 +218,15 @@
     }
 
     function handleLogout() { supabaseClient.auth.signOut().then(() => location.reload()); }
-    function toggleSection(id) { 
-        const content = document.getElementById('content-' + id);
-        content.classList.toggle('collapsed');
-        lucide.createIcons();
-    }
+    function toggleSection(id) { document.getElementById('content-' + id).classList.toggle('collapsed'); }
     function toggleAgenda() { document.getElementById('agenda-side').classList.toggle('open'); }
     function toggleCalc() { const c = document.getElementById('calc'); c.style.display = (c.style.display === 'block') ? 'none' : 'block'; }
+
+    function clearAllPaid() {
+        if(confirm("Deseja desmarcar todos os pagamentos realizados?")) {
+            document.querySelectorAll('.cell-paid').forEach(td => td.classList.remove('cell-paid'));
+        }
+    }
 
     function addRow(target, type, showVenc, data = null) {
         const tbody = document.getElementById(target);
@@ -220,8 +239,8 @@
                 <div class="input-wrapper"><span>R$</span><input type="number" class="val-month ${type}" value="${v}" oninput="updateAll()" onclick="event.stopPropagation()"></div>
             </td>`;
         }
-        const vencCell = showVenc ? `<td><input type="number" class="venc-in" value="${data ? data.venc : ''}"></td>` : '';
-        tr.innerHTML = `<td><input type="text" class="desc-row" value="${data ? data.d : ''}"></td>${vencCell}${inputs}<td><button onclick="this.closest('tr').remove(); updateAll()" style="background:none; color:var(--danger)"><i data-lucide="trash-2" size="14"></i></button></td>`;
+        const vencCell = showVenc ? `<td><input type="number" class="venc-in" value="${data ? data.venc : ''}" placeholder="Dia"></td>` : '';
+        tr.innerHTML = `<td><input type="text" class="desc-row" value="${data ? data.d : ''}" placeholder="Nome..."></td>${vencCell}${inputs}<td><button onclick="this.closest('tr').remove(); updateAll()" style="background:none; color:var(--danger); cursor:pointer"><i data-lucide="trash-2" size="14"></i></button></td>`;
         tbody.appendChild(tr); lucide.createIcons(); updateAll();
     }
 
@@ -229,7 +248,13 @@
         const tbody = document.getElementById('tbody-metas');
         const tr = document.createElement('tr');
         const st = data ? data.s : 'iniciar';
-        tr.innerHTML = `<td><input type="text" class="meta-d" value="${data ? data.d : ''}"></td><td><select><option value="iniciar" ${st==='iniciar'?'selected':''}>A iniciar</option><option value="andamento" ${st==='andamento'?'selected':''}>Andamento</option><option value="concluido" ${st==='concluido'?'selected':''}>Concluído</option></select></td><td><button onclick="this.closest('tr').remove()" style="background:none; color:var(--danger)"><i data-lucide="trash-2" size="14"></i></button></td>`;
+        tr.innerHTML = `<td><input type="text" class="meta-d" value="${data ? data.d : ''}" placeholder="Ex: Viagem..."></td>
+        <td><select class="status-select">
+            <option value="iniciar" ${st==='iniciar'?'selected':''}>A iniciar</option>
+            <option value="andamento" ${st==='andamento'?'selected':''}>Andamento</option>
+            <option value="concluido" ${st==='concluido'?'selected':''}>Concluído</option>
+        </select></td>
+        <td><button onclick="this.closest('tr').remove()" style="background:none; color:var(--danger); cursor:pointer"><i data-lucide="trash-2" size="14"></i></button></td>`;
         tbody.appendChild(tr); lucide.createIcons();
     }
 
