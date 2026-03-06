@@ -27,11 +27,9 @@
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; overflow-x: hidden; }
         .glass { backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: var(--card-bg); border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 
-        /* PRIVACIDADE */
         .hide-value { filter: blur(10px); pointer-events: none; user-select: none; transition: 0.4s; }
         .collapsed { display: none !important; }
 
-        /* TELA DE LOGIN AJUSTADA */
         #login-container { width: 320px; margin: 15vh auto; text-align: center; padding: 30px; border-radius: 25px; }
         .pass-wrapper { position: relative; margin-top: 10px; }
         .pass-toggle { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; opacity: 0.6; }
@@ -53,7 +51,6 @@
         td { padding: 3px; border: 1px solid var(--border); text-align: center; }
         
         .cell-paid { background: var(--paid-cell) !important; }
-
         .input-wrapper { position: relative; display: flex; align-items: center; }
         .input-wrapper span { position: absolute; left: 5px; font-size: 10px; opacity: 0.5; pointer-events: none; }
 
@@ -61,12 +58,20 @@
         input[type=number] { text-align: right; padding-left: 22px; }
         input.venc-in { color: var(--warning); text-align: center; font-weight: bold; }
 
-        /* CALCULADORA RECONFIGURADA */
+        /* AJUSTE DO STATUS SELECT PARA EVITAR FUNDO BRANCO */
+        .status-select { 
+            background-color: rgba(255,255,255,0.05) !important; 
+            color: var(--text) !important; 
+        }
+        .status-select option { 
+            background-color: #0f172a !important; /* Cor do fundo do dropdown */
+            color: #fff !important; 
+        }
+
         #calc { position: fixed; top: 100px; left: 100px; width: 240px; padding: 15px; border-radius: 20px; z-index: 10000; display: none; background: #111; border: 1px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.8); cursor: move; }
         .calc-screen { width: 100%; height: 50px; background: #000; color: #10b981; text-align: right; padding: 10px; font-size: 22px; border: none; margin-bottom: 15px; border-radius: 10px; box-sizing: border-box; }
         .calc-btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
         .calc-btns button { height: 45px; justify-content: center; background: #222; border-radius: 10px; font-size: 16px; }
-        .calc-btns button:hover { background: #333; }
         .btn-op { color: var(--accent); }
         .btn-eq { background: var(--success) !important; color: #000; }
 
@@ -82,7 +87,6 @@
 
 <div id="login-container" class="glass">
     <h2 style="font-weight:700; margin-bottom: 5px;">💎 Login</h2>
-    <p style="font-size: 11px; opacity: 0.5; margin-bottom: 20px;">Acesse sua conta</p>
     <input type="email" id="login-email" placeholder="E-mail">
     <div class="pass-wrapper">
         <input type="password" id="login-pass" placeholder="Senha">
@@ -94,7 +98,7 @@
 
 <div class="container" id="main-app">
     <header class="glass">
-        <div><h2 style="margin:0; font-size: 18px;">Dash Finanças</h2><div id="last-sync" style="font-size: 9px; opacity: 0.5;">Backup Sincronizado</div></div>
+        <div><h2 style="margin:0; font-size: 18px;">Dash Finanças</h2><div id="last-sync" style="font-size: 9px; opacity: 0.5;">Aguardando...</div></div>
         <div class="btn-group">
             <button class="btn-main glass" onclick="togglePrivacy()"><i data-lucide="eye-off" id="privacy-icon"></i> Privacidade</button>
             <button class="btn-main glass" onclick="toggleCalc()"><i data-lucide="calculator"></i> Calc</button>
@@ -116,7 +120,14 @@
     <div class="section-box glass"><div class="section-header" onclick="toggleSection('a')"><div style="display:flex; align-items:center; gap:10px;"><i data-lucide="eye"></i><h3 style="margin:0; font-size:14px; color:var(--purple)">🚀 Aportes</h3></div><button class="btn-main" style="background:var(--purple)" onclick="event.stopPropagation(); addRow('tbody-aportes', 'v-a', false)">+</button></div><div class="section-content collapsed" id="content-a"><table><thead><tr><th>Descrição</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:60px">APAGAR</th></tr></thead><tbody id="tbody-aportes"></tbody></table></div></div>
     <div class="section-box glass"><div class="section-header" onclick="toggleSection('m')"><div style="display:flex; align-items:center; gap:10px;"><i data-lucide="eye"></i><h3 style="margin:0; font-size:14px; color:var(--accent)">🎯 Metas</h3></div><button class="btn-main" style="background:var(--accent)" onclick="event.stopPropagation(); addMetaRow()">+</button></div><div class="section-content collapsed" id="content-m"><table><thead><tr><th style="width:70%;">Objetivo</th><th>Status</th><th style="width:60px">APAGAR</th></tr></thead><tbody id="tbody-metas"></tbody></table></div></div>
 
-    <div class="glass" style="padding: 20px; border-radius: 20px; height: 350px; margin-top: 15px;"><canvas id="expenseChart"></canvas></div>
+    <div class="section-box glass">
+        <div class="section-header" onclick="toggleSection('chart')">
+            <div style="display:flex; align-items:center; gap:10px;"><i data-lucide="eye"></i><h3 style="margin:0; font-size:14px;">📊 Gráfico de Gastos</h3></div>
+        </div>
+        <div class="section-content" id="content-chart" style="height: 350px;">
+            <canvas id="expenseChart"></canvas>
+        </div>
+    </div>
 </div>
 
 <div id="agenda-side" class="glass">
@@ -129,11 +140,14 @@
     <input type="text" class="calc-screen" id="display" disabled>
     <div class="calc-btns">
         <button onclick="clearCalc()" style="color:var(--danger)">C</button>
-        <button onclick="btnCalc('/')" class="btn-op">/</button><button onclick="btnCalc('*')" class="btn-op">×</button><button onclick="backCalc()">←</button>
-        <button onclick="btnCalc('7')">7</button><button onclick="btnCalc('8')">8</button><button onclick="btnCalc('9')">9</button><button onclick="btnCalc('-')" class="btn-op">-</button>
-        <button onclick="btnCalc('4')">4</button><button onclick="btnCalc('5')">5</button><button onclick="btnCalc('6')">6</button><button onclick="btnCalc('+')" class="btn-op">+</button>
-        <button onclick="btnCalc('1')">1</button><button onclick="btnCalc('2')">2</button><button onclick="btnCalc('3')">3</button><button onclick="resCalc()" class="btn-eq" style="grid-row: span 2">=</button>
+        <button onclick="btnCalc('%')" class="btn-op">%</button>
+        <button onclick="btnCalc('/')" class="btn-op">/</button>
+        <button onclick="backCalc()">←</button>
+        <button onclick="btnCalc('7')">7</button><button onclick="btnCalc('8')">8</button><button onclick="btnCalc('9')">9</button><button onclick="btnCalc('*')" class="btn-op">×</button>
+        <button onclick="btnCalc('4')">4</button><button onclick="btnCalc('5')">5</button><button onclick="btnCalc('6')">6</button><button onclick="btnCalc('-')" class="btn-op">-</button>
+        <button onclick="btnCalc('1')">1</button><button onclick="btnCalc('2')">2</button><button onclick="btnCalc('3')">3</button><button onclick="btnCalc('+')" class="btn-op">+</button>
         <button onclick="btnCalc('0')" style="grid-column: span 2">0</button><button onclick="btnCalc('.')">.</button>
+        <button onclick="resCalc()" class="btn-eq">=</button>
     </div>
 </div>
 
@@ -201,7 +215,7 @@
     function addMetaRow(data = null) {
         const tr = document.createElement('tr');
         const st = data ? data.s : 'iniciar';
-        tr.innerHTML = `<td><input type="text" value="${data?data.d:''}"></td><td><select><option value="iniciar" ${st==='iniciar'?'selected':''}>A iniciar</option><option value="andamento" ${st==='andamento'?'selected':''}>Andamento</option><option value="concluido" ${st==='concluido'?'selected':''}>Concluído</option></select></td><td><button onclick="this.closest('tr').remove()" style="background:none; color:var(--danger)"><i data-lucide="trash-2" size="14"></i></button></td>`;
+        tr.innerHTML = `<td><input type="text" value="${data?data.d:''}"></td><td><select class="status-select"><option value="iniciar" ${st==='iniciar'?'selected':''}>A iniciar</option><option value="andamento" ${st==='andamento'?'selected':''}>Andamento</option><option value="concluido" ${st==='concluido'?'selected':''}>Concluído</option></select></td><td><button onclick="this.closest('tr').remove()" style="background:none; color:var(--danger)"><i data-lucide="trash-2" size="14"></i></button></td>`;
         document.getElementById('tbody-metas').appendChild(tr); lucide.createIcons();
     }
 
@@ -224,7 +238,7 @@
     function btnCalc(v) { document.getElementById('display').value += v; }
     function clearCalc() { document.getElementById('display').value = ''; }
     function backCalc() { const d = document.getElementById('display'); d.value = d.value.slice(0, -1); }
-    function resCalc() { try { document.getElementById('display').value = eval(document.getElementById('display').value); } catch { document.getElementById('display').value = 'Erro'; } }
+    function resCalc() { try { document.getElementById('display').value = eval(document.getElementById('display').value.replace('%', '/100')); } catch { document.getElementById('display').value = 'Erro'; } }
 
     function dragElement(e) {
         let p1=0,p2=0,p3=0,p4=0;
@@ -240,10 +254,12 @@
     }
     
     async function saveData() {
+        const syncEl = document.getElementById('last-sync');
         const gMat = (id, hasVenc) => Array.from(document.querySelectorAll(`#${id} tr`)).map(tr => ({ d: tr.querySelector('input').value, v: hasVenc ? tr.querySelector('.venc-in').value : '', vals: Array.from(tr.querySelectorAll('input[type=number]')).map(i => i.value), paid: Array.from(tr.querySelectorAll('td')).filter(td => td.querySelector('input')).map(td => td.classList.contains('cell-paid')) }));
-        const payload = { p: gMat('tbody-pagar', true), r: gMat('tbody-receber', false), a: gMat('tbody-aportes', false), m: Array.from(document.querySelectorAll('#tbody-metas tr')).map(tr => ({ d: tr.querySelector('input').value, s: tr.querySelector('select').value })) };
-        await supabaseClient.from('finance_data').upsert({ id: userLogged.id, content: payload, updated_at: new Date() });
-        alert("Salvo!");
+        const payload = { p: gMat('tbody-pagar', true), r: gMat('tbody-receber', false), a: gMat('tbody-aportes', false), m: Array.from(document.querySelectorAll('#tbody-metas tr')).map(tr => ({ d: tr.querySelector('input').value, s: tr.querySelector('select').value })), n: document.getElementById('agenda-text').value };
+        const { error } = await supabaseClient.from('finance_data').upsert({ id: userLogged.id, content: payload, updated_at: new Date() });
+        if (error) { syncEl.innerText = "Não foi salvo na base"; syncEl.style.color = "var(--danger)"; } 
+        else { const now = new Date(); syncEl.innerText = "Backup: " + now.toLocaleDateString() + " " + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); syncEl.style.color = "var(--success)"; }
     }
 
     async function loadData() {
@@ -254,6 +270,7 @@
             c.r?.forEach(x => addRow('tbody-receber', 'v-r', false, x));
             c.a?.forEach(x => addRow('tbody-aportes', 'v-a', false, x));
             c.m?.forEach(x => addMetaRow(x));
+            if(c.n) document.getElementById('agenda-text').value = c.n;
             updateAll();
         }
     }
