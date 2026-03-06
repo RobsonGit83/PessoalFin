@@ -14,7 +14,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
 
         :root {
-            color-scheme: dark;
+            color-scheme: dark; /* Essencial para que os menus do navegador sigam o tema escuro */
             --bg: #020617; --card-bg: rgba(30, 41, 59, 0.85);
             --text: #f1f5f9; --accent: #60a5fa; --border: rgba(255, 255, 255, 0.15);
             --success: #34d399; --danger: #f87171; --purple: #a78bfa;
@@ -33,7 +33,6 @@
         
         button { cursor: pointer; border-radius: 12px; font-weight: 600; border: none; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; color: #fff; font-size: 13px; }
         .btn-main { padding: 10px 16px; background: rgba(255,255,255,0.08); }
-        .btn-main:hover { background: rgba(255,255,255,0.15); }
 
         .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
         .card { padding: 18px; border-radius: 20px; border-left: 4px solid var(--accent); }
@@ -53,14 +52,16 @@
         input, select { background: rgba(255,255,255,0.05); color: var(--text); border: 1px solid transparent; border-radius: 6px; padding: 8px; font-size: 12px; width: 100%; outline: none; }
         input[type=number] { text-align: right; padding-left: 20px; }
         
-        /* DATA DE VENCIMENTO AMARELA */
-        input[type=date].venc-in { color: var(--warning); text-align: center; font-weight: bold; }
+        /* DATA DE VENCIMENTO COMO TEXTO AMARELO */
+        input.venc-in { color: var(--warning); text-align: center; font-weight: bold; }
+
+        /* SELECT DE STATUS - CORREÇÃO DO FUNDO BRANCO */
+        select.status-select { background-color: #1e293b; color: #fff; cursor: pointer; }
+        select.status-select option { background-color: #0f172a; color: #fff; }
 
         #context-menu { position: fixed; z-index: 10000; background: #1e293b; border: 1px solid var(--border); border-radius: 8px; padding: 5px; display: none; }
         #context-menu div { padding: 8px 15px; cursor: pointer; font-size: 12px; border-radius: 5px; }
-        #context-menu div:hover { background: var(--accent); }
 
-        /* COMPONENTES FLUTUANTES */
         #agenda-side { position: fixed; right: -400px; top: 0; width: 340px; height: 100%; z-index: 9998; padding: 30px; transition: 0.5s; background: #0f172a; border-left: 1px solid var(--border); }
         #agenda-side.open { right: 0; }
         
@@ -167,7 +168,7 @@
 
 <script>
     // --- CONFIG SUPABASE ---
-    const S_URL = 'https://xpamnljjxvfnpzdmuive.supabase.co'; 
+   const S_URL = 'https://xpamnljjxvfnpzdmuive.supabase.co'; 
     const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhwYW1ubGpqeHZmbnB6ZG11aXZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzOTA2ODIsImV4cCI6MjA4NTk2NjY4Mn0.ePhhjJcpYAiVM3f6LRD66LKVhnUv854lvztudybx6_Q';
     const supabaseClient = window.supabase.createClient(S_URL, S_KEY);
     let userLogged = null, isHidden = true, timeout, activeCell = null, chart;
@@ -199,7 +200,6 @@
     function toggleCalc() { const c = document.getElementById('calc'); c.style.display = (c.style.display === 'block') ? 'none' : 'block'; dragElement(c); }
     function toggleAgenda() { document.getElementById('agenda-side').classList.toggle('open'); }
 
-    // --- LOGICA DE PAGAMENTO ---
     window.oncontextmenu = function(e) {
         if (e.target.classList.contains('val-month')) {
             e.preventDefault();
@@ -212,7 +212,6 @@
     function hideContextMenu() { document.getElementById('context-menu').style.display = 'none'; }
     function markAsPaid() { if(activeCell) activeCell.classList.toggle('cell-paid'); hideContextMenu(); }
 
-    // --- TABELAS ---
     function addRow(target, type, showVenc) {
         const tbody = document.getElementById(target);
         const tr = document.createElement('tr');
@@ -220,13 +219,13 @@
         for(let i=0; i<12; i++) {
             inputs += `<td><div class="input-wrapper"><span>R$</span><input type="number" class="val-month ${type}" value="0" onfocus="if(this.value=='0')this.value=''" onblur="if(this.value=='')this.value='0'" oninput="updateAll()"></div></td>`;
         }
-        tr.innerHTML = `<td><input type="text" placeholder="Item..."></td>${showVenc?`<td><input type="date" class="venc-in"></td>`:''}${inputs}<td><button onclick="this.closest('tr').remove();updateAll()" style="background:none"><i data-lucide="trash-2" size="14" color="red"></i></button></td>`;
+        tr.innerHTML = `<td><input type="text" placeholder="Item..."></td>${showVenc?`<td><input type="text" class="venc-in" placeholder="Ex: Dia 05"></td>`:''}${inputs}<td><button onclick="this.closest('tr').remove();updateAll()" style="background:none"><i data-lucide="trash-2" size="14" color="red"></i></button></td>`;
         tbody.appendChild(tr); lucide.createIcons();
     }
 
     function addMetaRow() {
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td><input type="text"></td><td><select><option>A iniciar</option><option>Andamento</option><option>Concluído</option></select></td><td><button onclick="this.closest('tr').remove()" style="background:none"><i data-lucide="trash-2" size="14" color="red"></i></button></td>`;
+        tr.innerHTML = `<td><input type="text"></td><td><select class="status-select"><option>A iniciar</option><option>Andamento</option><option>Concluído</option></select></td><td><button onclick="this.closest('tr').remove()" style="background:none"><i data-lucide="trash-2" size="14" color="red"></i></button></td>`;
         document.getElementById('tbody-metas').appendChild(tr); lucide.createIcons();
     }
 
@@ -250,14 +249,12 @@
         });
     }
 
-    // --- CALC ---
     function btnCalc(v) { document.getElementById('display').value += v; }
     function clearCalc() { document.getElementById('display').value = ''; }
     function backCalc() { const d = document.getElementById('display'); d.value = d.value.slice(0, -1); }
     function resCalc() { try { document.getElementById('display').value = eval(document.getElementById('display').value.replace('%', '/100')); } catch { document.getElementById('display').value = 'Erro'; } }
     function dragElement(e) { let p1=0,p2=0,p3=0,p4=0; e.onmousedown = (m) => { if(m.target.tagName==='BUTTON' || m.target.tagName==='INPUT') return; p3=m.clientX; p4=m.clientY; document.onmouseup=()=>{document.onmouseup=null;document.onmousemove=null;}; document.onmousemove=(m)=>{p1=p3-m.clientX;p2=p4-m.clientY;p3=m.clientX;p4=m.clientY;e.style.top=(e.offsetTop-p2)+"px";e.style.left=(e.offsetLeft-p1)+"px";};}; }
 
-    // --- AUTH ---
     async function handleAuth() {
         const email = document.getElementById('login-email').value;
         const password = document.getElementById('login-pass').value;
