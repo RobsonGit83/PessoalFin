@@ -14,12 +14,11 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
 
         :root {
-            color-scheme: dark; /* Essencial para que os menus do navegador sigam o tema escuro */
+            color-scheme: dark;
             --bg: #020617; --card-bg: rgba(30, 41, 59, 0.85);
             --text: #f1f5f9; --accent: #60a5fa; --border: rgba(255, 255, 255, 0.15);
             --success: #34d399; --danger: #f87171; --purple: #a78bfa;
-            --paid-cell: rgba(16, 185, 129, 0.4);
-            --warning: #facc15;
+            --warning: #facc15; --paid-cell: rgba(16, 185, 129, 0.4);
         }
 
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; overflow-x: hidden; }
@@ -51,31 +50,24 @@
 
         input, select { background: rgba(255,255,255,0.05); color: var(--text); border: 1px solid transparent; border-radius: 6px; padding: 8px; font-size: 12px; width: 100%; outline: none; }
         input[type=number] { text-align: right; padding-left: 20px; }
-        
-        /* DATA DE VENCIMENTO COMO TEXTO AMARELO */
         input.venc-in { color: var(--warning); text-align: center; font-weight: bold; }
 
-        /* SELECT DE STATUS - CORREÇÃO DO FUNDO BRANCO */
-        select.status-select { background-color: #1e293b; color: #fff; cursor: pointer; }
-        select.status-select option { background-color: #0f172a; color: #fff; }
+        .status-select { background-color: #1e293b !important; color: #fff; }
 
         #context-menu { position: fixed; z-index: 10000; background: #1e293b; border: 1px solid var(--border); border-radius: 8px; padding: 5px; display: none; }
         #context-menu div { padding: 8px 15px; cursor: pointer; font-size: 12px; border-radius: 5px; }
+        #context-menu div:hover { background: var(--accent); }
 
-        #agenda-side { position: fixed; right: -400px; top: 0; width: 340px; height: 100%; z-index: 9998; padding: 30px; transition: 0.5s; background: #0f172a; border-left: 1px solid var(--border); }
-        #agenda-side.open { right: 0; }
-        
         #calc { position: fixed; top: 100px; left: 100px; width: 260px; padding: 20px; border-radius: 25px; z-index: 9999; display: none; background: #111; border: 1px solid #333; }
         .calc-screen { width: 100%; height: 50px; background: #000; color: #10b981; text-align: right; padding: 10px; font-size: 20px; border: none; margin-bottom: 10px; border-radius: 10px; }
         .calc-btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-        .calc-btns button { padding: 12px; border-radius: 10px; background: #222; justify-content: center; }
 
         #login-container { max-width: 400px; margin: 15vh auto; text-align: center; padding: 40px; border-radius: 30px; }
     </style>
 </head>
 <body onclick="hideContextMenu()">
 
-<div id="context-menu">
+<div id="context-menu" class="glass">
     <div onclick="markAsPaid()">🟢 Marcar Pago</div>
 </div>
 
@@ -88,12 +80,11 @@
 
 <div class="container" id="main-app">
     <header class="glass">
-        <div><h2 style="margin:0; font-size: 18px;">Dash Finanças</h2><div id="last-sync" style="font-size: 9px; opacity: 0.5;">Sincronizado</div></div>
+        <div><h2 style="margin:0; font-size: 18px;">Dash Finanças</h2><div id="last-sync" style="font-size: 9px; opacity: 0.5;">Carregando nuvem...</div></div>
         <div class="btn-group">
             <button class="btn-main glass" onclick="togglePrivacy()"><i data-lucide="eye-off" id="privacy-icon"></i> Privacidade</button>
             <button class="btn-main glass" onclick="toggleCalc()"><i data-lucide="calculator"></i> Calc</button>
-            <button class="btn-main glass" onclick="toggleAgenda()"><i data-lucide="book-open"></i> Agenda</button>
-            <button id="btn-save" class="btn-main" style="background:var(--success)" onclick="saveData()"><i data-lucide="cloud"></i> Salvar</button>
+            <button id="btn-save" class="btn-main" style="background:var(--success)" onclick="saveData()"><i data-lucide="cloud"></i> Salvar na Nuvem</button>
             <button class="btn-main" style="background:var(--danger)" onclick="handleLogout()"><i data-lucide="log-out"></i> Sair</button>
         </div>
     </header>
@@ -102,7 +93,13 @@
         <div class="card glass" style="border-left-color: var(--danger);"><small>GASTOS ANUAL</small><p id="res-p" class="sensitive hide-value">R$ 0,00</p></div>
         <div class="card glass" style="border-left-color: var(--success);"><small>RECEITA ANUAL</small><p id="res-r" class="sensitive hide-value">R$ 0,00</p></div>
         <div class="card glass" style="border-left-color: var(--purple);"><small>APORTES ANUAL</small><p id="res-a" class="sensitive hide-value">R$ 0,00</p></div>
-        <div class="card glass" style="border-left-color: #fbbf24;"><small>DÓLAR HOJE</small><p id="dolar-val" class="sensitive hide-value">R$ ...</p></div>
+        <div class="card glass" style="border-left-color: #fbbf24;">
+            <small>INDICADORES</small>
+            <div class="sensitive hide-value" style="font-size: 14px; margin-top: 5px;">
+                Dólar: <b id="dolar-val">...</b><br>
+                SELIC: <b id="selic-val">...</b>
+            </div>
+        </div>
     </div>
 
     <div class="section-box glass">
@@ -110,7 +107,7 @@
             <div style="display:flex; align-items:center; gap:10px;" onclick="toggleSection('p')"><i data-lucide="eye"></i><h3 style="margin:0; font-size:14px; color:var(--danger)">📉 Contas a Pagar</h3></div>
             <button class="btn-main" style="background:var(--danger)" onclick="addRow('tbody-pagar', 'v-p', true)">+</button>
         </div>
-        <div class="section-content" id="content-p">
+        <div class="section-content collapsed" id="content-p">
             <table><thead><tr><th>Descrição</th><th style="width:130px">Vencimento</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:60px">APAGAR</th></tr></thead><tbody id="tbody-pagar"></tbody></table>
         </div>
     </div>
@@ -120,7 +117,7 @@
             <div style="display:flex; align-items:center; gap:10px;" onclick="toggleSection('r')"><i data-lucide="eye"></i><h3 style="margin:0; font-size:14px; color:var(--success)">💰 Contas a Receber</h3></div>
             <button class="btn-main" style="background:var(--success)" onclick="addRow('tbody-receber', 'v-r', false)">+</button>
         </div>
-        <div class="section-content" id="content-r">
+        <div class="section-content collapsed" id="content-r">
             <table><thead><tr><th>Descrição</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:60px">APAGAR</th></tr></thead><tbody id="tbody-receber"></tbody></table>
         </div>
     </div>
@@ -130,27 +127,12 @@
             <div style="display:flex; align-items:center; gap:10px;" onclick="toggleSection('a')"><i data-lucide="eye"></i><h3 style="margin:0; font-size:14px; color:var(--purple)">🚀 Aportes</h3></div>
             <button class="btn-main" style="background:var(--purple)" onclick="addRow('tbody-aportes', 'v-a', false)">+</button>
         </div>
-        <div class="section-content" id="content-a">
+        <div class="section-content collapsed" id="content-a">
             <table><thead><tr><th>Descrição</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:60px">APAGAR</th></tr></thead><tbody id="tbody-aportes"></tbody></table>
         </div>
     </div>
 
-    <div class="section-box glass">
-        <div class="section-header">
-            <div style="display:flex; align-items:center; gap:10px;" onclick="toggleSection('m')"><i data-lucide="eye"></i><h3 style="margin:0; font-size:14px; color:var(--accent)">🎯 Metas</h3></div>
-            <button class="btn-main" style="background:var(--accent)" onclick="addMetaRow()">+</button>
-        </div>
-        <div class="section-content" id="content-m">
-            <table><thead><tr><th style="width:70%;">Objetivo</th><th>Status</th><th style="width:60px">APAGAR</th></tr></thead><tbody id="tbody-metas"></tbody></table>
-        </div>
-    </div>
-
     <div class="glass" style="padding: 20px; border-radius: 20px; height: 350px; margin-top: 15px;"><canvas id="expenseChart"></canvas></div>
-</div>
-
-<div id="agenda-side" class="glass">
-    <h3>📝 Notas</h3>
-    <textarea id="agenda-text" style="width:100%; height:80%; background:transparent; color:#fff; border:1px solid var(--border); padding:10px;"></textarea>
 </div>
 
 <div id="calc" class="glass">
@@ -167,29 +149,27 @@
 </div>
 
 <script>
-    // --- CONFIG SUPABASE ---
-   const S_URL = 'https://xpamnljjxvfnpzdmuive.supabase.co'; 
+    const S_URL = 'https://xpamnljjxvfnpzdmuive.supabase.co'; 
     const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhwYW1ubGpqeHZmbnB6ZG11aXZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzOTA2ODIsImV4cCI6MjA4NTk2NjY4Mn0.ePhhjJcpYAiVM3f6LRD66LKVhnUv854lvztudybx6_Q';
     const supabaseClient = window.supabase.createClient(S_URL, S_KEY);
-    let userLogged = null, isHidden = true, timeout, activeCell = null, chart;
+    
+    let userLogged = null, isHidden = true, chart, activeCell = null;
 
-    function resetTimer() { clearTimeout(timeout); timeout = setTimeout(handleLogout, 5 * 60 * 1000); }
-    document.onmousemove = resetTimer; document.onkeypress = resetTimer;
-
-    window.onload = () => { 
-        lucide.createIcons(); 
-        initChart(); 
-        updateMarketData();
-    };
+    window.onload = () => { lucide.createIcons(); initChart(); updateMarketData(); };
 
     async function updateMarketData() {
         try {
-            const rDolar = await fetch('https://economia.awesomeapi.com.br/last/USD-BRL');
-            const dDolar = await rDolar.json();
-            document.getElementById('dolar-val').innerText = "R$ " + parseFloat(dDolar.USDBRL.bid).toFixed(2);
-        } catch (e) { console.error("Erro Câmbio"); }
+            const rD = await fetch('https://economia.awesomeapi.com.br/last/USD-BRL');
+            const dD = await rD.json();
+            document.getElementById('dolar-val').innerText = "R$ " + parseFloat(dD.USDBRL.bid).toFixed(2);
+            
+            const rS = await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.432/dados/ultimos/1?formato=json');
+            const dS = await rS.json();
+            document.getElementById('selic-val').innerText = dS[0].valor + "%";
+        } catch (e) { console.error("Erro APIs"); }
     }
 
+    // --- FUNÇÕES DE INTERFACE ---
     function togglePrivacy() {
         isHidden = !isHidden;
         document.querySelectorAll('.sensitive').forEach(el => isHidden ? el.classList.add('hide-value') : el.classList.remove('hide-value'));
@@ -198,8 +178,8 @@
     }
     function toggleSection(id) { document.getElementById('content-' + id).classList.toggle('collapsed'); }
     function toggleCalc() { const c = document.getElementById('calc'); c.style.display = (c.style.display === 'block') ? 'none' : 'block'; dragElement(c); }
-    function toggleAgenda() { document.getElementById('agenda-side').classList.toggle('open'); }
 
+    // --- LOGICA DE PAGAMENTO ---
     window.oncontextmenu = function(e) {
         if (e.target.classList.contains('val-month')) {
             e.preventDefault();
@@ -212,21 +192,18 @@
     function hideContextMenu() { document.getElementById('context-menu').style.display = 'none'; }
     function markAsPaid() { if(activeCell) activeCell.classList.toggle('cell-paid'); hideContextMenu(); }
 
-    function addRow(target, type, showVenc) {
+    // --- TABELAS ---
+    function addRow(target, type, showVenc, data = null) {
         const tbody = document.getElementById(target);
         const tr = document.createElement('tr');
         let inputs = '';
         for(let i=0; i<12; i++) {
-            inputs += `<td><div class="input-wrapper"><span>R$</span><input type="number" class="val-month ${type}" value="0" onfocus="if(this.value=='0')this.value=''" onblur="if(this.value=='')this.value='0'" oninput="updateAll()"></div></td>`;
+            const val = data ? data.vals[i] : 0;
+            const isPaid = (data && data.paid && data.paid[i]) ? 'cell-paid' : '';
+            inputs += `<td class="${isPaid}"><div class="input-wrapper"><span>R$</span><input type="number" class="val-month ${type}" value="${val}" onfocus="if(this.value=='0')this.value=''" onblur="if(this.value=='')this.value='0'" oninput="updateAll()"></div></td>`;
         }
-        tr.innerHTML = `<td><input type="text" placeholder="Item..."></td>${showVenc?`<td><input type="text" class="venc-in" placeholder="Ex: Dia 05"></td>`:''}${inputs}<td><button onclick="this.closest('tr').remove();updateAll()" style="background:none"><i data-lucide="trash-2" size="14" color="red"></i></button></td>`;
+        tr.innerHTML = `<td><input type="text" value="${data?data.d:''}"></td>${showVenc?`<td><input type="text" class="venc-in" value="${data?data.v:''}"></td>`:''}${inputs}<td><button onclick="this.closest('tr').remove();updateAll()"><i data-lucide="trash-2" size="14"></i></button></td>`;
         tbody.appendChild(tr); lucide.createIcons();
-    }
-
-    function addMetaRow() {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td><input type="text"></td><td><select class="status-select"><option>A iniciar</option><option>Andamento</option><option>Concluído</option></select></td><td><button onclick="this.closest('tr').remove()" style="background:none"><i data-lucide="trash-2" size="14" color="red"></i></button></td>`;
-        document.getElementById('tbody-metas').appendChild(tr); lucide.createIcons();
     }
 
     function updateAll() {
@@ -242,27 +219,52 @@
 
     function initChart() {
         const ctx = document.getElementById('expenseChart').getContext('2d');
-        chart = new Chart(ctx, {
-            type: 'bar',
-            data: { labels: ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'], datasets: [{ label: 'Gastos', data: Array(12).fill(0), backgroundColor: '#60a5fa', borderRadius: 5 }] },
-            options: { maintainAspectRatio: false, scales: { y: { display: false }, x: { grid: { display: false } } }, plugins: { legend: { display: false } } }
-        });
+        chart = new Chart(ctx, { type: 'bar', data: { labels: ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'], datasets: [{ label: 'Gastos', data: Array(12).fill(0), backgroundColor: '#60a5fa', borderRadius: 5 }] }, options: { maintainAspectRatio: false, scales: { y: { display: false } } } });
     }
 
+    // --- SUPABASE DATA ---
+    async function handleAuth() {
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-pass').value;
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (!error) { userLogged = data.user; document.getElementById('login-container').style.display='none'; document.getElementById('main-app').style.display='block'; loadData(); }
+        else { alert("Erro: " + error.message); }
+    }
+
+    async function saveData() {
+        const getRows = (id, hasVenc) => Array.from(document.querySelectorAll(`#${id} tr`)).map(tr => ({
+            d: tr.querySelector('input[type=text]').value,
+            v: hasVenc ? tr.querySelector('.venc-in').value : '',
+            vals: Array.from(tr.querySelectorAll('input[type=number]')).map(i => i.value),
+            paid: Array.from(tr.querySelectorAll('td')).filter(td => td.querySelector('input[type=number]')).map(td => td.classList.contains('cell-paid'))
+        }));
+
+        const payload = { p: getRows('tbody-pagar', true), r: getRows('tbody-receber', false), a: getRows('tbody-aportes', false) };
+        const { error } = await supabaseClient.from('finance_data').upsert({ id: userLogged.id, content: payload, updated_at: new Date() });
+        
+        if(!error) { alert("Dados salvos com sucesso!"); document.getElementById('last-sync').innerText = "Sincronizado: " + new Date().toLocaleTimeString(); }
+        else { alert("Erro ao salvar: " + error.message); }
+    }
+
+    async function loadData() {
+        const { data } = await supabaseClient.from('finance_data').select('content').eq('id', userLogged.id).maybeSingle();
+        if(data?.content) {
+            document.getElementById('tbody-pagar').innerHTML = "";
+            document.getElementById('tbody-receber').innerHTML = "";
+            document.getElementById('tbody-aportes').innerHTML = "";
+            data.content.p?.forEach(x => addRow('tbody-pagar', 'v-p', true, x));
+            data.content.r?.forEach(x => addRow('tbody-receber', 'v-r', false, x));
+            data.content.a?.forEach(x => addRow('tbody-aportes', 'v-a', false, x));
+            updateAll();
+        }
+    }
+
+    function handleLogout() { supabaseClient.auth.signOut().then(() => location.reload()); }
     function btnCalc(v) { document.getElementById('display').value += v; }
     function clearCalc() { document.getElementById('display').value = ''; }
     function backCalc() { const d = document.getElementById('display'); d.value = d.value.slice(0, -1); }
     function resCalc() { try { document.getElementById('display').value = eval(document.getElementById('display').value.replace('%', '/100')); } catch { document.getElementById('display').value = 'Erro'; } }
     function dragElement(e) { let p1=0,p2=0,p3=0,p4=0; e.onmousedown = (m) => { if(m.target.tagName==='BUTTON' || m.target.tagName==='INPUT') return; p3=m.clientX; p4=m.clientY; document.onmouseup=()=>{document.onmouseup=null;document.onmousemove=null;}; document.onmousemove=(m)=>{p1=p3-m.clientX;p2=p4-m.clientY;p3=m.clientX;p4=m.clientY;e.style.top=(e.offsetTop-p2)+"px";e.style.left=(e.offsetLeft-p1)+"px";};}; }
-
-    async function handleAuth() {
-        const email = document.getElementById('login-email').value;
-        const password = document.getElementById('login-pass').value;
-        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-        if (!error) { userLogged = data.user; document.getElementById('login-container').style.display='none'; document.getElementById('main-app').style.display='block'; updateAll(); resetTimer(); }
-    }
-    function handleLogout() { supabaseClient.auth.signOut().then(() => location.reload()); }
-    async function saveData() { alert("Simulação: Dados sincronizados!"); }
 </script>
 </body>
 </html>
