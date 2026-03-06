@@ -18,7 +18,7 @@
             --bg: #020617; --card-bg: rgba(30, 41, 59, 0.85);
             --text: #f1f5f9; --accent: #60a5fa; --border: rgba(255, 255, 255, 0.15);
             --success: #34d399; --danger: #f87171; --purple: #a78bfa;
-            --warning: #facc15; --paid-cell: rgba(16, 185, 129, 0.4);
+            --warning: #facc15; --paid-cell: rgba(16, 185, 129, 0.3);
         }
 
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
@@ -27,8 +27,14 @@
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; overflow-x: hidden; }
         .glass { backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: var(--card-bg); border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 
+        /* PRIVACIDADE */
         .hide-value { filter: blur(10px); pointer-events: none; user-select: none; transition: 0.4s; }
         .collapsed { display: none !important; }
+
+        /* TELA DE LOGIN AJUSTADA */
+        #login-container { width: 320px; margin: 15vh auto; text-align: center; padding: 30px; border-radius: 25px; }
+        .pass-wrapper { position: relative; margin-top: 10px; }
+        .pass-toggle { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; opacity: 0.6; }
 
         .container { max-width: 1650px; margin: 0 auto; display: none; }
         header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; border-radius: 20px; margin-bottom: 25px; }
@@ -51,39 +57,44 @@
         .input-wrapper { position: relative; display: flex; align-items: center; }
         .input-wrapper span { position: absolute; left: 5px; font-size: 10px; opacity: 0.5; pointer-events: none; }
 
-        input, select { background: rgba(255,255,255,0.05); color: var(--text); border: 1px solid transparent; border-radius: 6px; padding: 8px; font-size: 12px; width: 100%; outline: none; }
-        input[type=number] { text-align: right; padding-left: 20px; }
+        input, select { background: rgba(255,255,255,0.05); color: var(--text); border: 1px solid transparent; border-radius: 8px; padding: 10px; font-size: 12px; width: 100%; outline: none; box-sizing: border-box; }
+        input[type=number] { text-align: right; padding-left: 22px; }
         input.venc-in { color: var(--warning); text-align: center; font-weight: bold; }
 
-        .status-select { background-color: #1e293b !important; color: #fff; }
+        /* CALCULADORA RECONFIGURADA */
+        #calc { position: fixed; top: 100px; left: 100px; width: 240px; padding: 15px; border-radius: 20px; z-index: 10000; display: none; background: #111; border: 1px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.8); cursor: move; }
+        .calc-screen { width: 100%; height: 50px; background: #000; color: #10b981; text-align: right; padding: 10px; font-size: 22px; border: none; margin-bottom: 15px; border-radius: 10px; box-sizing: border-box; }
+        .calc-btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .calc-btns button { height: 45px; justify-content: center; background: #222; border-radius: 10px; font-size: 16px; }
+        .calc-btns button:hover { background: #333; }
+        .btn-op { color: var(--accent); }
+        .btn-eq { background: var(--success) !important; color: #000; }
 
-        #context-menu { position: fixed; z-index: 10000; background: #1e293b; border: 1px solid var(--border); border-radius: 8px; padding: 5px; display: none; }
-        #context-menu div { padding: 8px 15px; cursor: pointer; font-size: 12px; border-radius: 5px; }
-
-        /* AGENDA LATERAL */
-        #agenda-side { position: fixed; right: -400px; top: 0; width: 340px; height: 100%; z-index: 9998; padding: 30px; transition: 0.5s; background: #0f172a; border-left: 1px solid var(--border); }
+        #agenda-side { position: fixed; right: -400px; top: 0; width: 340px; height: 100%; z-index: 9999; padding: 30px; transition: 0.5s; background: #0f172a; border-left: 1px solid var(--border); }
         #agenda-side.open { right: 0; }
-        
-        #calc { position: fixed; top: 100px; left: 100px; width: 260px; padding: 20px; border-radius: 25px; z-index: 9999; display: none; background: #111; border: 1px solid #333; }
-        .calc-screen { width: 100%; height: 50px; background: #000; color: #10b981; text-align: right; padding: 10px; font-size: 20px; border-radius: 10px; margin-bottom: 10px; }
     </style>
 </head>
 <body onclick="hideContextMenu()">
 
-<div id="context-menu" class="glass">
-    <div onclick="markAsPaid()">🟢 Marcar Pago</div>
+<div id="context-menu" style="position:fixed; z-index:10001; background:#1e293b; border:1px solid var(--border); border-radius:8px; padding:5px; display:none;">
+    <div onclick="markAsPaid()" style="padding:8px 15px; cursor:pointer; font-size:12px;">🟢 Marcar Pago</div>
 </div>
 
 <div id="login-container" class="glass">
-    <h2 style="font-weight:700">💎 Financeiro Pro</h2>
-    <input type="email" id="login-email" placeholder="E-mail" style="margin-bottom:10px;">
-    <input type="password" id="login-pass" placeholder="Senha">
+    <h2 style="font-weight:700; margin-bottom: 5px;">💎 Login</h2>
+    <p style="font-size: 11px; opacity: 0.5; margin-bottom: 20px;">Acesse sua conta</p>
+    <input type="email" id="login-email" placeholder="E-mail">
+    <div class="pass-wrapper">
+        <input type="password" id="login-pass" placeholder="Senha">
+        <i data-lucide="eye" class="pass-toggle" onclick="togglePassView()"></i>
+    </div>
     <button onclick="handleAuth()" style="width:100%; padding:14px; background:var(--accent); justify-content: center; margin-top: 20px;">Entrar</button>
+    <p id="login-msg" style="margin-top:10px; font-size:12px; color:var(--danger)"></p>
 </div>
 
 <div class="container" id="main-app">
     <header class="glass">
-        <div><h2 style="margin:0; font-size: 18px;">Dash Finanças</h2><div id="last-sync" style="font-size: 9px; opacity: 0.5;">Aguardando...</div></div>
+        <div><h2 style="margin:0; font-size: 18px;">Dash Finanças</h2><div id="last-sync" style="font-size: 9px; opacity: 0.5;">Backup Sincronizado</div></div>
         <div class="btn-group">
             <button class="btn-main glass" onclick="togglePrivacy()"><i data-lucide="eye-off" id="privacy-icon"></i> Privacidade</button>
             <button class="btn-main glass" onclick="toggleCalc()"><i data-lucide="calculator"></i> Calc</button>
@@ -97,75 +108,32 @@
         <div class="card glass" style="border-left-color: var(--danger);"><small>GASTOS ANUAL</small><p id="res-p" class="sensitive hide-value">R$ 0,00</p></div>
         <div class="card glass" style="border-left-color: var(--success);"><small>RECEITA ANUAL</small><p id="res-r" class="sensitive hide-value">R$ 0,00</p></div>
         <div class="card glass" style="border-left-color: var(--purple);"><small>APORTES ANUAL</small><p id="res-a" class="sensitive hide-value">R$ 0,00</p></div>
-        <div class="card glass" style="border-left-color: #fbbf24;">
-            <small>INDICADORES</small>
-            <div class="sensitive hide-value" style="font-size: 14px; margin-top: 5px;">
-                Dólar: <b id="dolar-val">...</b><br>
-                SELIC: <b id="selic-val">...</b>
-            </div>
-        </div>
+        <div class="card glass" style="border-left-color: #fbbf24;"><small>INDICADORES</small><div class="sensitive hide-value" style="font-size:12px; margin-top:5px;">Dólar: <b id="dolar-val">...</b><br>SELIC: <b id="selic-val">...</b></div></div>
     </div>
 
-    <div class="section-box glass">
-        <div class="section-header">
-            <div style="display:flex; align-items:center; gap:10px;" onclick="toggleSection('p')"><i data-lucide="eye"></i><h3 style="margin:0; font-size:14px; color:var(--danger)">📉 Contas a Pagar</h3></div>
-            <button class="btn-main" style="background:var(--danger)" onclick="addRow('tbody-pagar', 'v-p', true)">+</button>
-        </div>
-        <div class="section-content collapsed" id="content-p">
-            <table><thead><tr><th>Descrição</th><th style="width:130px">Vencimento</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:60px">APAGAR</th></tr></thead><tbody id="tbody-pagar"></tbody></table>
-        </div>
-    </div>
-
-    <div class="section-box glass">
-        <div class="section-header">
-            <div style="display:flex; align-items:center; gap:10px;" onclick="toggleSection('r')"><i data-lucide="eye"></i><h3 style="margin:0; font-size:14px; color:var(--success)">💰 Contas a Receber</h3></div>
-            <button class="btn-main" style="background:var(--success)" onclick="addRow('tbody-receber', 'v-r', false)">+</button>
-        </div>
-        <div class="section-content collapsed" id="content-r">
-            <table><thead><tr><th>Descrição</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:60px">APAGAR</th></tr></thead><tbody id="tbody-receber"></tbody></table>
-        </div>
-    </div>
-
-    <div class="section-box glass">
-        <div class="section-header">
-            <div style="display:flex; align-items:center; gap:10px;" onclick="toggleSection('a')"><i data-lucide="eye"></i><h3 style="margin:0; font-size:14px; color:var(--purple)">🚀 Aportes</h3></div>
-            <button class="btn-main" style="background:var(--purple)" onclick="addRow('tbody-aportes', 'v-a', false)">+</button>
-        </div>
-        <div class="section-content collapsed" id="content-a">
-            <table><thead><tr><th>Descrição</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:60px">APAGAR</th></tr></thead><tbody id="tbody-aportes"></tbody></table>
-        </div>
-    </div>
-
-    <div class="section-box glass">
-        <div class="section-header">
-            <div style="display:flex; align-items:center; gap:10px;" onclick="toggleSection('m')"><i data-lucide="eye"></i><h3 style="margin:0; font-size:14px; color:var(--accent)">🎯 Metas</h3></div>
-            <button class="btn-main" style="background:var(--accent)" onclick="addMetaRow()">+</button>
-        </div>
-        <div class="section-content collapsed" id="content-m">
-            <table><thead><tr><th style="width:70%;">Objetivo</th><th>Status</th><th style="width:60px">APAGAR</th></tr></thead><tbody id="tbody-metas"></tbody></table>
-        </div>
-    </div>
+    <div class="section-box glass"><div class="section-header" onclick="toggleSection('p')"><div style="display:flex; align-items:center; gap:10px;"><i data-lucide="eye"></i><h3 style="margin:0; font-size:14px; color:var(--danger)">📉 Contas a Pagar</h3></div><button class="btn-main" style="background:var(--danger)" onclick="event.stopPropagation(); addRow('tbody-pagar', 'v-p', true)">+</button></div><div class="section-content collapsed" id="content-p"><table><thead><tr><th>Descrição</th><th style="width:130px">Vencimento</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:60px">APAGAR</th></tr></thead><tbody id="tbody-pagar"></tbody></table></div></div>
+    <div class="section-box glass"><div class="section-header" onclick="toggleSection('r')"><div style="display:flex; align-items:center; gap:10px;"><i data-lucide="eye"></i><h3 style="margin:0; font-size:14px; color:var(--success)">💰 Contas a Receber</h3></div><button class="btn-main" style="background:var(--success)" onclick="event.stopPropagation(); addRow('tbody-receber', 'v-r', false)">+</button></div><div class="section-content collapsed" id="content-r"><table><thead><tr><th>Descrição</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:60px">APAGAR</th></tr></thead><tbody id="tbody-receber"></tbody></table></div></div>
+    <div class="section-box glass"><div class="section-header" onclick="toggleSection('a')"><div style="display:flex; align-items:center; gap:10px;"><i data-lucide="eye"></i><h3 style="margin:0; font-size:14px; color:var(--purple)">🚀 Aportes</h3></div><button class="btn-main" style="background:var(--purple)" onclick="event.stopPropagation(); addRow('tbody-aportes', 'v-a', false)">+</button></div><div class="section-content collapsed" id="content-a"><table><thead><tr><th>Descrição</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:60px">APAGAR</th></tr></thead><tbody id="tbody-aportes"></tbody></table></div></div>
+    <div class="section-box glass"><div class="section-header" onclick="toggleSection('m')"><div style="display:flex; align-items:center; gap:10px;"><i data-lucide="eye"></i><h3 style="margin:0; font-size:14px; color:var(--accent)">🎯 Metas</h3></div><button class="btn-main" style="background:var(--accent)" onclick="event.stopPropagation(); addMetaRow()">+</button></div><div class="section-content collapsed" id="content-m"><table><thead><tr><th style="width:70%;">Objetivo</th><th>Status</th><th style="width:60px">APAGAR</th></tr></thead><tbody id="tbody-metas"></tbody></table></div></div>
 
     <div class="glass" style="padding: 20px; border-radius: 20px; height: 350px; margin-top: 15px;"><canvas id="expenseChart"></canvas></div>
 </div>
 
 <div id="agenda-side" class="glass">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h3>📝 Notas</h3><button onclick="toggleAgenda()" style="background:none; color:var(--danger); cursor:pointer;"><i data-lucide="x"></i></button>
-    </div>
-    <textarea id="agenda-text" style="width:100%; height:80%; background:transparent; color:#fff; border:1px solid var(--border); padding:10px; resize:none;"></textarea>
+    <div style="display:flex; justify-content:space-between; margin-bottom:20px;"><h3>📝 Notas</h3><button onclick="toggleAgenda()" style="background:none;"><i data-lucide="x"></i></button></div>
+    <textarea id="agenda-text" style="width:100%; height:80%; background:transparent; color:#fff; border:1px solid var(--border); padding:10px;"></textarea>
 </div>
 
 <div id="calc" class="glass">
-    <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><small>Calculadora</small><button onclick="toggleCalc()" style="background:none; color:var(--danger); padding:0">X</button></div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; cursor:move;"><small style="opacity:0.5">Calculadora</small><button onclick="toggleCalc()" style="background:none; color:var(--danger); padding:0">X</button></div>
     <input type="text" class="calc-screen" id="display" disabled>
     <div class="calc-btns">
-        <button onclick="clearCalc()" style="background:var(--danger)">C</button>
-        <button onclick="btnCalc('%')">%</button><button onclick="backCalc()">←</button><button onclick="btnCalc('/')">/</button>
-        <button onclick="btnCalc('7')">7</button><button onclick="btnCalc('8')">8</button><button onclick="btnCalc('9')">9</button><button onclick="btnCalc('*')">×</button>
-        <button onclick="btnCalc('4')">4</button><button onclick="btnCalc('5')">5</button><button onclick="btnCalc('6')">6</button><button onclick="btnCalc('-')">-</button>
-        <button onclick="btnCalc('1')">1</button><button onclick="btnCalc('2')">2</button><button onclick="btnCalc('3')">3</button><button onclick="resCalc()" style="background:var(--success)">=</button>
-        <button onclick="btnCalc('0')" style="grid-column: span 2">0</button><button onclick="btnCalc('.')">.</button><button onclick="btnCalc('+')">+</button>
+        <button onclick="clearCalc()" style="color:var(--danger)">C</button>
+        <button onclick="btnCalc('/')" class="btn-op">/</button><button onclick="btnCalc('*')" class="btn-op">×</button><button onclick="backCalc()">←</button>
+        <button onclick="btnCalc('7')">7</button><button onclick="btnCalc('8')">8</button><button onclick="btnCalc('9')">9</button><button onclick="btnCalc('-')" class="btn-op">-</button>
+        <button onclick="btnCalc('4')">4</button><button onclick="btnCalc('5')">5</button><button onclick="btnCalc('6')">6</button><button onclick="btnCalc('+')" class="btn-op">+</button>
+        <button onclick="btnCalc('1')">1</button><button onclick="btnCalc('2')">2</button><button onclick="btnCalc('3')">3</button><button onclick="resCalc()" class="btn-eq" style="grid-row: span 2">=</button>
+        <button onclick="btnCalc('0')" style="grid-column: span 2">0</button><button onclick="btnCalc('.')">.</button>
     </div>
 </div>
 
@@ -177,6 +145,11 @@
 
     window.onload = () => { lucide.createIcons(); initChart(); updateMarketData(); };
 
+    function togglePassView() {
+        const p = document.getElementById('login-pass');
+        p.type = p.type === 'password' ? 'text' : 'password';
+    }
+
     async function updateMarketData() {
         try {
             const rD = await fetch('https://economia.awesomeapi.com.br/last/USD-BRL');
@@ -185,7 +158,7 @@
             const rS = await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.432/dados/ultimos/1?formato=json');
             const dS = await rS.json();
             document.getElementById('selic-val').innerText = dS[0].valor + "%";
-        } catch (e) { console.error("Erro APIs"); }
+        } catch (e) {}
     }
 
     function togglePrivacy() {
@@ -194,6 +167,7 @@
         document.getElementById('privacy-icon').setAttribute('data-lucide', isHidden ? 'eye-off' : 'eye');
         lucide.createIcons();
     }
+    
     function toggleSection(id) { document.getElementById('content-' + id).classList.toggle('collapsed'); }
     function toggleCalc() { const c = document.getElementById('calc'); c.style.display = (c.style.display === 'block') ? 'none' : 'block'; dragElement(c); }
     function toggleAgenda() { document.getElementById('agenda-side').classList.toggle('open'); }
@@ -214,20 +188,21 @@
         const tr = document.createElement('tr');
         let inputs = '';
         for(let i=0; i<12; i++) {
-            const val = data ? data.vals[i] : 0;
-            const isPaid = (data && data.paid && data.paid[i]) ? 'cell-paid' : '';
-            inputs += `<td class="${isPaid}"><div class="input-wrapper"><span>R$</span><input type="number" class="val-month ${type}" value="${val}" onfocus="if(this.value=='0')this.value=''" onblur="if(this.value=='')this.value='0'" oninput="updateAll()"></div></td>`;
+            const v = data ? data.vals[i] : 0;
+            const paidClass = (data && data.paid && data.paid[i]) ? 'cell-paid' : '';
+            inputs += `<td class="${paidClass}" onclick="this.classList.toggle('cell-paid')">
+                <div class="input-wrapper"><span>R$</span><input type="number" class="val-month ${type}" value="${v}" onfocus="if(this.value=='0')this.value=''" oninput="updateAll()" onclick="event.stopPropagation()"></div>
+            </td>`;
         }
-        tr.innerHTML = `<td><input type="text" value="${data?data.d:''}"></td>${showVenc?`<td><input type="text" class="venc-in" value="${data?data.v:''}"></td>`:''}${inputs}<td><button onclick="this.closest('tr').remove();updateAll()" style="background:none"><i data-lucide="trash-2" size="14" style="color:var(--danger)"></i></button></td>`;
+        tr.innerHTML = `<td><input type="text" value="${data?data.d:''}"></td>${showVenc?`<td><input type="text" class="venc-in" value="${data?data.v:''}"></td>`:''}${inputs}<td><button onclick="this.closest('tr').remove();updateAll()" style="background:none; color:var(--danger)"><i data-lucide="trash-2" size="14"></i></button></td>`;
         tbody.appendChild(tr); lucide.createIcons();
     }
 
     function addMetaRow(data = null) {
-        const tbody = document.getElementById('tbody-metas');
         const tr = document.createElement('tr');
         const st = data ? data.s : 'iniciar';
-        tr.innerHTML = `<td><input type="text" value="${data?data.d:''}"></td><td><select class="status-select"><option value="iniciar" ${st==='iniciar'?'selected':''}>A iniciar</option><option value="andamento" ${st==='andamento'?'selected':''}>Andamento</option><option value="concluido" ${st==='concluido'?'selected':''}>Concluído</option></select></td><td><button onclick="this.closest('tr').remove()" style="background:none"><i data-lucide="trash-2" size="14" style="color:var(--danger)"></i></button></td>`;
-        tbody.appendChild(tr); lucide.createIcons();
+        tr.innerHTML = `<td><input type="text" value="${data?data.d:''}"></td><td><select><option value="iniciar" ${st==='iniciar'?'selected':''}>A iniciar</option><option value="andamento" ${st==='andamento'?'selected':''}>Andamento</option><option value="concluido" ${st==='concluido'?'selected':''}>Concluído</option></select></td><td><button onclick="this.closest('tr').remove()" style="background:none; color:var(--danger)"><i data-lucide="trash-2" size="14"></i></button></td>`;
+        document.getElementById('tbody-metas').appendChild(tr); lucide.createIcons();
     }
 
     function updateAll() {
@@ -243,49 +218,46 @@
 
     function initChart() {
         const ctx = document.getElementById('expenseChart').getContext('2d');
-        chart = new Chart(ctx, { type: 'bar', data: { labels: ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'], datasets: [{ label: 'Gastos', data: Array(12).fill(0), backgroundColor: '#60a5fa', borderRadius: 5 }] }, options: { maintainAspectRatio: false, scales: { y: { display: false } } } });
+        chart = new Chart(ctx, { type: 'bar', data: { labels: ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'], datasets: [{ label: 'Gastos', data: Array(12).fill(0), backgroundColor: '#60a5fa', borderRadius: 8 }] }, options: { maintainAspectRatio: false, scales: { y: { display: false, grace: '15%' } }, plugins: { legend: { display: false }, datalabels: { anchor: 'end', align: 'top', color: '#fff' } } } });
+    }
+
+    function btnCalc(v) { document.getElementById('display').value += v; }
+    function clearCalc() { document.getElementById('display').value = ''; }
+    function backCalc() { const d = document.getElementById('display'); d.value = d.value.slice(0, -1); }
+    function resCalc() { try { document.getElementById('display').value = eval(document.getElementById('display').value); } catch { document.getElementById('display').value = 'Erro'; } }
+
+    function dragElement(e) {
+        let p1=0,p2=0,p3=0,p4=0;
+        e.onmousedown = (m) => { if(m.target.tagName==='BUTTON' || m.target.tagName==='INPUT') return; p3=m.clientX; p4=m.clientY; document.onmouseup=()=>{document.onmouseup=null;document.onmousemove=null;}; document.onmousemove=(m)=>{p1=p3-m.clientX;p2=p4-m.clientY;p3=m.clientX;p4=m.clientY;e.style.top=(e.offsetTop-p2)+"px";e.style.left=(e.offsetLeft-p1)+"px";};};
     }
 
     async function handleAuth() {
         const email = document.getElementById('login-email').value;
         const password = document.getElementById('login-pass').value;
         const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-        if (!error) { userLogged = data.user; document.getElementById('login-container').style.display='none'; document.getElementById('main-app').style.display='block'; loadData(); }
+        if (error) document.getElementById('login-msg').innerText = error.message;
+        else { userLogged = data.user; document.getElementById('login-container').style.display='none'; document.getElementById('main-app').style.display='block'; loadData(); }
     }
-
+    
     async function saveData() {
-        const getRows = (id, hasVenc) => Array.from(document.querySelectorAll(`#${id} tr`)).map(tr => ({
-            d: tr.querySelector('input[type=text]').value,
-            v: hasVenc ? tr.querySelector('.venc-in').value : '',
-            vals: Array.from(tr.querySelectorAll('input[type=number]')).map(i => i.value),
-            paid: Array.from(tr.querySelectorAll('td')).filter(td => td.querySelector('input[type=number]')).map(td => td.classList.contains('cell-paid'))
-        }));
-        const m = () => Array.from(document.querySelectorAll('#tbody-metas tr')).map(tr => ({ d: tr.querySelector('input[type=text]').value, s: tr.querySelector('select').value }));
-        const payload = { p: getRows('tbody-pagar', true), r: getRows('tbody-receber', false), a: getRows('tbody-aportes', false), m: m(), n: document.getElementById('agenda-text').value };
+        const gMat = (id, hasVenc) => Array.from(document.querySelectorAll(`#${id} tr`)).map(tr => ({ d: tr.querySelector('input').value, v: hasVenc ? tr.querySelector('.venc-in').value : '', vals: Array.from(tr.querySelectorAll('input[type=number]')).map(i => i.value), paid: Array.from(tr.querySelectorAll('td')).filter(td => td.querySelector('input')).map(td => td.classList.contains('cell-paid')) }));
+        const payload = { p: gMat('tbody-pagar', true), r: gMat('tbody-receber', false), a: gMat('tbody-aportes', false), m: Array.from(document.querySelectorAll('#tbody-metas tr')).map(tr => ({ d: tr.querySelector('input').value, s: tr.querySelector('select').value })) };
         await supabaseClient.from('finance_data').upsert({ id: userLogged.id, content: payload, updated_at: new Date() });
-        alert("Salvo com sucesso!");
+        alert("Salvo!");
     }
 
     async function loadData() {
         const { data } = await supabaseClient.from('finance_data').select('content').eq('id', userLogged.id).maybeSingle();
         if(data?.content) {
             const c = data.content;
-            document.getElementById('tbody-pagar').innerHTML = ""; document.getElementById('tbody-receber').innerHTML = ""; document.getElementById('tbody-aportes').innerHTML = ""; document.getElementById('tbody-metas').innerHTML = "";
             c.p?.forEach(x => addRow('tbody-pagar', 'v-p', true, x));
             c.r?.forEach(x => addRow('tbody-receber', 'v-r', false, x));
             c.a?.forEach(x => addRow('tbody-aportes', 'v-a', false, x));
             c.m?.forEach(x => addMetaRow(x));
-            document.getElementById('agenda-text').value = c.n || "";
             updateAll();
         }
     }
-
     function handleLogout() { supabaseClient.auth.signOut().then(() => location.reload()); }
-    function btnCalc(v) { document.getElementById('display').value += v; }
-    function clearCalc() { document.getElementById('display').value = ''; }
-    function backCalc() { const d = document.getElementById('display'); d.value = d.value.slice(0, -1); }
-    function resCalc() { try { document.getElementById('display').value = eval(document.getElementById('display').value.replace('%', '/100')); } catch { document.getElementById('display').value = 'Erro'; } }
-    function dragElement(e) { let p1=0,p2=0,p3=0,p4=0; e.onmousedown = (m) => { if(m.target.tagName==='BUTTON' || m.target.tagName==='INPUT') return; p3=m.clientX; p4=m.clientY; document.onmouseup=()=>{document.onmouseup=null;document.onmousemove=null;}; document.onmousemove=(m)=>{p1=p3-m.clientX;p2=p4-m.clientY;p3=m.clientX;p4=m.clientY;e.style.top=(e.offsetTop-p2)+"px";e.style.left=(e.offsetLeft-p1)+"px";};}; }
 </script>
 </body>
 </html>
