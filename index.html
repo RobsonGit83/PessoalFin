@@ -19,6 +19,7 @@
             --text: #f1f5f9; --accent: #60a5fa; --border: rgba(255, 255, 255, 0.15);
             --success: #34d399; --danger: #f87171; --purple: #a78bfa;
             --paid-cell: rgba(16, 185, 129, 0.4);
+            --warning: #facc15;
         }
 
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; overflow-x: hidden; }
@@ -41,24 +42,29 @@
         .section-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; cursor: pointer; }
         
         table { width: 100%; border-collapse: collapse; min-width: 1400px; table-layout: fixed; }
-        th { font-size: 10px; padding: 10px 5px; opacity: 0.6; border: 1px solid var(--border); }
-        td { padding: 3px; border: 1px solid var(--border); text-align: center; position: relative; }
+        th { font-size: 10px; padding: 10px 5px; opacity: 0.6; border: 1px solid var(--border); text-align: center;}
+        td { padding: 3px; border: 1px solid var(--border); text-align: center; }
         
-        /* CÉLULA PAGA */
-        .cell-paid { background: var(--paid-cell) !important; font-weight: bold; }
+        .cell-paid { background: var(--paid-cell) !important; }
+
+        .input-wrapper { position: relative; display: flex; align-items: center; }
+        .input-wrapper span { position: absolute; left: 5px; font-size: 10px; opacity: 0.5; pointer-events: none; }
 
         input, select { background: rgba(255,255,255,0.05); color: var(--text); border: 1px solid transparent; border-radius: 6px; padding: 8px; font-size: 12px; width: 100%; outline: none; }
-        input[type=number] { text-align: right; }
+        input[type=number] { text-align: right; padding-left: 20px; }
+        
+        /* DATA DE VENCIMENTO AMARELA */
+        input[type=date].venc-in { color: var(--warning); text-align: center; font-weight: bold; }
 
-        /* MENU DE CONTEXTO (BOTAO DIREITO) */
-        #context-menu { position: fixed; z-index: 10000; background: #1e293b; border: 1px solid var(--border); border-radius: 8px; padding: 5px; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        #context-menu { position: fixed; z-index: 10000; background: #1e293b; border: 1px solid var(--border); border-radius: 8px; padding: 5px; display: none; }
         #context-menu div { padding: 8px 15px; cursor: pointer; font-size: 12px; border-radius: 5px; }
         #context-menu div:hover { background: var(--accent); }
 
         /* COMPONENTES FLUTUANTES */
         #agenda-side { position: fixed; right: -400px; top: 0; width: 340px; height: 100%; z-index: 9998; padding: 30px; transition: 0.5s; background: #0f172a; border-left: 1px solid var(--border); }
         #agenda-side.open { right: 0; }
-        #calc { position: fixed; top: 100px; left: 100px; width: 250px; padding: 20px; border-radius: 25px; z-index: 9999; display: none; background: #111; border: 1px solid #333; }
+        
+        #calc { position: fixed; top: 100px; left: 100px; width: 260px; padding: 20px; border-radius: 25px; z-index: 9999; display: none; background: #111; border: 1px solid #333; }
         .calc-screen { width: 100%; height: 50px; background: #000; color: #10b981; text-align: right; padding: 10px; font-size: 20px; border: none; margin-bottom: 10px; border-radius: 10px; }
         .calc-btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
         .calc-btns button { padding: 12px; border-radius: 10px; background: #222; justify-content: center; }
@@ -69,7 +75,7 @@
 <body onclick="hideContextMenu()">
 
 <div id="context-menu">
-    <div onclick="markAsPaid()">🟢 Marcar / Desmarcar Pago</div>
+    <div onclick="markAsPaid()">🟢 Marcar Pago</div>
 </div>
 
 <div id="login-container" class="glass">
@@ -81,7 +87,7 @@
 
 <div class="container" id="main-app">
     <header class="glass">
-        <div><h2 style="margin:0; font-size: 18px;">Dash Finanças</h2><div id="last-sync" style="font-size: 9px; opacity: 0.5;">Backup Ativo</div></div>
+        <div><h2 style="margin:0; font-size: 18px;">Dash Finanças</h2><div id="last-sync" style="font-size: 9px; opacity: 0.5;">Sincronizado</div></div>
         <div class="btn-group">
             <button class="btn-main glass" onclick="togglePrivacy()"><i data-lucide="eye-off" id="privacy-icon"></i> Privacidade</button>
             <button class="btn-main glass" onclick="toggleCalc()"><i data-lucide="calculator"></i> Calc</button>
@@ -95,36 +101,46 @@
         <div class="card glass" style="border-left-color: var(--danger);"><small>GASTOS ANUAL</small><p id="res-p" class="sensitive hide-value">R$ 0,00</p></div>
         <div class="card glass" style="border-left-color: var(--success);"><small>RECEITA ANUAL</small><p id="res-r" class="sensitive hide-value">R$ 0,00</p></div>
         <div class="card glass" style="border-left-color: var(--purple);"><small>APORTES ANUAL</small><p id="res-a" class="sensitive hide-value">R$ 0,00</p></div>
-        <div class="card glass" style="border-left-color: #fbbf24;"><small>DÓLAR</small><p id="dolar-val" class="sensitive hide-value">...</p></div>
+        <div class="card glass" style="border-left-color: #fbbf24;"><small>DÓLAR HOJE</small><p id="dolar-val" class="sensitive hide-value">R$ ...</p></div>
     </div>
 
     <div class="section-box glass">
-        <div class="section-header" onclick="toggleSection('p')">
-            <h3 style="margin:0; font-size:14px; color:var(--danger)">📉 Contas a Pagar</h3>
-            <button class="btn-main" style="background:var(--danger)" onclick="event.stopPropagation(); addRow('tbody-pagar', 'v-p', true)">+</button>
+        <div class="section-header">
+            <div style="display:flex; align-items:center; gap:10px;" onclick="toggleSection('p')"><i data-lucide="eye"></i><h3 style="margin:0; font-size:14px; color:var(--danger)">📉 Contas a Pagar</h3></div>
+            <button class="btn-main" style="background:var(--danger)" onclick="addRow('tbody-pagar', 'v-p', true)">+</button>
         </div>
-        <div class="section-content collapsed" id="content-p">
-            <table><thead><tr><th>Descrição</th><th>Venc.</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th></th></tr></thead><tbody id="tbody-pagar"></tbody></table>
-        </div>
-    </div>
-
-    <div class="section-box glass">
-        <div class="section-header" onclick="toggleSection('r')">
-            <h3 style="margin:0; font-size:14px; color:var(--success)">💰 Contas a Receber</h3>
-            <button class="btn-main" style="background:var(--success)" onclick="event.stopPropagation(); addRow('tbody-receber', 'v-r', false)">+</button>
-        </div>
-        <div class="section-content collapsed" id="content-r">
-            <table><thead><tr><th>Descrição</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th></th></tr></thead><tbody id="tbody-receber"></tbody></table>
+        <div class="section-content" id="content-p">
+            <table><thead><tr><th>Descrição</th><th style="width:130px">Vencimento</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:60px">APAGAR</th></tr></thead><tbody id="tbody-pagar"></tbody></table>
         </div>
     </div>
 
     <div class="section-box glass">
-        <div class="section-header" onclick="toggleSection('m')">
-            <h3 style="margin:0; font-size:14px; color:var(--accent)">🎯 Metas</h3>
-            <button class="btn-main" style="background:var(--accent)" onclick="event.stopPropagation(); addMetaRow()">+</button>
+        <div class="section-header">
+            <div style="display:flex; align-items:center; gap:10px;" onclick="toggleSection('r')"><i data-lucide="eye"></i><h3 style="margin:0; font-size:14px; color:var(--success)">💰 Contas a Receber</h3></div>
+            <button class="btn-main" style="background:var(--success)" onclick="addRow('tbody-receber', 'v-r', false)">+</button>
         </div>
-        <div class="section-content collapsed" id="content-m">
-            <table><thead><tr><th style="width:70%;">Objetivo</th><th>Status</th><th></th></tr></thead><tbody id="tbody-metas"></tbody></table>
+        <div class="section-content" id="content-r">
+            <table><thead><tr><th>Descrição</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:60px">APAGAR</th></tr></thead><tbody id="tbody-receber"></tbody></table>
+        </div>
+    </div>
+
+    <div class="section-box glass">
+        <div class="section-header">
+            <div style="display:flex; align-items:center; gap:10px;" onclick="toggleSection('a')"><i data-lucide="eye"></i><h3 style="margin:0; font-size:14px; color:var(--purple)">🚀 Aportes</h3></div>
+            <button class="btn-main" style="background:var(--purple)" onclick="addRow('tbody-aportes', 'v-a', false)">+</button>
+        </div>
+        <div class="section-content" id="content-a">
+            <table><thead><tr><th>Descrição</th><th>JAN</th><th>FEV</th><th>MAR</th><th>ABR</th><th>MAI</th><th>JUN</th><th>JUL</th><th>AGO</th><th>SET</th><th>OUT</th><th>NOV</th><th>DEZ</th><th style="width:60px">APAGAR</th></tr></thead><tbody id="tbody-aportes"></tbody></table>
+        </div>
+    </div>
+
+    <div class="section-box glass">
+        <div class="section-header">
+            <div style="display:flex; align-items:center; gap:10px;" onclick="toggleSection('m')"><i data-lucide="eye"></i><h3 style="margin:0; font-size:14px; color:var(--accent)">🎯 Metas</h3></div>
+            <button class="btn-main" style="background:var(--accent)" onclick="addMetaRow()">+</button>
+        </div>
+        <div class="section-content" id="content-m">
+            <table><thead><tr><th style="width:70%;">Objetivo</th><th>Status</th><th style="width:60px">APAGAR</th></tr></thead><tbody id="tbody-metas"></tbody></table>
         </div>
     </div>
 
@@ -137,18 +153,20 @@
 </div>
 
 <div id="calc" class="glass">
+    <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><small>Calculadora</small><button onclick="toggleCalc()" style="background:none; color:var(--danger); padding:0">X</button></div>
     <input type="text" class="calc-screen" id="display" disabled>
     <div class="calc-btns">
         <button onclick="clearCalc()" style="background:var(--danger)">C</button>
-        <button onclick="btnCalc('/')">/</button><button onclick="btnCalc('*')">*</button><button onclick="backCalc()">←</button>
-        <button onclick="btnCalc('7')">7</button><button onclick="btnCalc('8')">8</button><button onclick="btnCalc('9')">9</button><button onclick="btnCalc('-')">-</button>
-        <button onclick="btnCalc('4')">4</button><button onclick="btnCalc('5')">5</button><button onclick="btnCalc('6')">6</button><button onclick="btnCalc('+')">+</button>
-        <button onclick="btnCalc('1')">1</button><button onclick="btnCalc('2')">2</button><button onclick="btnCalc('3')">3</button><button onclick="resCalc()" style="background:var(--success)">=</button>
-        <button onclick="btnCalc('0')" style="grid-column: span 2">0</button><button onclick="btnCalc('.')">.</button>
+        <button onclick="btnCalc('%')">%</button><button onclick="backCalc()">←</button><button onclick="btnCalc('/')">/</button>
+        <button onclick="btnCalc('7')">7</button><button onclick="btnCalc('8')">8</button><button onclick="btnCalc('9')">9</button><button onclick="btnCalc('*')">×</button>
+        <button onclick="btnCalc('4')">4</button><button onclick="btnCalc('5')">5</button><button onclick="btnCalc('6')">6</button><button onclick="btnCalc('-')">-</button>
+        <button onclick="btnCalc('1')">1</button><button onclick="btnCalc('2')">2</button><button onclick="btnCalc('3')">3</button><button onclick="btnCalc('+')">+</button>
+        <button onclick="btnCalc('0')" style="grid-column: span 2">0</button><button onclick="btnCalc('.')">.</button><button onclick="resCalc()" style="background:var(--success)">=</button>
     </div>
 </div>
 
 <script>
+    // --- CONFIG SUPABASE ---
     const S_URL = 'https://xpamnljjxvfnpzdmuive.supabase.co'; 
     const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhwYW1ubGpqeHZmbnB6ZG11aXZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzOTA2ODIsImV4cCI6MjA4NTk2NjY4Mn0.ePhhjJcpYAiVM3f6LRD66LKVhnUv854lvztudybx6_Q';
     const supabaseClient = window.supabase.createClient(S_URL, S_KEY);
@@ -157,9 +175,20 @@
     function resetTimer() { clearTimeout(timeout); timeout = setTimeout(handleLogout, 5 * 60 * 1000); }
     document.onmousemove = resetTimer; document.onkeypress = resetTimer;
 
-    window.onload = () => { lucide.createIcons(); initChart(); };
+    window.onload = () => { 
+        lucide.createIcons(); 
+        initChart(); 
+        updateMarketData();
+    };
 
-    // --- FUNÇÕES DE INTERFACE ---
+    async function updateMarketData() {
+        try {
+            const rDolar = await fetch('https://economia.awesomeapi.com.br/last/USD-BRL');
+            const dDolar = await rDolar.json();
+            document.getElementById('dolar-val').innerText = "R$ " + parseFloat(dDolar.USDBRL.bid).toFixed(2);
+        } catch (e) { console.error("Erro Câmbio"); }
+    }
+
     function togglePrivacy() {
         isHidden = !isHidden;
         document.querySelectorAll('.sensitive').forEach(el => isHidden ? el.classList.add('hide-value') : el.classList.remove('hide-value'));
@@ -170,40 +199,35 @@
     function toggleCalc() { const c = document.getElementById('calc'); c.style.display = (c.style.display === 'block') ? 'none' : 'block'; dragElement(c); }
     function toggleAgenda() { document.getElementById('agenda-side').classList.toggle('open'); }
 
-    // --- LOGICA DE PAGAMENTO (BOTÃO DIREITO) ---
+    // --- LOGICA DE PAGAMENTO ---
     window.oncontextmenu = function(e) {
         if (e.target.classList.contains('val-month')) {
             e.preventDefault();
             activeCell = e.target.parentElement;
             const menu = document.getElementById('context-menu');
-            menu.style.display = 'block';
-            menu.style.left = e.pageX + 'px';
-            menu.style.top = e.pageY + 'px';
+            menu.style.display = 'block'; menu.style.left = e.pageX + 'px'; menu.style.top = e.pageY + 'px';
             return false;
         }
     };
     function hideContextMenu() { document.getElementById('context-menu').style.display = 'none'; }
     function markAsPaid() { if(activeCell) activeCell.classList.toggle('cell-paid'); hideContextMenu(); }
 
-    // --- TABELA ---
+    // --- TABELAS ---
     function addRow(target, type, showVenc) {
         const tbody = document.getElementById(target);
         const tr = document.createElement('tr');
         let inputs = '';
         for(let i=0; i<12; i++) {
-            inputs += `<td><input type="number" class="val-month ${type}" value="0" 
-                        onfocus="if(this.value=='0')this.value=''" 
-                        onblur="if(this.value=='')this.value='0'" 
-                        oninput="updateAll()"></td>`;
+            inputs += `<td><div class="input-wrapper"><span>R$</span><input type="number" class="val-month ${type}" value="0" onfocus="if(this.value=='0')this.value=''" onblur="if(this.value=='')this.value='0'" oninput="updateAll()"></div></td>`;
         }
-        tr.innerHTML = `<td><input type="text"></td>${showVenc?`<td><input type="number"></td>`:''}${inputs}<td><button onclick="this.closest('tr').remove();updateAll()">❌</button></td>`;
-        tbody.appendChild(tr);
+        tr.innerHTML = `<td><input type="text" placeholder="Item..."></td>${showVenc?`<td><input type="date" class="venc-in"></td>`:''}${inputs}<td><button onclick="this.closest('tr').remove();updateAll()" style="background:none"><i data-lucide="trash-2" size="14" color="red"></i></button></td>`;
+        tbody.appendChild(tr); lucide.createIcons();
     }
 
     function addMetaRow() {
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td><input type="text"></td><td><select><option>A iniciar</option><option>Andamento</option><option>Concluído</option></select></td><td><button onclick="this.closest('tr').remove()">❌</button></td>`;
-        document.getElementById('tbody-metas').appendChild(tr);
+        tr.innerHTML = `<td><input type="text"></td><td><select><option>A iniciar</option><option>Andamento</option><option>Concluído</option></select></td><td><button onclick="this.closest('tr').remove()" style="background:none"><i data-lucide="trash-2" size="14" color="red"></i></button></td>`;
+        document.getElementById('tbody-metas').appendChild(tr); lucide.createIcons();
     }
 
     function updateAll() {
@@ -221,8 +245,8 @@
         const ctx = document.getElementById('expenseChart').getContext('2d');
         chart = new Chart(ctx, {
             type: 'bar',
-            data: { labels: ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'], datasets: [{ label: 'Gastos', data: Array(12).fill(0), backgroundColor: '#60a5fa' }] },
-            options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+            data: { labels: ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'], datasets: [{ label: 'Gastos', data: Array(12).fill(0), backgroundColor: '#60a5fa', borderRadius: 5 }] },
+            options: { maintainAspectRatio: false, scales: { y: { display: false }, x: { grid: { display: false } } }, plugins: { legend: { display: false } } }
         });
     }
 
@@ -230,13 +254,10 @@
     function btnCalc(v) { document.getElementById('display').value += v; }
     function clearCalc() { document.getElementById('display').value = ''; }
     function backCalc() { const d = document.getElementById('display'); d.value = d.value.slice(0, -1); }
-    function resCalc() { try { document.getElementById('display').value = eval(document.getElementById('display').value); } catch { document.getElementById('display').value = 'Erro'; } }
+    function resCalc() { try { document.getElementById('display').value = eval(document.getElementById('display').value.replace('%', '/100')); } catch { document.getElementById('display').value = 'Erro'; } }
+    function dragElement(e) { let p1=0,p2=0,p3=0,p4=0; e.onmousedown = (m) => { if(m.target.tagName==='BUTTON' || m.target.tagName==='INPUT') return; p3=m.clientX; p4=m.clientY; document.onmouseup=()=>{document.onmouseup=null;document.onmousemove=null;}; document.onmousemove=(m)=>{p1=p3-m.clientX;p2=p4-m.clientY;p3=m.clientX;p4=m.clientY;e.style.top=(e.offsetTop-p2)+"px";e.style.left=(e.offsetLeft-p1)+"px";};}; }
 
-    function dragElement(e) {
-        let p1=0,p2=0,p3=0,p4=0;
-        e.onmousedown = (m) => { if(m.target.tagName==='BUTTON' || m.target.tagName==='INPUT') return; p3=m.clientX; p4=m.clientY; document.onmouseup=()=>{document.onmouseup=null;document.onmousemove=null;}; document.onmousemove=(m)=>{p1=p3-m.clientX;p2=p4-m.clientY;p3=m.clientX;p4=m.clientY;e.style.top=(e.offsetTop-p2)+"px";e.style.left=(e.offsetLeft-p1)+"px";};};
-    }
-
+    // --- AUTH ---
     async function handleAuth() {
         const email = document.getElementById('login-email').value;
         const password = document.getElementById('login-pass').value;
@@ -244,7 +265,7 @@
         if (!error) { userLogged = data.user; document.getElementById('login-container').style.display='none'; document.getElementById('main-app').style.display='block'; updateAll(); resetTimer(); }
     }
     function handleLogout() { supabaseClient.auth.signOut().then(() => location.reload()); }
-    async function saveData() { alert("Simulação: Dados salvos no Supabase!"); }
+    async function saveData() { alert("Simulação: Dados sincronizados!"); }
 </script>
 </body>
 </html>
